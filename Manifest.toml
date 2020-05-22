@@ -8,6 +8,12 @@ git-tree-sha1 = "215a9aa4a1f23fbd05b92769fdd62559488d70e9"
 uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 version = "0.4.1"
 
+[[CImGui]]
+deps = ["CImGui_jll", "CSyntax", "GLFW", "Libdl", "ModernGL"]
+git-tree-sha1 = "fb2f3f6a6f20fb04084bd22646f347d889282faf"
+uuid = "5d785b6c-b76f-510e-a07c-3070796c7e87"
+version = "1.75.0"
+
 [[CImGui_jll]]
 deps = ["Libdl", "Pkg"]
 git-tree-sha1 = "ce7b8aa98c41d2489452197fbf43c19c8e42700f"
@@ -20,9 +26,27 @@ git-tree-sha1 = "db8556ca1117c833dc2646489feb2f7c50d30cb8"
 uuid = "278f1f02-c5a0-563f-9174-e8b244dda450"
 version = "0.0.1+0"
 
+[[CSyntax]]
+deps = ["CEnum"]
+git-tree-sha1 = "369820f1403e8d0b2164427c9fc63d4b713e584b"
+uuid = "ea656a56-6ca6-5dda-bba5-7b6963a5f74c"
+version = "0.3.0"
+
 [[Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+
+[[GLFW]]
+deps = ["GLFW_jll"]
+git-tree-sha1 = "7c47cfbfe9e1ff1cf658ff3e739eb1b56ee95cbe"
+uuid = "f7f18e0c-5ee9-5ccd-a5bf-e8befd85ed98"
+version = "3.2.2"
+
+[[GLFW_jll]]
+deps = ["Libdl", "Libglvnd_jll", "Pkg", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll"]
+git-tree-sha1 = "3b04f1dd73f0efa81298a76c9515f306df06f613"
+uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
+version = "3.3.2+0"
 
 [[InteractiveUtils]]
 deps = ["Markdown"]
@@ -35,12 +59,42 @@ uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 [[Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
+[[Libgcrypt_jll]]
+deps = ["Libdl", "Libgpg_error_jll", "Pkg"]
+git-tree-sha1 = "7efb7f5e75a0f7323cce366d3e44a2d225c5617a"
+uuid = "d4300ac3-e22c-5743-9152-c294e39db1e4"
+version = "1.8.5+1"
+
+[[Libglvnd_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libX11_jll", "Xorg_libXext_jll"]
+git-tree-sha1 = "30a990af9ce535bcba54d1f23f071a7e714f861e"
+uuid = "7e76a0d4-f3c7-5321-8279-8d96eeed0f29"
+version = "1.3.0+1"
+
+[[Libgpg_error_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "334284a62d6b8592099d28b78c76aefc266c03a2"
+uuid = "7add5ba3-2f88-524e-9cd5-f83b8a55f7b8"
+version = "1.36.0+1"
+
+[[Libiconv_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "e5256a3b0ebc710dbd6da0c0b212164a3681037f"
+uuid = "94ce4f54-9a6c-5748-9c1c-f9c7231a4531"
+version = "1.16.0+2"
+
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[ModernGL]]
+deps = ["Libdl"]
+git-tree-sha1 = "326957556e9cc9253615114c04bb0096a2a69bb8"
+uuid = "66fc600b-dfda-50eb-8b99-91cfa97b1301"
+version = "1.1.2"
 
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
@@ -73,3 +127,99 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+[[XML2_jll]]
+deps = ["Libdl", "Libiconv_jll", "Pkg", "Zlib_jll"]
+git-tree-sha1 = "987c02a43fa10a491a5f0f7c46a6d3559ed6a8e2"
+uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
+version = "2.9.9+4"
+
+[[XSLT_jll]]
+deps = ["Libdl", "Libgcrypt_jll", "Pkg", "XML2_jll"]
+git-tree-sha1 = "c287bbc08773474ab1d12849eb46b961a325e149"
+uuid = "aed1982a-8fda-507f-9586-7b0439959a61"
+version = "1.1.33+2"
+
+[[Xorg_libX11_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libxcb_jll", "Xorg_xtrans_jll"]
+git-tree-sha1 = "bbfb646a5a86dc636041c8ee945799b69d37fdba"
+uuid = "4f6342f7-b3d2-589e-9d20-edeb45f2b2bc"
+version = "1.6.9+2"
+
+[[Xorg_libXau_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "711f2bbdbb0e90b90a71c5ccf835137e2def539a"
+uuid = "0c0b7dd1-d40b-584c-a123-a41640f87eec"
+version = "1.0.9+2"
+
+[[Xorg_libXcursor_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libXfixes_jll", "Xorg_libXrender_jll"]
+git-tree-sha1 = "fd1f86fcb0295a6741409086723d9e7d8f222599"
+uuid = "935fb764-8cf2-53bf-bb30-45bb1f8bf724"
+version = "1.2.0+2"
+
+[[Xorg_libXdmcp_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "1ffd7bc9c9d8bba6652516f3402ee1ef5f4cac70"
+uuid = "a3789734-cfe1-5b06-b2d0-1dd0d9d62d05"
+version = "1.1.3+2"
+
+[[Xorg_libXext_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libX11_jll"]
+git-tree-sha1 = "079acccb5437761d93c483f2edb5fc3ed21ea7db"
+uuid = "1082639a-0dae-5f34-9b06-72781eeb8cb3"
+version = "1.3.4+2"
+
+[[Xorg_libXfixes_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libX11_jll"]
+git-tree-sha1 = "2bc6823df6ccd55927bf8441d3d79db2f5874c2a"
+uuid = "d091e8ba-531a-589c-9de9-94069b037ed8"
+version = "5.0.3+2"
+
+[[Xorg_libXi_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libXext_jll", "Xorg_libXfixes_jll"]
+git-tree-sha1 = "dedd853f81c1099ada169fb6f9c2b50764c48f06"
+uuid = "a51aa0fd-4e3c-5386-b890-e753decda492"
+version = "1.7.10+2"
+
+[[Xorg_libXinerama_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libXext_jll"]
+git-tree-sha1 = "79f0b3350e62d02a710a7dacfbbc0878aed09d58"
+uuid = "d1454406-59df-5ea1-beac-c340f2130bc3"
+version = "1.1.4+2"
+
+[[Xorg_libXrandr_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libXext_jll", "Xorg_libXrender_jll"]
+git-tree-sha1 = "206e6ab109a2b607e3076eb2cb9b3fa239c467f1"
+uuid = "ec84b674-ba8e-5d96-8ba1-2a689ba10484"
+version = "1.5.2+2"
+
+[[Xorg_libXrender_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libX11_jll"]
+git-tree-sha1 = "d5492a36d33359cf93ad573ea5e235cd71728649"
+uuid = "ea2f1a96-1ddc-540d-b46f-429655e07cfa"
+version = "0.9.10+2"
+
+[[Xorg_libpthread_stubs_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "ec1e2973e4e624069be95f806dbd7e225fee26c6"
+uuid = "14d82f49-176c-5ed1-bb49-ad3f5cbd8c74"
+version = "0.1.0+1"
+
+[[Xorg_libxcb_jll]]
+deps = ["Libdl", "Pkg", "XSLT_jll", "Xorg_libXau_jll", "Xorg_libXdmcp_jll", "Xorg_libpthread_stubs_jll"]
+git-tree-sha1 = "c1efb50fb6a8c40c45451611fbf93feabe5f9611"
+uuid = "c7cfdc94-dc32-55de-ac96-5a1b8d977c5b"
+version = "1.13.0+2"
+
+[[Xorg_xtrans_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "b6e7d70f5fc9e3fde505539194c8caaab3c40ebf"
+uuid = "c5fb5394-a638-5e4d-96e5-b29de1b5cf10"
+version = "1.4.0+1"
+
+[[Zlib_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "a2e0d558f6031002e380a90613b199e37a8565bf"
+uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
+version = "1.2.11+10"
