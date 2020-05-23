@@ -73,12 +73,21 @@ try
         # show another simple window.
         if show_another_window
             @c CImGui.Begin("Plot Window", &show_another_window)
-            xs1 = collect(1:100000) .* .001
-            ys1 = rand(100000) # 0.5 .+ 0.5 .* sin.(50 .* xs1)
+            xs1 = collect(1:10000) .* .001
+            ys1 = rand(10000) # 0.5 .+ 0.5 .* sin.(50 .* xs1)
             if (CImPlot.BeginPlot())
-               CImPlot.Plot(xs1, ys1) 
+                CImPlot.Plot(xs1,ys1)
+                CImPlot.EndPlot()
+            end
+
+            if (CImPlot.BeginPlot())
+               CImPlot.Plot(1:10000, ys1) 
                CImPlot.EndPlot()
-            end 
+            end
+            if (CImPlot.BeginPlot())
+                CImPlot.Plot(ys1)
+                CImPlot.EndPlot()
+            end
             CImGui.End()
         end
 

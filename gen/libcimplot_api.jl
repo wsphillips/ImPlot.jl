@@ -42,13 +42,13 @@ function ImPlotStyle_destroy(self)
     ccall((:ImPlotStyle_destroy, libcimplot), Cvoid, (Ptr{ImPlotStyle},), self)
 end
 
-function ImPlot_BeginPlot(title_id, x_label, y_label, size, flags, x_flags, y_flags, y2_flags, y3_flags)
-    ccall((:ImPlot_BeginPlot, libcimplot), Bool, (Cstring, Cstring, Cstring, ImVec2, ImPlotFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags), title_id, x_label, y_label, size, flags, x_flags, y_flags, y2_flags, y3_flags)
-end
+function ImPlot_BeginPlot(title_id, x_label, y_label, size, flags, x_flags, y_flags,
+                          y2_flags, y3_flags)
 
-function ImPlot_Begin2dPlot(title, x_label, y_label, size, flags, x_flags, y_flags)
-    ccall((:ImPlot_BeginPlot, libcimplot), Bool, (Cstring, Cstring, Cstring, ImVec2, ImPlotFlags, ImPlotAxisFlags, ImPlotAxisFlags),
-          title, x_label, y_label, size, flags, x_flags, y_flags)
+    ccall((:ImPlot_BeginPlot, libcimplot), Bool,
+          (Cstring, Cstring, Cstring, ImVec2, Cint, Cint, Cint, Cint, Cint),
+          title_id, x_label, y_label, size, flags, x_flags, y_flags, y2_flags, y3_flags)
+
 end
 
 function ImPlot_EndPlot()
@@ -56,11 +56,15 @@ function ImPlot_EndPlot()
 end
 
 function ImPlot_PlotFloatPtrInt(label_id, values, count, offset, stride)
-    ccall((:ImPlot_PlotFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cint, Cint), label_id, values, count, offset, stride)
+    ccall((:ImPlot_PlotFloatPtrInt, libcimplot), Cvoid,
+          (Cstring, Ptr{Cfloat}, Cint, Cint, Cint),
+          label_id, values, count, offset, stride)
 end
 
 function ImPlot_PlotFloatPtrFloatPtr(label_id, xs, ys, count, offset, stride)
-    ccall((:ImPlot_PlotFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
+    ccall((:ImPlot_PlotFloatPtrFloatPtr, libcimplot), Cvoid,
+          (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint),
+          label_id, xs, ys, count, offset, stride)
 end
 
 function ImPlot_PlotVec2Ptr(label_id, data, count, offset)

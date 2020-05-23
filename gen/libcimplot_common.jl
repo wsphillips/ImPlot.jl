@@ -51,6 +51,8 @@ end
 end
 
 @cenum ImPlotAxisFlags::Cint begin
+    ImPlotAxisFlags_NULL = 0         # Unused flag (ex. 2nd and 3rd Y-axis flags)
+
     ImPlotAxisFlags_GridLines = 1    # grid lines will be displayed
 
     ImPlotAxisFlags_TickMarks = 2    # tick marks will be displayed for each grid line
