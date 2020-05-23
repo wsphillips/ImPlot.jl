@@ -10,9 +10,9 @@ version = "0.4.1"
 
 [[CImGui]]
 deps = ["CImGui_jll", "CSyntax", "GLFW", "Libdl", "ModernGL"]
-git-tree-sha1 = "fb2f3f6a6f20fb04084bd22646f347d889282faf"
+git-tree-sha1 = "8295d943878bf8c4f6f020c16198f1704b1c9236"
 uuid = "5d785b6c-b76f-510e-a07c-3070796c7e87"
-version = "1.75.0"
+version = "1.75.1"
 
 [[CImGui_jll]]
 deps = ["Libdl", "Pkg"]
@@ -28,9 +28,9 @@ version = "0.0.1+0"
 
 [[CSyntax]]
 deps = ["CEnum"]
-git-tree-sha1 = "369820f1403e8d0b2164427c9fc63d4b713e584b"
+git-tree-sha1 = "50a830730a04cd9ab8468a60b93ac2ca9d34ba17"
 uuid = "ea656a56-6ca6-5dda-bba5-7b6963a5f74c"
-version = "0.3.0"
+version = "0.4.0"
 
 [[Dates]]
 deps = ["Printf"]
