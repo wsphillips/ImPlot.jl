@@ -40,7 +40,7 @@ ImGui_ImplOpenGL3_Init(glsl_version)
 
 try
     show_demo_window = true
-    show_another_window = true
+    show_another_window = false
     clear_color = Cfloat[0.45, 0.55, 0.60, 1.00]
     while !GLFW.WindowShouldClose(window)
         GLFW.PollEvents()
