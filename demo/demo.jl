@@ -21,7 +21,7 @@ GLFW.SetErrorCallback(error_callback)
 window = GLFW.CreateWindow(1280, 720, "ImPlot Demo")
 @assert window != C_NULL
 GLFW.MakeContextCurrent(window)
-GLFW.SwapInterval(1)  # enable vsync
+GLFW.SwapInterval(0)  # enable vsync
 
 # setup Dear ImGui context
 ctx = CImGui.CreateContext()
@@ -42,6 +42,9 @@ try
     show_demo_window = true
     show_another_window = false
     clear_color = Cfloat[0.45, 0.55, 0.60, 1.00]
+
+    xs1 = collect(1:600000) .* .001
+    ys1 = Vector{Float32}(undef, 600000)
     while !GLFW.WindowShouldClose(window)
         GLFW.PollEvents()
         # start the Dear ImGui frame
@@ -50,7 +53,7 @@ try
         CImGui.NewFrame()
 
         # show the big demo window
-        show_demo_window && @c CImPlot.LibCImPlot.ImPlot_ShowDemoWindow(&show_demo_window)
+        show_demo_window && @c CImPlot.ImPlot.ShowDemoWindow(&show_demo_window)
         # show a simple window that we create ourselves.
         # we use a Begin/End pair to created a named window.
         @cstatic f=Cfloat(0.0) counter=Cint(0) begin
@@ -73,19 +76,13 @@ try
         # show another simple window.
         if show_another_window
             @c CImGui.Begin("Plot Window", &show_another_window)
-            xs1 = collect(1:10000) .* .001
-            ys1 = rand(10000) # 0.5 .+ 0.5 .* sin.(50 .* xs1)
+            ys1 .= rand(Float32, 600000) # 0.5 .+ 0.5 .* sin.(50 .* xs1)
             if (CImPlot.BeginPlot())
-                CImPlot.Plot(xs1,ys1)
+                CImPlot.plotline(xs1,ys1, count = 60000, offset = 0, stride = 10)
                 CImPlot.EndPlot()
             end
-
             if (CImPlot.BeginPlot())
-               CImPlot.Plot(1:10000, ys1) 
-               CImPlot.EndPlot()
-            end
-            if (CImPlot.BeginPlot())
-                CImPlot.Plot(ys1)
+                CImPlot.plotline(500000:length(ys1),ys1)
                 CImPlot.EndPlot()
             end
             CImGui.End()
