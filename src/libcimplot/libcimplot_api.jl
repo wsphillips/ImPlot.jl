@@ -1,37 +1,6 @@
 # Julia wrapper for header: cimplot.h
 # Automatically generated using Clang.jl
 
-# Plot point objects
-function ImPlotPoint_ImPlotPointNil()
-    ccall((:ImPlotPoint_ImPlotPointNil, libcimplot), Ptr{ImPlotPoint}, ())
-end
-
-function ImPlotPoint_destroy(self)
-    ccall((:ImPlotPoint_destroy, libcimplot), Cvoid, (Ptr{ImPlotPoint},), self)
-end
-
-function ImPlotPoint_ImPlotPointdouble(_x, _y)
-    ccall((:ImPlotPoint_ImPlotPointdouble, libcimplot), Ptr{ImPlotPoint}, (Cdouble, Cdouble), _x, _y)
-end
-
-# Plot range utils
-
-function ImPlotRange_ImPlotRange()
-    ccall((:ImPlotRange_ImPlotRange, libcimplot), Ptr{ImPlotRange}, ())
-end
-
-function ImPlotRange_destroy(self)
-    ccall((:ImPlotRange_destroy, libcimplot), Cvoid, (Ptr{ImPlotRange},), self)
-end
-
-function ImPlotRange_Contains(self, value)
-    ccall((:ImPlotRange_Contains, libcimplot), Bool, (Ptr{ImPlotRange}, Cdouble), self, value)
-end
-
-function ImPlotRange_Size(self)
-    ccall((:ImPlotRange_Size, libcimplot), Cdouble, (Ptr{ImPlotRange},), self)
-end
-
 # Plot limits utils
 
 function ImPlotLimits_ImPlotLimits()
@@ -277,15 +246,21 @@ function PlotDigitalFnPlotPoIntPtr(label_id, getter, data, count, offset)
     ccall((:ImPlot_PlotDigitalFnPlotPoIntPtr, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-# Utilities
+# Text labels for plots; the text is placed at the coordinates x, y
 
 function PlotTextFloat(text, x, y, vertical, pixel_offset)
-    ccall((:ImPlot_PlotTextFloat, libcimplot), Cvoid, (Cstring, Cfloat, Cfloat, Bool, Cint), text, x, y, vertical, pixel_offset)
+    ccall((:ImPlot_PlotTextFloat, libcimplot), Cvoid,
+          (Cstring, Cfloat, Cfloat, Bool, Cint),
+          text, x, y, vertical, pixel_offset)
 end
 
 function PlotTextdouble(text, x, y, vertical, pixel_offset)
-    ccall((:ImPlot_PlotTextdouble, libcimplot), Cvoid, (Cstring, Cdouble, Cdouble, Bool, Cint), text, x, y, vertical, pixel_offset)
+    ccall((:ImPlot_PlotTextdouble, libcimplot), Cvoid,
+          (Cstring, Cdouble, Cdouble, Bool, Cint),
+          text, x, y, vertical, pixel_offset)
 end
+
+# Plot interaction
 
 function IsPlotHovered()
     ccall((:ImPlot_IsPlotHovered, libcimplot), Bool, ())
@@ -306,6 +281,8 @@ end
 function GetPlotQuery(y_axis)
     ccall((:ImPlot_GetPlotQuery, libcimplot), ImPlotLimits, (Cint,), y_axis)
 end
+
+# Plot styling
 
 function GetStyle()
     ccall((:ImPlot_GetStyle, libcimplot), Ptr{ImPlotStyle}, ())
@@ -335,6 +312,8 @@ function PopStyleVar(count)
     ccall((:ImPlot_PopStyleVar, libcimplot), Cvoid, (Cint,), count)
 end
 
+# Color mapping
+
 function SetColormapPlotColormap(colormap, samples)
     ccall((:ImPlot_SetColormapPlotColormap, libcimplot), Cvoid, (ImPlotColormap, Cint), colormap, samples)
 end
@@ -355,34 +334,53 @@ function LerpColormap(pOut, t)
     ccall((:ImPlot_LerpColormap, libcimplot), Cvoid, (Ptr{Cint}, Cfloat), pOut, t)
 end
 
+# Plot limits
+
 function SetNextPlotLimits(x_min, x_max, y_min, y_max, cond)
-    ccall((:ImPlot_SetNextPlotLimits, libcimplot), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, Cint), x_min, x_max, y_min, y_max, cond)
+    ccall((:ImPlot_SetNextPlotLimits, libcimplot), Cvoid,
+          (Cdouble, Cdouble, Cdouble, Cdouble, Cint),
+          Float64(x_min), Float64(x_max), Float64(y_min), Float64(y_max), Cint(cond))
 end
 
 function SetNextPlotLimitsX(x_min, x_max, cond)
-    ccall((:ImPlot_SetNextPlotLimitsX, libcimplot), Cvoid, (Cdouble, Cdouble, Cint), x_min, x_max, cond)
+    ccall((:ImPlot_SetNextPlotLimitsX, libcimplot), Cvoid,
+          (Cdouble, Cdouble, Cint),
+          Float64(x_min), Float64(x_max), Cint(cond))
 end
 
 function SetNextPlotLimitsY(y_min, y_max, cond, y_axis)
-    ccall((:ImPlot_SetNextPlotLimitsY, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Cint), y_min, y_max, cond, y_axis)
+    ccall((:ImPlot_SetNextPlotLimitsY, libcimplot), Cvoid,
+          (Cdouble, Cdouble, Cint, Cint),
+          Float64(y_min), Float64(y_max), Cint(cond), Cint(y_axis))
 end
 
+# Formatting
+
 function SetNextPlotTicksXdoublePtr(values, n_ticks, labels, show_default)
-    ccall((:ImPlot_SetNextPlotTicksXdoublePtr, libcimplot), Cvoid, (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool), values, n_ticks, labels, show_default)
+    ccall((:ImPlot_SetNextPlotTicksXdoublePtr, libcimplot), Cvoid,
+          (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool),
+          values, n_ticks, labels, show_default)
 end
 
 function SetNextPlotTicksXdouble(x_min, x_max, n_ticks, labels, show_default)
-    ccall((:ImPlot_SetNextPlotTicksXdouble, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool), x_min, x_max, n_ticks, labels, show_default)
+    ccall((:ImPlot_SetNextPlotTicksXdouble, libcimplot), Cvoid,
+          (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool),
+          x_min, x_max, n_ticks, labels, show_default)
 end
 
 function SetNextPlotTicksYdoublePtr(values, n_ticks, labels, show_default, y_axis)
-    ccall((:ImPlot_SetNextPlotTicksYdoublePtr, libcimplot), Cvoid, (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool, Cint), values, n_ticks, labels, show_default, y_axis)
+    ccall((:ImPlot_SetNextPlotTicksYdoublePtr, libcimplot), Cvoid,
+          (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool, Cint),
+          values, n_ticks, labels, show_default, y_axis)
 end
 
 function SetNextPlotTicksYdouble(y_min, y_max, n_ticks, labels, show_default, y_axis)
-    ccall((:ImPlot_SetNextPlotTicksYdouble, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool, Cint), y_min, y_max, n_ticks, labels, show_default, y_axis)
+    ccall((:ImPlot_SetNextPlotTicksYdouble, libcimplot), Cvoid,
+          (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool, Cint),
+          y_min, y_max, n_ticks, labels, show_default, y_axis)
 end
 
+# Selects the Y axis to which the next plot should be bound. y_axis = 0 = y1 ...
 function SetPlotYAxis(y_axis)
     ccall((:ImPlot_SetPlotYAxis, libcimplot), Cvoid, (Cint,), y_axis)
 end
@@ -415,6 +413,43 @@ function PopPlotClipRect()
     ccall((:ImPlot_PopPlotClipRect, libcimplot), Cvoid, ())
 end
 
+# Pre-made demo of ImPlot widgets
+
 function ShowDemoWindow(p_open)
     ccall((:ImPlot_ShowDemoWindow, libcimplot), Cvoid, (Ptr{Bool},), p_open)
 end
+
+# Below are object methods that are exposed from C++ but they're so basic we could just do
+# all of it from julia with constructors/type field defaults, and one or two functions
+
+# Plot point C++ object method exposure
+function ImPlotPoint_ImPlotPointNil()
+    ccall((:ImPlotPoint_ImPlotPointNil, libcimplot), Ptr{ImPlotPoint}, ())
+end
+
+function ImPlotPoint_destroy(self)
+    ccall((:ImPlotPoint_destroy, libcimplot), Cvoid, (Ptr{ImPlotPoint},), self)
+end
+# Initializes a point with x,y = 0.0,0.0
+function ImPlotPoint_ImPlotPointdouble(_x, _y)
+    ccall((:ImPlotPoint_ImPlotPointdouble, libcimplot), Ptr{ImPlotPoint}, (Cdouble, Cdouble), _x, _y)
+end
+
+# Plot range C++ object method exposure
+# This creates the object with initialized values. We can do this on our own.
+function ImPlotRange_ImPlotRange()
+    ccall((:ImPlotRange_ImPlotRange, libcimplot), Ptr{ImPlotRange}, ())
+end
+
+function ImPlotRange_destroy(self)
+    ccall((:ImPlotRange_destroy, libcimplot), Cvoid, (Ptr{ImPlotRange},), self)
+end
+
+function ImPlotRange_Contains(self, value)
+    ccall((:ImPlotRange_Contains, libcimplot), Bool, (Ptr{ImPlotRange}, Cdouble), self, value)
+end
+
+function ImPlotRange_Size(self)
+    ccall((:ImPlotRange_Size, libcimplot), Cdouble, (Ptr{ImPlotRange},), self)
+end
+

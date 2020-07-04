@@ -8,6 +8,7 @@ using .LibCImPlot
 import .LibCImPlot: ImPlotFlags, ImPlotAxisFlags
 import .LibCImPlot: ImPlotAxisFlags_Default, ImPlotFlags_Default, ImPlotAxisFlags_NULL
 import .LibCImPlot: EndPlot
+import .LibCImPlot: SetNextPlotLimits, SetNextPlotLimitsX, SetNextPlotLimitsY 
 import CImGui: ImVec2
 
 function BeginPlot(title_id::String, x_label::String, y_label::String, size::ImVec2;

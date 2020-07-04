@@ -6,7 +6,8 @@ using CImGui.OpenGLBackend
 using CImGui.GLFWBackend.GLFW
 using CImGui.OpenGLBackend.ModernGL
 using Printf
-using CImPlot
+using ImPlot
+import CImGui.LibCImGui: ImGuiCond_Always, ImGuiCond_Once
 
 # OpenGL 3.0 + GLSL 130
 const glsl_version = 130
@@ -45,7 +46,7 @@ try
 
     xs1 = collect(1:600000) .* .001
     ys1 = Vector{Float32}(undef, 600000)
-    randimg = Array{Float32}(undef, 1200, 1200)
+    ys2 = Vector{Float64}(undef, 60000)
     while !GLFW.WindowShouldClose(window)
         GLFW.PollEvents()
         # start the Dear ImGui frame
@@ -54,7 +55,7 @@ try
         CImGui.NewFrame()
 
         # show the big demo window
-        show_demo_window && @c CImPlot.ImPlot.ShowDemoWindow(&show_demo_window)
+        show_demo_window && @c ImPlot.LibCImPlot.ShowDemoWindow(&show_demo_window)
         # show a simple window that we create ourselves.
         # we use a Begin/End pair to created a named window.
         @cstatic f=Cfloat(0.0) counter=Cint(0) begin
@@ -78,13 +79,16 @@ try
         if show_another_window
             @c CImGui.Begin("Plot Window", &show_another_window)
             ys1 .= rand(Float32, 600000) # 0.5 .+ 0.5 .* sin.(50 .* xs1)
-            if (CImPlot.BeginPlot("##foo", "x1", "y1", CImGui.ImVec2(-1,300)))
-                CImPlot.plotline(xs1,ys1, count = 60000, offset = 0, stride = 10)
-                CImPlot.EndPlot()
+            ys2 .= rand(Float64, 60000)
+            ImPlot.SetNextPlotLimits(0.0,maximum(xs1),0.0,1.0, ImGuiCond_Once)
+            if (ImPlot.BeginPlot("##foo", "x1", "y1", CImGui.ImVec2(-1,300)))
+                ImPlot.PlotLine(xs1,ys1, count = 60000, offset = 0, stride = 10)
+                ImPlot.EndPlot()
             end
-            if (CImPlot.BeginPlot("##bar", "x2", "y2", CImGui.ImVec2(-1,300)))
-                CImPlot.plotline(ys1)
-                CImPlot.EndPlot()
+            ImPlot.SetNextPlotLimits(0.0,60000,0.0,1.0, ImGuiCond_Once)
+            if (ImPlot.BeginPlot("##bar", "x2", "y2", CImGui.ImVec2(-1,300)))
+                ImPlot.PlotLine(ys2)
+                ImPlot.EndPlot()
             end
             CImGui.End()
         end
