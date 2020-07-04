@@ -1,4 +1,4 @@
-module CImPlot
+module LibCImPlot
 
 using CImPlot_jll
 export CImPlot_jll

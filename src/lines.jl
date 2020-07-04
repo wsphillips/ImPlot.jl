@@ -6,15 +6,15 @@ function PlotLine(x::AbstractArray{T,1}, y::AbstractArray{T,1};
                   label::String = "") where {T}
     
     if eltype(x) == Float64
-        CImPlot.PlotLinedoublePtrdoublePtr(label, x, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotLinedoublePtrdoublePtr(label, x, y, Cint(count), Cint(offset),
                                           Cint(stride * sizeof(Float64)))
     elseif eltype(x) == Float32
-        CImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count), Cint(offset),
                                         Cint(stride * sizeof(Float32)))
     else
         x = convert.(Float32, x)
         y = convert.(Float32, y)
-        CImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count), Cint(offset),
                                         Cint(stride * sizeof(Float32)))
     end
 end
@@ -27,14 +27,14 @@ end
 function PlotLine(y::AbstractArray{T,1}; label::String="", count::Integer=length(y),
                   offset::Integer=0, stride::Integer=1) where {T}
     if eltype(y) == Float32
-        CImPlot.PlotLineFloatPtrInt(label, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotLineFloatPtrInt(label, y, Cint(count), Cint(offset),
                                    Cint(stride * sizeof(Float32)))
     elseif eltype(y) == Float64
-        CImPlot.PlotLinedoublePtrInt(label, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotLinedoublePtrInt(label, y, Cint(count), Cint(offset),
                                     Cint(stride * sizeof(Float64)))
     else
         y = convert.(Float32, y)
-        CImPlot.PlotLineFloatPtrInt(label, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotLineFloatPtrInt(label, y, Cint(count), Cint(offset),
                                    Cint(stride * sizeof(Float32)))
     end
 end
@@ -47,14 +47,14 @@ function PlotLine(x::UnitRange{<:Integer}, y::AbstractArray{T,1};
 
     if eltype(y) == Float32
         stride = Cint(sizeof(Float32))
-        CImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
     elseif eltype(y) == Float64
         stride = Cint(sizeof(Float64))
-        CImPlot.PlotLinedoublePtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotLinedoublePtrInt(label, y, count, offset, stride)
     else
         y = convert.(Float32, y)
         stride = Cint(sizeof(Float32))
-        CImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
     end
 end
 
@@ -67,13 +67,13 @@ function PlotLine(x::StepRange, y::AbstractArray{T,1};
     
     if eltype(y) == Float64
         stride = Cint(x.step * sizeof(Float64))
-        CImPlot.PlotLinedoublePtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotLinedoublePtrInt(label, y, count, offset, stride)
     elseif eltype(y) == Float32
         stride = Cint(x.step * sizeof(Float32))
-        CImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
     else
         y = convert.(Float32, y)
         stride = Cint(x.step * sizeof(Float32))
-        CImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotLineFloatPtrInt(label, y, count, offset, stride)
     end
 end

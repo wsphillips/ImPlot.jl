@@ -2,12 +2,12 @@ module ImPlot
 
 using CEnum
 
-include("cimplot/cimplot.jl")
+include("libcimplot/libcimplot.jl")
 
-using .CImPlot
-import .CImPlot: ImPlotFlags, ImPlotAxisFlags
-import .CImPlot: ImPlotAxisFlags_Default, ImPlotFlags_Default, ImPlotAxisFlags_NULL
-import .CImPlot: EndPlot
+using .LibCImPlot
+import .LibCImPlot: ImPlotFlags, ImPlotAxisFlags
+import .LibCImPlot: ImPlotAxisFlags_Default, ImPlotFlags_Default, ImPlotAxisFlags_NULL
+import .LibCImPlot: EndPlot
 import CImGui: ImVec2
 
 function BeginPlot(title_id::String, x_label::String, y_label::String, size::ImVec2;
@@ -17,7 +17,7 @@ function BeginPlot(title_id::String, x_label::String, y_label::String, size::ImV
                    y2_flags::ImPlotAxisFlags = ImPlotAxisFlags_NULL,
                    y3_flags::ImPlotAxisFlags = ImPlotAxisFlags_NULL)::Bool
 
-    CImPlot.BeginPlot(title_id, x_label, y_label, size,
+    LibCImPlot.BeginPlot(title_id, x_label, y_label, size,
                      flags, x_flags, y_flags, y2_flags, y3_flags)
 end
 
