@@ -45,6 +45,7 @@ try
 
     xs1 = collect(1:600000) .* .001
     ys1 = Vector{Float32}(undef, 600000)
+    randimg = Array{Float32}(undef, 1200, 1200)
     while !GLFW.WindowShouldClose(window)
         GLFW.PollEvents()
         # start the Dear ImGui frame
@@ -77,12 +78,12 @@ try
         if show_another_window
             @c CImGui.Begin("Plot Window", &show_another_window)
             ys1 .= rand(Float32, 600000) # 0.5 .+ 0.5 .* sin.(50 .* xs1)
-            if (CImPlot.BeginPlot())
+            if (CImPlot.BeginPlot("##foo", "x1", "y1", CImGui.ImVec2(-1,300)))
                 CImPlot.plotline(xs1,ys1, count = 60000, offset = 0, stride = 10)
                 CImPlot.EndPlot()
             end
-            if (CImPlot.BeginPlot())
-                CImPlot.plotline(500000:length(ys1),ys1)
+            if (CImPlot.BeginPlot("##bar", "x2", "y2", CImGui.ImVec2(-1,300)))
+                CImPlot.plotline(ys1)
                 CImPlot.EndPlot()
             end
             CImGui.End()

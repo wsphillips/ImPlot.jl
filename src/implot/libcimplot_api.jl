@@ -1,7 +1,7 @@
 # Julia wrapper for header: cimplot.h
 # Automatically generated using Clang.jl
 
-
+# Plot point objects
 function ImPlotPoint_ImPlotPointNil()
     ccall((:ImPlotPoint_ImPlotPointNil, libcimplot), Ptr{ImPlotPoint}, ())
 end
@@ -13,6 +13,8 @@ end
 function ImPlotPoint_ImPlotPointdouble(_x, _y)
     ccall((:ImPlotPoint_ImPlotPointdouble, libcimplot), Ptr{ImPlotPoint}, (Cdouble, Cdouble), _x, _y)
 end
+
+# Plot range utils
 
 function ImPlotRange_ImPlotRange()
     ccall((:ImPlotRange_ImPlotRange, libcimplot), Ptr{ImPlotRange}, ())
@@ -29,6 +31,8 @@ end
 function ImPlotRange_Size(self)
     ccall((:ImPlotRange_Size, libcimplot), Cdouble, (Ptr{ImPlotRange},), self)
 end
+
+# Plot limits utils
 
 function ImPlotLimits_ImPlotLimits()
     ccall((:ImPlotLimits_ImPlotLimits, libcimplot), Ptr{ImPlotLimits}, ())
@@ -56,6 +60,8 @@ function ImPlotStyle_destroy(self)
     ccall((:ImPlotStyle_destroy, libcimplot), Cvoid, (Ptr{ImPlotStyle},), self)
 end
 
+# Plot creation
+
 function BeginPlot(title_id, x_label, y_label, size,
                    flags, x_flags, y_flags, y2_flags, y3_flags)::Bool
     ccall((:ImPlot_BeginPlot, libcimplot), Bool,
@@ -67,6 +73,8 @@ end
 function EndPlot()
     ccall((:ImPlot_EndPlot, libcimplot), Cvoid, ())
 end
+
+# Line plots
 
 function PlotLineFloatPtrInt(label_id, values, count, offset, stride)
     ccall((:ImPlot_PlotLineFloatPtrInt, libcimplot), Cvoid,
@@ -110,6 +118,8 @@ function PlotLineFnPlotPoIntPtr(label_id, getter, data, count, offset)
           label_id, getter, data, count, offset)
 end
 
+# Scatter plots
+
 function PlotScatterFloatPtrInt(label_id, values, count, offset, stride)
     ccall((:ImPlot_PlotScatterFloatPtrInt, libcimplot), Cvoid,
           (Cstring, Ptr{Cfloat}, Cint, Cint, Cint),
@@ -146,8 +156,12 @@ function PlotScatterPlotPoIntPtr(label_id, data, count, offset)
 end
 
 function PlotScatterFnPlotPoIntPtr(label_id, getter, data, count, offset)
-    ccall((:ImPlot_PlotScatterFnPlotPoIntPtr, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
+    ccall((:ImPlot_PlotScatterFnPlotPoIntPtr, libcimplot), Cvoid,
+          (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint),
+          label_id, getter, data, count, offset)
 end
+
+# Bar plots
 
 function PlotBarsFloatPtrIntFloat(label_id, values, count, width, shift, offset, stride)
     ccall((:ImPlot_PlotBarsFloatPtrIntFloat, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cfloat, Cfloat, Cint, Cint), label_id, values, count, width, shift, offset, stride)
@@ -189,6 +203,8 @@ function PlotBarsHFnPlotPoIntPtr(label_id, getter, data, count, height, offset)
     ccall((:ImPlot_PlotBarsHFnPlotPoIntPtr, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, height, offset)
 end
 
+# Error bar plotting
+
 function PlotErrorBarsFloatPtrFloatPtrFloatPtrInt(label_id, xs, ys, err, count, offset, stride)
     ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
@@ -221,6 +237,8 @@ function PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr(label_id, xs, ys, ne
     ccall((:ImPlot_PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
+# Pie charts
+
 function PlotPieChartFloatPtr(label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
     ccall((:ImPlot_PlotPieChartFloatPtr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{Cfloat}, Cint, Cfloat, Cfloat, Cfloat, Bool, Cstring, Cfloat), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
@@ -229,13 +247,23 @@ function PlotPieChartdoublePtr(label_ids, values, count, x, y, radius, normalize
     ccall((:ImPlot_PlotPieChartdoublePtr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotHeatmapFloatPtr(label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
-    ccall((:ImPlot_PlotHeatmapFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cint, Cfloat, Cfloat, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+# Heat maps
+
+function PlotHeatmapFloatPtr(label_id, values, rows, cols, scale_min, scale_max, label_fmt,
+                             bounds_min, bounds_max)
+    ccall((:ImPlot_PlotHeatmapFloatPtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Cint, Cint, Cfloat, Cfloat, Cstring, ImPlotPoint, ImPlotPoint),
+          label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmapdoublePtr(label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
-    ccall((:ImPlot_PlotHeatmapdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmapdoublePtr(label_id, values, rows, cols, scale_min, scale_max, label_fmt,
+                              bounds_min, bounds_max)
+    ccall((:ImPlot_PlotHeatmapdoublePtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint),
+          label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
+
+# Digital signal plots
 
 function PlotDigitalFloatPtr(label_id, xs, ys, count, offset, stride)
     ccall((:ImPlot_PlotDigitalFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
@@ -248,6 +276,8 @@ end
 function PlotDigitalFnPlotPoIntPtr(label_id, getter, data, count, offset)
     ccall((:ImPlot_PlotDigitalFnPlotPoIntPtr, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
+
+# Utilities
 
 function PlotTextFloat(text, x, y, vertical, pixel_offset)
     ccall((:ImPlot_PlotTextFloat, libcimplot), Cvoid, (Cstring, Cfloat, Cfloat, Bool, Cint), text, x, y, vertical, pixel_offset)

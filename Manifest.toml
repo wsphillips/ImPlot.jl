@@ -10,21 +10,21 @@ version = "0.4.1"
 
 [[CImGui]]
 deps = ["CImGui_jll", "CSyntax", "GLFW", "Libdl", "ModernGL"]
-git-tree-sha1 = "8295d943878bf8c4f6f020c16198f1704b1c9236"
+git-tree-sha1 = "2fe8eafb7ca813cc085a2c842903eb578dab048a"
 uuid = "5d785b6c-b76f-510e-a07c-3070796c7e87"
-version = "1.75.1"
+version = "1.77.0"
 
 [[CImGui_jll]]
 deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "ce7b8aa98c41d2489452197fbf43c19c8e42700f"
+git-tree-sha1 = "5ed6fce57d764b102564af81288d0c327e6cba65"
 uuid = "7dd61d3b-0da5-5c94-bbf9-a0296c6e3925"
-version = "1.75.0+2"
+version = "1.77.0+0"
 
 [[CImPlot_jll]]
 deps = ["CImGui_jll", "Libdl", "Pkg"]
-git-tree-sha1 = "db8556ca1117c833dc2646489feb2f7c50d30cb8"
+git-tree-sha1 = "d58b73abeea898b7b09e1a84f07ac51092ad4915"
 uuid = "278f1f02-c5a0-563f-9174-e8b244dda450"
-version = "0.0.1+0"
+version = "0.3.0+0"
 
 [[CSyntax]]
 deps = ["CEnum"]
@@ -79,9 +79,9 @@ version = "1.36.0+1"
 
 [[Libiconv_jll]]
 deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "e5256a3b0ebc710dbd6da0c0b212164a3681037f"
+git-tree-sha1 = "c9d4035d7481bcdff2babf5a55525a818ef8ed8f"
 uuid = "94ce4f54-9a6c-5748-9c1c-f9c7231a4531"
-version = "1.16.0+2"
+version = "1.16.0+5"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -130,9 +130,9 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [[XML2_jll]]
 deps = ["Libdl", "Libiconv_jll", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "987c02a43fa10a491a5f0f7c46a6d3559ed6a8e2"
+git-tree-sha1 = "432d91f45e950f2f2bda5c0f4e2b938c14493af9"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.9.9+4"
+version = "2.9.10+1"
 
 [[XSLT_jll]]
 deps = ["Libdl", "Libgcrypt_jll", "Pkg", "XML2_jll"]
@@ -220,6 +220,6 @@ version = "1.4.0+1"
 
 [[Zlib_jll]]
 deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "a2e0d558f6031002e380a90613b199e37a8565bf"
+git-tree-sha1 = "622d8b6dc0c7e8029f17127703de9819134d1b71"
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.11+10"
+version = "1.2.11+14"

@@ -26,4 +26,5 @@ function EndPlot()
     ImPlot.EndPlot()
 end
 include("lines.jl")
+include("heatmap.jl")
 end # module
