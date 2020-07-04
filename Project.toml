@@ -1,4 +1,4 @@
-name = "CImPlot"
+name = "ImPlot"
 uuid = "e8efc688-5342-4ad4-b4ba-9025a731b363"
 authors = ["Wiktor Phillips <wsphillips@gmail.com>"]
 version = "0.3.0"
