@@ -267,11 +267,11 @@ function IsPlotHovered()
 end
 
 function GetPlotMousePos(y_axis)
-    ccall((:ImPlot_GetPlotMousePos, libcimplot), ImPlotPoint, (Cint,), y_axis)
+    ccall((:ImPlot_GetPlotMousePos, libcimplot), ImPlotPoint, (Cint,), Cint(y_axis))
 end
 
 function GetPlotLimits(y_axis)
-    ccall((:ImPlot_GetPlotLimits, libcimplot), ImPlotLimits, (Cint,), y_axis)
+    ccall((:ImPlot_GetPlotLimits, libcimplot), ImPlotLimits, (Cint,), Cint(y_axis))
 end
 
 function IsPlotQueried()
@@ -279,7 +279,7 @@ function IsPlotQueried()
 end
 
 function GetPlotQuery(y_axis)
-    ccall((:ImPlot_GetPlotQuery, libcimplot), ImPlotLimits, (Cint,), y_axis)
+    ccall((:ImPlot_GetPlotQuery, libcimplot), ImPlotLimits, (Cint,), Cint(y_axis))
 end
 
 # Plot styling
