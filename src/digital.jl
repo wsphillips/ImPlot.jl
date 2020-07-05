@@ -2,7 +2,7 @@
 
 function PlotDigital(label::String, x::AbstractArray{T,1}, y::AbstractArray{T,1};
                      count::Integer = min(length(x),length(y)), offset::Integer = 0,
-                     stride::Intger = 1) where {T}
+                     stride::Integer = 1) where {T}
 
     if eltype(x) == Float64
         LibCImPlot.PlotDigitaldoublePtrdoublePtr(label, x, y, Cint(count), Cint(offset),
