@@ -105,53 +105,79 @@ end
 # Bar plots
 
 function PlotBarsFloatPtrIntFloat(label_id, values, count, width, shift, offset, stride)
-    ccall((:ImPlot_PlotBarsFloatPtrIntFloat, libcimplot), Cvoid, (Cstring, Ref{Cfloat}, Cint, Cfloat, Cfloat, Cint, Cint), label_id, values, count, width, shift, offset, stride)
+    ccall((:ImPlot_PlotBarsFloatPtrIntFloat, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Cint, Cfloat, Cfloat, Cint, Cint),
+          label_id, values, count, width, shift, offset, stride)
 end
 
 function PlotBarsdoublePtrIntdouble(label_id, values, count, width, shift, offset, stride)
-    ccall((:ImPlot_PlotBarsdoublePtrIntdouble, libcimplot), Cvoid, (Cstring, Ref{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
+    ccall((:ImPlot_PlotBarsdoublePtrIntdouble, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint),
+          label_id, values, count, width, shift, offset, stride)
 end
 
 function PlotBarsFloatPtrFloatPtr(label_id, xs, ys, count, width, offset, stride)
-    ccall((:ImPlot_PlotBarsFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ref{Cfloat}, Ref{Cfloat}, Cint, Cfloat, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
+    ccall((:ImPlot_PlotBarsFloatPtrFloatPtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Ref{Cfloat}, Cint, Cfloat, Cint, Cint),
+          label_id, xs, ys, count, width, offset, stride)
 end
 
 function PlotBarsdoublePtrdoublePtr(label_id, xs, ys, count, width, offset, stride)
-    ccall((:ImPlot_PlotBarsdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ref{Cdouble}, Ref{Cdouble}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
+    ccall((:ImPlot_PlotBarsdoublePtrdoublePtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Ref{Cdouble}, Cint, Cdouble, Cint, Cint),
+          label_id, xs, ys, count, width, offset, stride)
 end
 
 function PlotBarsFnPlotPoIntPtr(label_id, getter, data, count, width, offset)
-    ccall((:ImPlot_PlotBarsFnPlotPoIntPtr, libcimplot), Cvoid, (Cstring, Ref{Cvoid}, Ref{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, width, offset)
+    ccall((:ImPlot_PlotBarsFnPlotPoIntPtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cvoid}, Ref{Cvoid}, Cint, Cdouble, Cint),
+          label_id, getter, data, count, width, offset)
 end
 
 function PlotBarsHFloatPtrIntFloat(label_id, values, count, height, shift, offset, stride)
-    ccall((:ImPlot_PlotBarsHFloatPtrIntFloat, libcimplot), Cvoid, (Cstring, Ref{Cfloat}, Cint, Cfloat, Cfloat, Cint, Cint), label_id, values, count, height, shift, offset, stride)
+    ccall((:ImPlot_PlotBarsHFloatPtrIntFloat, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Cint, Cfloat, Cfloat, Cint, Cint),
+          label_id, values, count, height, shift, offset, stride)
 end
 
 function PlotBarsHdoublePtrIntdouble(label_id, values, count, height, shift, offset, stride)
-    ccall((:ImPlot_PlotBarsHdoublePtrIntdouble, libcimplot), Cvoid, (Cstring, Ref{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
+    ccall((:ImPlot_PlotBarsHdoublePtrIntdouble, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint),
+          label_id, values, count, height, shift, offset, stride)
 end
 
 function PlotBarsHFloatPtrFloatPtr(label_id, xs, ys, count, height, offset, stride)
-    ccall((:ImPlot_PlotBarsHFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ref{Cfloat}, Ref{Cfloat}, Cint, Cfloat, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
+    ccall((:ImPlot_PlotBarsHFloatPtrFloatPtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Ref{Cfloat}, Cint, Cfloat, Cint, Cint),
+          label_id, xs, ys, count, height, offset, stride)
 end
 
 function PlotBarsHdoublePtrdoublePtr(label_id, xs, ys, count, height, offset, stride)
-    ccall((:ImPlot_PlotBarsHdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ref{Cdouble}, Ref{Cdouble}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
+    ccall((:ImPlot_PlotBarsHdoublePtrdoublePtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Ref{Cdouble}, Cint, Cdouble, Cint, Cint),
+          label_id, xs, ys, count, height, offset, stride)
 end
 
 function PlotBarsHFnPlotPoIntPtr(label_id, getter, data, count, height, offset)
-    ccall((:ImPlot_PlotBarsHFnPlotPoIntPtr, libcimplot), Cvoid, (Cstring, Ref{Cvoid}, Ref{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, height, offset)
+    ccall((:ImPlot_PlotBarsHFnPlotPoIntPtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cvoid}, Ref{Cvoid}, Cint, Cdouble, Cint),
+          label_id, getter, data, count, height, offset)
 end
 
 # Error bar plotting
 
-function PlotErrorBarsFloatPtrFloatPtrFloatPtrInt(label_id, xs, ys, err, count, offset, stride)
-    ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (Cstring, Ref{Cfloat}, Ref{Cfloat}, Ref{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsFloatPtrFloatPtrFloatPtrInt(label_id, xs, ys, err, count, offset,
+                                                  stride)
+    ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Ref{Cfloat}, Ref{Cfloat}, Cint, Cint, Cint),
+          label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsdoublePtrdoublePtrdoublePtrInt(label_id, xs, ys, err, count, offset, stride)
-    ccall((:ImPlot_PlotErrorBarsdoublePtrdoublePtrdoublePtrInt, libcimplot), Cvoid, (Cstring, Ref{Cdouble}, Ref{Cdouble}, Ref{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsdoublePtrdoublePtrdoublePtrInt(label_id, xs, ys, err, count, offset,
+                                                     stride)
+    ccall((:ImPlot_PlotErrorBarsdoublePtrdoublePtrdoublePtrInt, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Ref{Cdouble}, Ref{Cdouble}, Cint, Cint, Cint),
+          label_id, xs, ys, err, count, offset, stride)
 end
 
 function PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr(label_id, xs, ys, neg, pos, count, offset, stride)
@@ -261,15 +287,15 @@ function GetStyle()
 end
 
 function PushStyleColorU32(idx, col)
-    ccall((:ImPlot_PushStyleColorU32, libcimplot), Cvoid, (ImPlotCol, Cint), idx, col)
+    ccall((:ImPlot_PushStyleColorU32, libcimplot), Cvoid, (ImPlotCol, Cuint), idx, col)
 end
 
 function PushStyleColorVec4(idx, col)
-    ccall((:ImPlot_PushStyleColorVec4, libcimplot), Cvoid, (ImPlotCol, Cint), idx, col)
+    ccall((:ImPlot_PushStyleColorVec4, libcimplot), Cvoid, (ImPlotCol, ImVec4), idx, col)
 end
 
-function PopStyleColor(count)
-    ccall((:ImPlot_PopStyleColor, libcimplot), Cvoid, (Cint,), count)
+function PopStyleColor(count::Integer = 1)
+    ccall((:ImPlot_PopStyleColor, libcimplot), Cvoid, (Cint,), Cint(count))
 end
 
 function PushStyleVarFloat(idx, val)
@@ -280,18 +306,22 @@ function PushStyleVarInt(idx, val)
     ccall((:ImPlot_PushStyleVarInt, libcimplot), Cvoid, (ImPlotStyleVar, Cint), idx, val)
 end
 
-function PopStyleVar(count)
-    ccall((:ImPlot_PopStyleVar, libcimplot), Cvoid, (Cint,), count)
+function PopStyleVar(count::Integer = 1)
+    ccall((:ImPlot_PopStyleVar, libcimplot), Cvoid, (Cint,), Cint(count))
 end
 
 # Color mapping
 
 function SetColormapPlotColormap(colormap, samples)
-    ccall((:ImPlot_SetColormapPlotColormap, libcimplot), Cvoid, (ImPlotColormap, Cint), colormap, samples)
+    ccall((:ImPlot_SetColormapPlotColormap, libcimplot), Cvoid,
+          (ImPlotColormap, Cint),
+          colormap, samples)
 end
 
 function SetColormapVec4Ptr(colors, num_colors)
-    ccall((:ImPlot_SetColormapVec4Ptr, libcimplot), Cvoid, (Ref{Cint}, Cint), colors, num_colors)
+    ccall((:ImPlot_SetColormapVec4Ptr, libcimplot), Cvoid,
+          (ImVec4, Cint),
+          colors, num_colors)
 end
 
 function GetColormapSize()
@@ -299,11 +329,11 @@ function GetColormapSize()
 end
 
 function GetColormapColor(pOut, index)
-    ccall((:ImPlot_GetColormapColor, libcimplot), Cvoid, (Ref{Cint}, Cint), pOut, index)
+    ccall((:ImPlot_GetColormapColor, libcimplot), Cvoid, (Ref{ImVec4}, Cint), pOut, index)
 end
 
 function LerpColormap(pOut, t)
-    ccall((:ImPlot_LerpColormap, libcimplot), Cvoid, (Ref{Cint}, Cfloat), pOut, t)
+    ccall((:ImPlot_LerpColormap, libcimplot), Cvoid, (Ref{ImVec4}, Cfloat), pOut, t)
 end
 
 # Plot limits
@@ -353,28 +383,34 @@ function SetNextPlotTicksYdouble(y_min, y_max, n_ticks, labels, show_default, y_
 end
 
 # Selects the Y axis to which the next plot should be bound. y_axis = 0 = y1 ...
-function SetPlotYAxis(y_axis)
-    ccall((:ImPlot_SetPlotYAxis, libcimplot), Cvoid, (Cint,), y_axis)
+function SetPlotYAxis(y_axis::Integer)
+    ccall((:ImPlot_SetPlotYAxis, libcimplot), Cvoid, (Cint,), Cint(y_axis))
 end
 
 function GetPlotPos(pOut)
-    ccall((:ImPlot_GetPlotPos, libcimplot), Cvoid, (Ref{Cint},), pOut)
+    ccall((:ImPlot_GetPlotPos, libcimplot), Cvoid, (Ref{ImVec2},), pOut)
 end
 
 function GetPlotSize(pOut)
-    ccall((:ImPlot_GetPlotSize, libcimplot), Cvoid, (Ref{Cint},), pOut)
+    ccall((:ImPlot_GetPlotSize, libcimplot), Cvoid, (Ref{ImVec2},), pOut)
 end
 
-function PixelsToPlot(pix, y_axis)
-    ccall((:ImPlot_PixelsToPlot, libcimplot), ImPlotPoint, (Cint, Cint), pix, y_axis)
+# Convert pixels to a position in the current plot's coordinate system.
+# A negative y_axis uses the current value of SetPlotYAxis (0 initially).
+function PixelsToPlot(pix::ImVec2, y_axis::Integer = -1)
+    ccall((:ImPlot_PixelsToPlot, libcimplot), ImPlotPoint, (ImVec2, Cint), pix, y_axis)
 end
 
 function PlotToPixels(pOut, plt, y_axis)
-    ccall((:ImPlot_PlotToPixels, libcimplot), Cvoid, (Ref{Cint}, ImPlotPoint, Cint), pOut, plt, y_axis)
+    ccall((:ImPlot_PlotToPixels, libcimplot), Cvoid,
+          (Ref{ImVec2}, ImPlotPoint, Cint),
+          pOut, plt, y_axis)
 end
 
 function ShowColormapScale(scale_min, scale_max, height)
-    ccall((:ImPlot_ShowColormapScale, libcimplot), Cvoid, (Cdouble, Cdouble, Cfloat), scale_min, scale_max, height)
+    ccall((:ImPlot_ShowColormapScale, libcimplot), Cvoid,
+          (Cdouble, Cdouble, Cfloat),
+          Float64(scale_min), Float64(scale_max), Float32(height))
 end
 
 function PushPlotClipRect()
@@ -403,7 +439,8 @@ function ImPlotPoint_destroy(self)
 end
 # Initializes a point with x,y = 0.0,0.0
 function ImPlotPoint_ImPlotPointdouble(_x, _y)
-    ccall((:ImPlotPoint_ImPlotPointdouble, libcimplot), Ptr{ImPlotPoint}, (Cdouble, Cdouble), _x, _y)
+    ccall((:ImPlotPoint_ImPlotPointdouble, libcimplot), Ptr{ImPlotPoint},
+          (Cdouble, Cdouble), _x, _y)
 end
 
 # see implot.h header for init values

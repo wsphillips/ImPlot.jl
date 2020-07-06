@@ -1,4 +1,7 @@
 
+import .LibCImPlot: IsPlotHovered, GetPlotMousePos, GetPlotLimits, IsPlotQueried, GetPlotQuery
+import .LibCImPlot: SetNextPlotLimits, SetNextPlotLimitsX, SetNextPlotLimitsY, SetPlotYAxis
+import .LibCImPlot: PixelsToPlot, ShowColormapScale, PushPlotClipRect, PopPlotClipRect
 
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
                            labels::Vector{String} = [""], show_default::Bool = false)
@@ -37,4 +40,23 @@ function SetNextPlotTicksY(y_min, y_max, n_ticks::Integer;
     LibCImPlot.SetNextPlotTicksYdouble(y_min, y_max, Cint(n_ticks), labels, show_default,
                                        Cint(y_axis))
 end
+
+function GetPlotPos()
+    out = Ref{ImVec2}()
+    LibCImPlot.GetPlotPos(out)
+    return out[]
+end
+
+function GetPlotSize()
+    out = Ref{ImVec2}()
+    LibCImPlot.GetPlotSize(out)
+    return out[]
+end
+
+function PlotToPixels(plt::ImPlotPoint, y_axis::Integer = -1)
+    out = Ref{ImVec2}()
+    LibCImPlot.PlotToPixels(out, plt, Cint(y_axis))
+    return out[]
+end
+
 
