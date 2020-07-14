@@ -14,6 +14,9 @@ plotting extension library for [imgui](https://github.com/ocornut/imgui).
 
 ## Example Usage
 
+Use `demo/demo.jl` to check if things are working + the demo window that shows off what the 
+API can do.
+
 Plots are delcarative and follow a similar pattern as CImGui.jl:
 
 ```julia
@@ -33,3 +36,7 @@ if show_window
     CImGui.End()
 end
 ```
+
+For some basic Julia imlementation examples, see also `demo/example_plots.jl` Another good
+place to look is the [C++ demo
+sources](https://github.com/epezent/implot/blob/v0.3/implot_demo.cpp)

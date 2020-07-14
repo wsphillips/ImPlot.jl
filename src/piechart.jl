@@ -1,8 +1,8 @@
 # Pie charts
 
-function PlotPieChart(label_ids::Vector{String}, values::Vector{Float32}, count::Integer,
+function PlotPieChart(values::Vector{Float32}, count::Integer,
                       x, y, radius; normalize::Bool = false, label_fmt::String = "%.1f",
-                      angle0 = 90)
+                      angle0 = 90, label_ids::Vector{String} = ["" for _ in 1:length(values)])
 
     typeof(x) !== Float32 && (x = Float32(x))
     typeof(y) !== Float32 && (y = Float32(y))
@@ -14,9 +14,9 @@ function PlotPieChart(label_ids::Vector{String}, values::Vector{Float32}, count:
                                     label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Vector{String}, values::Vector{Float64}, count::Integer,
+function PlotPieChart(values::Vector{Float64}, count::Integer,
                       x, y, radius; normalize::Bool = false, label_fmt::String = "%.1f",
-                      angle0 = 90)
+                      angle0 = 90, label_ids::Vector{String} = ["" for _ in 1:length(values)])
 
     typeof(x) !== Float64 && (x = Float64(x))
     typeof(y) !== Float64 && (y = Float64(y))

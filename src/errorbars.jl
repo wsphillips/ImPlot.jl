@@ -1,7 +1,7 @@
 # Error bar plotting/annotation
 
-function PlotErrorBars(label_id::String, x::Vector{Float32}, y::Vector{Float32},
-                       error::Vector{Float32};
+function PlotErrorBars(x::Vector{Float32}, y::Vector{Float32},
+                       error::Vector{Float32}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(error)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -10,8 +10,8 @@ function PlotErrorBars(label_id::String, x::Vector{Float32}, y::Vector{Float32},
                                                         Cint(stride * sizeof(Float32)))
 end
 
-function PlotErrorBars(label_id::String, x::Vector{Float64}, y::Vector{Float64},
-                       error::Vector{Float64};
+function PlotErrorBars(x::Vector{Float64}, y::Vector{Float64},
+                       error::Vector{Float64}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(error)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -20,8 +20,8 @@ function PlotErrorBars(label_id::String, x::Vector{Float64}, y::Vector{Float64},
                                                         Cint(stride * sizeof(Float64)))
 end
 
-function PlotErrorBars(label_id::String, x::Vector{Float32}, y::Vector{Float32},
-                       negative::Vector{Float32}, positive::Vector{Float32};
+function PlotErrorBars(x::Vector{Float32}, y::Vector{Float32},
+                       negative::Vector{Float32}, positive::Vector{Float32}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -30,8 +30,8 @@ function PlotErrorBars(label_id::String, x::Vector{Float32}, y::Vector{Float32},
                                                         Cint(stride * sizeof(Float32)))
 end
 
-function PlotErrorBars(label_id::String, x::Vector{Float64}, y::Vector{Float64},
-                       negative::Vector{Float64}, positive::Vector{Float64};
+function PlotErrorBars(x::Vector{Float64}, y::Vector{Float64},
+                       negative::Vector{Float64}, positive::Vector{Float64}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -42,8 +42,8 @@ end
 
 # Horizontal error bars/annotations
 
-function PlotErrorBarsH(label_id::String, x::Vector{Float32}, y::Vector{Float32},
-                       error::Vector{Float32};
+function PlotErrorBarsH(x::Vector{Float32}, y::Vector{Float32},
+                       error::Vector{Float32}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(error)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -52,8 +52,8 @@ function PlotErrorBarsH(label_id::String, x::Vector{Float32}, y::Vector{Float32}
                                                         Cint(stride * sizeof(Float32)))
 end
 
-function PlotErrorBarsH(label_id::String, x::Vector{Float64}, y::Vector{Float64},
-                       error::Vector{Float64};
+function PlotErrorBarsH(x::Vector{Float64}, y::Vector{Float64},
+                       error::Vector{Float64}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(error)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -62,8 +62,8 @@ function PlotErrorBarsH(label_id::String, x::Vector{Float64}, y::Vector{Float64}
                                                         Cint(stride * sizeof(Float64)))
 end
 
-function PlotErrorBarsH(label_id::String, x::Vector{Float32}, y::Vector{Float32},
-                       negative::Vector{Float32}, positive::Vector{Float32};
+function PlotErrorBarsH(x::Vector{Float32}, y::Vector{Float32},
+                       negative::Vector{Float32}, positive::Vector{Float32}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
@@ -72,8 +72,8 @@ function PlotErrorBarsH(label_id::String, x::Vector{Float32}, y::Vector{Float32}
                                                         Cint(stride * sizeof(Float32)))
 end
 
-function PlotErrorBarsH(label_id::String, x::Vector{Float64}, y::Vector{Float64},
-                       negative::Vector{Float64}, positive::Vector{Float64};
+function PlotErrorBarsH(x::Vector{Float64}, y::Vector{Float64},
+                       negative::Vector{Float64}, positive::Vector{Float64}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 

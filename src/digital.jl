@@ -1,6 +1,6 @@
 # Digital signal plots
 
-function PlotDigital(label::String, x::AbstractArray{T,1}, y::AbstractArray{T,1};
+function PlotDigital(x::AbstractArray{T,1}, y::AbstractArray{T,1}; label::String = "",
                      count::Integer = min(length(x),length(y)), offset::Integer = 0,
                      stride::Integer = 1) where {T}
 
