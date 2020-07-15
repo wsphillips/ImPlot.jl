@@ -21,7 +21,7 @@ end
 
 function PlotScatter(x::AbstractArray{T1,1}, y::AbstractArray{T2,1}; kwargs...) where {T1,T2}
     (x, y) = promote(x,y)
-    plotline(x,y; kwargs...)
+    PlotScatter(x,y; kwargs...)
 end
 
 function PlotScatter(y::AbstractArray{T,1}; label::String="", count::Integer=length(y),
