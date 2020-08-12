@@ -5,12 +5,17 @@ using CEnum
 include("libcimplot/libcimplot.jl")
 
 # Types
+using .LibCImPlot
 import CImGui: ImVec2, ImVec4
 import .LibCImPlot: ImPlotStyleVar, ImPlotPoint, ImPlotColormap, ImPlotCol
 import .LibCImPlot: ImPlotFlags, ImPlotAxisFlags
 
-# Import default flags 
-import .LibCImPlot: ImPlotAxisFlags_Default, ImPlotFlags_Default, ImPlotAxisFlags_NULL
+# Export plot flags 
+for i in [ImPlotFlags, ImPlotAxisFlags]
+    for j in instances(i)
+        @eval export $(Symbol(j))
+    end
+end
 
 function BeginPlot(title_id::String, x_label::String, y_label::String, size::ImVec2;
                    flags::ImPlotFlags = ImPlotFlags_Default,
