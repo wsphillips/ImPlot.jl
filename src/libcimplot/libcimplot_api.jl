@@ -59,6 +59,33 @@ function PlotLineFnPlotPoIntPtr(label_id, getter, data, count, offset)
           label_id, getter, data, count, offset)
 end
 
+# Plot Shaded
+
+function PlotShadedFloatPtrFloatPtrFloatPtr(label_id, xs, ys1, ys2, count, offset, stride)
+    ccall((:ImPlot_PlotShadedFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Ref{Cfloat}, Ref{Cfloat}, Cint, Cint, Cint),
+          label_id, xs, ys1, ys2, count, offset, stride)
+end
+
+function PlotShadeddoublePtrdoublePtrdoublePtr(label_id, xs, ys1, ys2, count, offset, stride)
+    ccall((:ImPlot_PlotShadeddoublePtrdoublePtrdoublePtr, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Ref{Cdouble}, Ref{Cdouble}, Cint, Cint, Cint),
+          label_id, xs, ys1, ys2, count, offset, stride)
+end
+
+function PlotShadedFloatPtrFloatPtrIntFloat(label_id, xs, ys, count, y_ref, offset, stride)
+    ccall((:ImPlot_PlotShadedFloatPtrFloatPtrIntFloat, libcimplot), Cvoid,
+          (Cstring, Ref{Cfloat}, Ref{Cfloat}, Cint, Cfloat, Cint, Cint),
+         label_id, xs, ys, count, y_ref, offset, stride)
+end
+
+function PlotShadeddoublePtrdoublePtrIntdouble(label_id, xs, ys, count, y_ref, offset, stride)
+    ccall((:ImPlot_PlotShadeddoublePtrdoublePtrIntdouble, libcimplot), Cvoid,
+          (Cstring, Ref{Cdouble}, Ref{Cdouble}, Cint, Cdouble, Cint, Cint),
+         label_id, xs, ys, count, y_ref, offset, stride)
+end
+
+
 # Scatter plots
 
 function PlotScatterFloatPtrInt(label_id, values, count, offset, stride)
@@ -264,6 +291,14 @@ function IsPlotHovered()
     ccall((:ImPlot_IsPlotHovered, libcimplot), Bool, ())
 end
 
+function IsPlotXAxisHovered()
+    ccall((:ImPlot_IsPlotXAxisHovered, libcimplot), Bool, ())
+end
+
+function IsPlotYAxisHovered(y_axis::Integer)
+    ccall((:ImPlot_IsPlotYAxisHovered, libcimplot), Bool, (Cint,), Cint(y_axis))
+end
+
 function GetPlotMousePos(y_axis)
     ccall((:ImPlot_GetPlotMousePos, libcimplot), ImPlotPoint, (Cint,), Cint(y_axis))
 end
@@ -278,6 +313,14 @@ end
 
 function GetPlotQuery(y_axis)
     ccall((:ImPlot_GetPlotQuery, libcimplot), ImPlotLimits, (Cint,), Cint(y_axis))
+end
+
+function IsLegendEntryHovered(label_id::String)
+    ccall((:ImPlot_IsLegendEntryHovered, libcimplot), Bool, (Cstring,), label_id)
+end
+
+function GetInputMap()
+    ccall((:ImPlot_GetInputMap, libcimplot), Ref{ImPlotInputMap}, ())
 end
 
 # Plot styling
@@ -486,4 +529,10 @@ function ImPlotStyle_destroy(self)
     ccall((:ImPlotStyle_destroy, libcimplot), Cvoid, (Ptr{ImPlotStyle},), self)
 end
 
+function ImPlotInputMap_ImPlotInputMap()
+    ccall((:ImPlotInputMap_ImPlotInputMap, libcimplot), Ref{ImPlotInputMap}, ())
+end
 
+function ImPlotInputMap_destroy(self)
+    ccall((:ImPlotInputMap_ImPlotInputMap, libcimplot), Cvoid, (Ptr{ImPlotInputMap},), self)
+end

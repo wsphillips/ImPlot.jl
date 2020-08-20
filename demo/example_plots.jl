@@ -102,6 +102,16 @@ try
                     bar_counter += 1
                 end
             end
+            if CImGui.CollapsingHeader("Shaded plot")
+                x = 1:1000
+                y1 = [sin(x) for x in range(0,2π, length = length(x))]
+                y_ref = -2.0
+                ImPlot.SetNextPlotLimits(0,1000,-2,1, ImGuiCond_Always)
+                if ImPlot.BeginPlot("##shaded", "", "", CImGui.ImVec2(-1,300))
+                    ImPlot.PlotShaded(x, y1, y_ref)
+                    ImPlot.EndPlot()
+                end
+            end
             CImGui.End()
         end
        

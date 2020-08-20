@@ -1,7 +1,7 @@
 name = "ImPlot"
 uuid = "e8efc688-5342-4ad4-b4ba-9025a731b363"
 authors = ["Wiktor Phillips <wsphillips@gmail.com>"]
-version = "0.3.0"
+version = "0.4.0"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
@@ -9,5 +9,6 @@ CImGui = "5d785b6c-b76f-510e-a07c-3070796c7e87"
 CImPlot_jll = "278f1f02-c5a0-563f-9174-e8b244dda450"
 
 [compat]
-CImGui = "1.77.0"
-CImPlot_jll = "0.3.0"
+CEnum = "0.4"
+CImGui = "1.77"
+CImPlot_jll = "0.4"

@@ -31,6 +31,7 @@ end
 import .LibCImPlot: EndPlot
 
 include("lines.jl")
+include("shaded.jl")
 include("scatter.jl")
 include("heatmap.jl")
 include("digital.jl")

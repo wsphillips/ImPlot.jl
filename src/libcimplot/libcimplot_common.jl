@@ -1,17 +1,17 @@
 # Automatically generated using Clang.jl
 
 @cenum ImPlotMarker::Cint begin
-    ImPlotMarker_None = 1
-    ImPlotMarker_Circle = 2
-    ImPlotMarker_Square = 4
-    ImPlotMarker_Diamond = 8
-    ImPlotMarker_Up = 16
-    ImPlotMarker_Down = 32
-    ImPlotMarker_Left = 64
-    ImPlotMarker_Right = 128
-    ImPlotMarker_Cross = 256
-    ImPlotMarker_Plus = 512
-    ImPlotMarker_Asterisk = 1024
+    ImPlotMarker_None     = 1 << 0
+    ImPlotMarker_Circle   = 1 << 1
+    ImPlotMarker_Square   = 1 << 2
+    ImPlotMarker_Diamond  = 1 << 3
+    ImPlotMarker_Up       = 1 << 4
+    ImPlotMarker_Down     = 1 << 5
+    ImPlotMarker_Left     = 1 << 6
+    ImPlotMarker_Right    = 1 << 7
+    ImPlotMarker_Cross    = 1 << 8
+    ImPlotMarker_Plus     = 1 << 9
+    ImPlotMarker_Asterisk = 1 << 10
 end
 
 struct ImPlotStyle
@@ -42,34 +42,33 @@ struct ImPlotPoint
 end
 
 @cenum ImPlotFlags::Cint begin
-    ImPlotFlags_MousePos = 1
-    ImPlotFlags_Legend = 2
-    ImPlotFlags_Highlight = 4
-    ImPlotFlags_BoxSelect = 8
-    ImPlotFlags_Query = 16
-    ImPlotFlags_ContextMenu = 32
-    ImPlotFlags_Crosshairs = 64
-    ImPlotFlags_CullData = 128
-    ImPlotFlags_AntiAliased = 256
-    ImPlotFlags_NoChild = 512
-    ImPlotFlags_YAxis2 = 1024
-    ImPlotFlags_YAxis3 = 2048
-    ImPlotFlags_Default = 175
+    ImPlotFlags_NULL        = 0
+    ImPlotFlags_MousePos    = 1 << 0
+    ImPlotFlags_Legend      = 1 << 1
+    ImPlotFlags_Highlight   = 1 << 2
+    ImPlotFlags_BoxSelect   = 1 << 3
+    ImPlotFlags_Query       = 1 << 4
+    ImPlotFlags_ContextMenu = 1 << 5
+    ImPlotFlags_Crosshairs  = 1 << 6
+    ImPlotFlags_AntiAliased = 1 << 7
+    ImPlotFlags_NoChild     = 1 << 8
+    ImPlotFlags_YAxis2      = 1 << 9
+    ImPlotFlags_YAxis3      = 1 << 10
+    ImPlotFlags_Default     = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 5)
 end
 
 @cenum ImPlotAxisFlags::Cint begin
-    ImPlotAxisFlags_NULL = 0
-    ImPlotAxisFlags_GridLines = 1
-    ImPlotAxisFlags_TickMarks = 2
-    ImPlotAxisFlags_TickLabels = 4
-    ImPlotAxisFlags_Invert = 8
-    ImPlotAxisFlags_LockMin = 16
-    ImPlotAxisFlags_LockMax = 32
-    ImPlotAxisFlags_Adaptive = 64
-    ImPlotAxisFlags_LogScale = 128
-    ImPlotAxisFlags_Scientific = 256
-    ImPlotAxisFlags_Default = 71
-    ImPlotAxisFlags_Auxiliary = 70
+    ImPlotAxisFlags_NULL        = 0
+    ImPlotAxisFlags_GridLines   = 1 << 0
+    ImPlotAxisFlags_TickMarks   = 1 << 1
+    ImPlotAxisFlags_TickLabels  = 1 << 2
+    ImPlotAxisFlags_Invert      = 1 << 3
+    ImPlotAxisFlags_LockMin     = 1 << 4
+    ImPlotAxisFlags_LockMax     = 1 << 5
+    ImPlotAxisFlags_LogScale    = 1 << 6
+    ImPlotAxisFlags_Scientific  = 1 << 7
+    ImPlotAxisFlags_Default     = (1 << 0) | (1 << 1) | (1 << 2)
+    ImPlotAxisFlags_Auxiliary   = (1 << 1) | (1 << 2)
 end
 
 @cenum ImPlotCol::Cint begin
@@ -95,11 +94,12 @@ end
     ImPlotStyleVar_Marker = 1
     ImPlotStyleVar_MarkerSize = 2
     ImPlotStyleVar_MarkerWeight = 3
-    ImPlotStyleVar_ErrorBarSize = 4
-    ImPlotStyleVar_ErrorBarWeight = 5
-    ImPlotStyleVar_DigitalBitHeight = 6
-    ImPlotStyleVar_DigitalBitGap = 7
-    ImPlotStyleVar_COUNT = 8
+    ImPlotStyleVar_FillAlpha = 4
+    ImPlotStyleVar_ErrorBarSize = 5
+    ImPlotStyleVar_ErrorBarWeight = 6
+    ImPlotStyleVar_DigitalBitHeight = 7
+    ImPlotStyleVar_DigitalBitGap = 8
+    ImPlotStyleVar_COUNT = 9
 end
 
 @cenum ImPlotColormap::Cint begin
@@ -116,3 +116,17 @@ end
     ImPlotColormap_COUNT = 10
 end
 
+struct ImPlotInputMap
+    PanButton::ImGuiMouseButton
+    PanMod::ImGuiKeyModFlags
+    FitButton::ImGuiMouseButton
+    ContextMenuButton::ImGuiMouseButton
+    BoxSelectButton::ImGuiMouseButton
+    BoxSelectMod::ImGuiKeyModFlags
+    BoxSelectCancelButton::ImGuiMouseButton
+    QueryButton::ImGuiMouseButton
+    QueryMod::ImGuiKeyModFlags
+    QueryToggleMod::ImGuiKeyModFlags
+    HorizontalMod::ImGuiKeyModFlags
+    VerticalMod::ImGuiKeyModFlags
+end
