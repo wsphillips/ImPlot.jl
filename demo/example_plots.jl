@@ -11,7 +11,9 @@ import CImGui.LibCImGui: ImGuiCond_Always, ImGuiCond_Once
 
 const glsl_version = 130
 GLFW.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
-GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 0)
+GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 3)
+GLFW.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL_TRUE)
+GLFW.WindowHint(GLFW.OPENGL_PROFILE, GLFW.OPENGL_CORE_PROFILE)
 error_callback(err::GLFW.GLFWError) = @error "GLFW ERROR: code $(err.code) msg: $(err.description)"
 GLFW.SetErrorCallback(error_callback)
 

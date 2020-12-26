@@ -8,10 +8,12 @@ using CImGui.OpenGLBackend.ModernGL
 using Printf
 using ImPlot
 
-# OpenGL 3.0 + GLSL 130
+# OpenGL 3.3 + GLSL 130
 const glsl_version = 130
 GLFW.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
-GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 0)
+GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 3)
+GLFW.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL_TRUE)
+GLFW.WindowHint(GLFW.OPENGL_PROFILE, GLFW.OPENGL_CORE_PROFILE)
 
 # setup GLFW error callback
 error_callback(err::GLFW.GLFWError) = @error "GLFW ERROR: code $(err.code) msg: $(err.description)"
