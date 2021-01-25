@@ -3,6 +3,14 @@
 
 # Plot creation
 
+function CreateContext()
+    ccall((:ImPlot_CreateContext, libcimplot), Ptr{ImPlotContext}, ())
+end
+
+function DestroyContext(ctx)
+    ccall((:ImPlot_DestroyContext, libcimplot), Cvoid, (Ptr{ImPlotContext},), ctx)
+end
+
 function BeginPlot(title_id, x_label, y_label, size,
                    flags, x_flags, y_flags, y2_flags, y3_flags)::Bool
     ccall((:ImPlot_BeginPlot, libcimplot), Bool,

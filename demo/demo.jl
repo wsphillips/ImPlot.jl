@@ -25,6 +25,7 @@ GLFW.SwapInterval(1)  # enable vsync
 
 # setup Dear ImGui context
 ctx = CImGui.CreateContext()
+pctx = ImPlot.CreateContext()
 
 # setup Dear ImGui style
 CImGui.StyleColorsDark()
@@ -82,6 +83,7 @@ catch e
 finally
     ImGui_ImplOpenGL3_Shutdown()
     ImGui_ImplGlfw_Shutdown()
+    ImPlot.DestroyContext(pctx)
     CImGui.DestroyContext(ctx)
     GLFW.DestroyWindow(window)
 end

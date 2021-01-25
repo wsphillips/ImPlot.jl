@@ -15,4 +15,6 @@ for i in [ImPlotFlags, ImPlotAxisFlags]
     end
 end
 
+export CreateContext, DestroyContext
+
 end # module
