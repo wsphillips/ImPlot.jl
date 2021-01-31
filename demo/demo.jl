@@ -26,7 +26,7 @@ GLFW.SwapInterval(1)  # enable vsync
 # setup Dear ImGui context
 ctx = CImGui.CreateContext()
 pctx = ImPlot.CreateContext()
-
+ImPlot.SetImGuiContext(ctx)
 # setup Dear ImGui style
 CImGui.StyleColorsDark()
 

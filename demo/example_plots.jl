@@ -21,6 +21,9 @@ GLFW.MakeContextCurrent(window)
 GLFW.SwapInterval(1)  # enable vsync; set to 0 to benchmark
 
 ctx = CImGui.CreateContext()
+ctxp = ImPlot.CreateContext()
+ImPlot.SetImGuiContext(ctx)
+
 CImGui.StyleColorsDark()
 
 fonts_dir = joinpath(@__DIR__, "..", "fonts")
@@ -70,7 +73,7 @@ try
             if CImGui.CollapsingHeader("Line plots")
 
                 ys1 .= rand(6000)
-                ImPlot.SetNextPlotLimits(0.0, 6000, 0.0, 1.0, ImGuiCond_Always)
+                #ImPlot.SetNextPlotLimits(0.0, 6000, 0.0, 1.0, ImGuiCond_Always)
                 # Using '##' in the label name hides the plot label, but lets 
                 # us keep the label ID unique for modifying styling etc.
                 if ImPlot.BeginPlot("##line", "x1", "y1", CImGui.ImVec2(-1,300))
@@ -134,6 +137,7 @@ catch e
 finally
     ImGui_ImplOpenGL3_Shutdown()
     ImGui_ImplGlfw_Shutdown()
+    ImPlot.DestroyContext(ctxp)
     CImGui.DestroyContext(ctx)
     GLFW.DestroyWindow(window)
 end

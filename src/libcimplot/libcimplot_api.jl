@@ -21,11 +21,9 @@ end
 
 # Plot creation
 
-function BeginPlot(title_id, x_label, y_label, size,
-                   flags, x_flags, y_flags, y2_flags, y3_flags)::Bool
-    ccall((:ImPlot_BeginPlot, libcimplot), Bool,
-          (Cstring, Cstring, Cstring, ImVec2,
-           ImPlotFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags),
+function BeginPlot(title_id, x_label, y_label, size, flags, x_flags, y_flags, y2_flags, y3_flags)::Bool
+    ccall((:ImPlot_BeginPlot, libcimplot), Bool, (Cstring, Cstring, Cstring, ImVec2,
+          ImPlotFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags),
           title_id, x_label, y_label, size, flags, x_flags, y_flags, y2_flags, y3_flags)
 end
 
@@ -162,6 +160,9 @@ function PlotShadedU64PtrIntdoubledoubleInt(label_id, values, count, y_ref, xsca
     ccall((:ImPlot_PlotShadedU64PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
+##
+##
+
 function PlotShadedFloatPtrFloatPtrIntInt(label_id, xs, ys, count, y_ref, offset, stride)
     ccall((:ImPlot_PlotShadedFloatPtrFloatPtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
@@ -201,6 +202,9 @@ end
 function PlotShadedU64PtrU64PtrIntInt(label_id, xs, ys, count, y_ref, offset, stride)
     ccall((:ImPlot_PlotShadedU64PtrU64PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Ptr{Cint}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
+
+##
+##
 
 function PlotShadedFloatPtrFloatPtrFloatPtr(label_id, xs, ys1, ys2, count, offset, stride)
     ccall((:ImPlot_PlotShadedFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
@@ -242,7 +246,9 @@ function PlotShadedU64PtrU64PtrU64Ptr(label_id, xs, ys1, ys2, count, offset, str
     ccall((:ImPlot_PlotShadedU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
+############################################################################################
 # Scatter plots
+############################################################################################
 function PlotScatterFloatPtrInt(label_id, values, count, xscale, x0, offset, stride)
     ccall((:ImPlot_PlotScatterFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
@@ -282,6 +288,9 @@ end
 function PlotScatterU64PtrInt(label_id, values, count, xscale, x0, offset, stride)
     ccall((:ImPlot_PlotScatterU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
+
+####
+####
 
 function PlotScatterFloatPtrFloatPtr(label_id, xs, ys, count, offset, stride)
     ccall((:ImPlot_PlotScatterFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
@@ -613,6 +622,9 @@ function PlotErrorBarsU64PtrU64PtrU64PtrInt(label_id, xs, ys, err, count, offset
     ccall((:ImPlot_PlotErrorBarsU64PtrU64PtrU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
+##
+##
+
 function PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr(label_id, xs, ys, neg, pos, count, offset, stride)
     ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
@@ -653,6 +665,8 @@ function PlotErrorBarsU64PtrU64PtrU64PtrU64Ptr(label_id, xs, ys, neg, pos, count
     ccall((:ImPlot_PlotErrorBarsU64PtrU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
+# Horizontal Error Bars
+
 function PlotErrorBarsHFloatPtrFloatPtrFloatPtrInt(label_id, xs, ys, err, count, offset, stride)
     ccall((:ImPlot_PlotErrorBarsHFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
@@ -692,6 +706,9 @@ end
 function PlotErrorBarsHU64PtrU64PtrU64PtrInt(label_id, xs, ys, err, count, offset, stride)
     ccall((:ImPlot_PlotErrorBarsHU64PtrU64PtrU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
+
+##
+##
 
 function PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr(label_id, xs, ys, neg, pos, count, offset, stride)
     ccall((:ImPlot_PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
@@ -774,6 +791,9 @@ end
 function PlotStemsU64PtrInt(label_id, values, count, y_ref, xscale, x0, offset, stride)
     ccall((:ImPlot_PlotStemsU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
+
+##
+##
 
 function PlotStemsFloatPtrFloatPtr(label_id, xs, ys, count, y_ref, offset, stride)
     ccall((:ImPlot_PlotStemsFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
@@ -941,14 +961,14 @@ function PlotDigitalU64Ptr(label_id, xs, ys, count, offset, stride)
     ccall((:ImPlot_PlotDigitalU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{Cint}, Ptr{Cint}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-# Text labels for plots; the text is placed at the coordinates x, y
-
+# Image on the plot plane
 function PlotImage(label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
-    ccall((:ImPlot_PlotImage, libcimplot), Cvoid, (Cstring, Cint, ImPlotPoint, ImPlotPoint, Cint, Cint, Cint), label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
+    ccall((:ImPlot_PlotImage, libcimplot), Cvoid, (Cstring, Cint, ImVec2, ImVec2, ImVec2, ImVec2, ImVec4), label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
 end
 
+# Text labels for plots; the text is placed at the coordinates x, y
 function PlotText(text, x, y, vertical, pix_offset)
-    ccall((:ImPlot_PlotText, libcimplot), Cvoid, (Cstring, Cdouble, Cdouble, Bool, Cint), text, x, y, vertical, pix_offset)
+    ccall((:ImPlot_PlotText, libcimplot), Cvoid, (Cstring, Cdouble, Cdouble, Bool, ImVec2), text, x, y, vertical, pix_offset)
 end
 
 function PlotDummy(label_id)
@@ -1276,7 +1296,7 @@ function ShowMetricsWindow(p_popen)
 end
 
 function SetImGuiContext(ctx)
-    ccall((:ImPlot_SetImGuiContext, libcimplot), Cvoid, (Ptr{Cint},), ctx)
+    ccall((:ImPlot_SetImGuiContext, libcimplot), Cvoid, (Ptr{ImGuiContext},), ctx)
 end
 
 function ShowDemoWindow(p_open)
