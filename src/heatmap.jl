@@ -1,7 +1,7 @@
 #Heatmap plots
 
 function PlotHeatmap(x::AbstractArray, rows, cols, scale_min = 0.0, scale_max = 1.0;
-                 label = "", label_fmt="", bounds_min = LibCImPlot.ImPlotPoint(0.0,0.0),
+                 label = "", label_fmt="%.1f", bounds_min = LibCImPlot.ImPlotPoint(0.0,0.0),
                  bounds_max = LibCImPlot.ImPlotPoint(1.0,1.0))
 
     if eltype(x) == Float64

@@ -9,9 +9,22 @@ using Printf
 using ImPlot
 import CImGui.LibCImGui: ImGuiCond_Always, ImGuiCond_Once
 
-const glsl_version = 130
-GLFW.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
-GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 0)
+@static if Sys.isapple()
+    # OpenGL 3.2 + GLSL 150
+    const glsl_version = 150
+    GLFW.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
+    GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 2)
+    GLFW.WindowHint(GLFW.OPENGL_PROFILE, GLFW.OPENGL_CORE_PROFILE) # 3.2+ only
+    GLFW.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL_TRUE) # required on Mac
+else
+    # OpenGL 3.0 + GLSL 130
+    const glsl_version = 130
+    GLFW.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
+    GLFW.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 0)
+    # GLFW.WindowHint(GLFW.OPENGL_PROFILE, GLFW.OPENGL_CORE_PROFILE) # 3.2+ only
+    # GLFW.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL_TRUE) # 3.0+ only
+end
+
 error_callback(err::GLFW.GLFWError) = @error "GLFW ERROR: code $(err.code) msg: $(err.description)"
 GLFW.SetErrorCallback(error_callback)
 
@@ -21,6 +34,9 @@ GLFW.MakeContextCurrent(window)
 GLFW.SwapInterval(1)  # enable vsync; set to 0 to benchmark
 
 ctx = CImGui.CreateContext()
+ctxp = ImPlot.CreateContext()
+ImPlot.SetImGuiContext(ctx)
+
 CImGui.StyleColorsDark()
 
 fonts_dir = joinpath(@__DIR__, "..", "fonts")
@@ -134,6 +150,7 @@ catch e
 finally
     ImGui_ImplOpenGL3_Shutdown()
     ImGui_ImplGlfw_Shutdown()
+    ImPlot.DestroyContext(ctxp)
     CImGui.DestroyContext(ctx)
     GLFW.DestroyWindow(window)
 end

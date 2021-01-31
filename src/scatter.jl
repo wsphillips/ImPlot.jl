@@ -25,21 +25,23 @@ function PlotScatter(x::AbstractArray{T1,1}, y::AbstractArray{T2,1}; kwargs...) 
 end
 
 function PlotScatter(y::AbstractArray{T,1}; label::String="", count::Integer=length(y),
+                  xscale::Real = 1.0, x0::Real = 0,
                   offset::Integer=0, stride::Integer=1) where {T}
     if eltype(y) == Float32
-        LibCImPlot.PlotScatterFloatPtrInt(label, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotScatterFloatPtrInt(label, y, Cint(count), xscale, x0, Cint(offset),
                                    Cint(stride * sizeof(Float32)))
     elseif eltype(y) == Float64
-        LibCImPlot.PlotScatterdoublePtrInt(label, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotScatterdoublePtrInt(label, y, Cint(count), xscale, x0, Cint(offset),
                                     Cint(stride * sizeof(Float64)))
     else
         y = convert.(Float32, y)
-        LibCImPlot.PlotScatterFloatPtrInt(label, y, Cint(count), Cint(offset),
+        LibCImPlot.PlotScatterFloatPtrInt(label, y, Cint(count), xscale, x0, Cint(offset),
                                    Cint(stride * sizeof(Float32)))
     end
 end
 
 function PlotScatter(x::UnitRange{<:Integer}, y::AbstractArray{T,1};
+                  xscale::Real = 1.0, x0::Real = 0,
                   label::String="") where {T}
 
         count::Cint = length(x)
@@ -47,19 +49,20 @@ function PlotScatter(x::UnitRange{<:Integer}, y::AbstractArray{T,1};
 
     if eltype(y) == Float32
         stride = Cint(sizeof(Float32))
-        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, xscale, x0, offset, stride)
     elseif eltype(y) == Float64
         stride = Cint(sizeof(Float64))
-        LibCImPlot.PlotScatterdoublePtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotScatterdoublePtrInt(label, y, count, xscale, x0, offset, stride)
     else
         y = convert.(Float32, y)
         stride = Cint(sizeof(Float32))
-        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, xscale, x0, offset, stride)
     end
 end
 
 function PlotScatter(x::StepRange, y::AbstractArray{T,1};
-                  label::String="") where {T}
+                     xscale::Real = 1.0, x0::Real = 0,
+                     label::String="") where {T}
     
     x.stop < 1 && throw("Range out of bounds")
     count::Cint = length(x)
@@ -67,13 +70,13 @@ function PlotScatter(x::StepRange, y::AbstractArray{T,1};
     
     if eltype(y) == Float64
         stride = Cint(x.step * sizeof(Float64))
-        LibCImPlot.PlotScatterdoublePtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotScatterdoublePtrInt(label, y, count, xscale, x0, offset, stride)
     elseif eltype(y) == Float32
         stride = Cint(x.step * sizeof(Float32))
-        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, xscale, x0, offset, stride)
     else
         y = convert.(Float32, y)
         stride = Cint(x.step * sizeof(Float32))
-        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, offset, stride)
+        LibCImPlot.PlotScatterFloatPtrInt(label, y, count, xscale, x0, offset, stride)
     end
 end

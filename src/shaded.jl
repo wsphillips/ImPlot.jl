@@ -29,16 +29,16 @@ function PlotShaded(x::AbstractArray{T,1}, y::AbstractArray{T,1}, y_ref::T;
                     count::Integer = min(length(x),length(y)), offset::Integer = 0,
                     stride::Integer = 1, label_id::String = "") where {T}
     if eltype(x) == Float32
-        LibCImPlot.PlotShadedFloatPtrFloatPtrIntFloat(label, x, y, count, y_ref, offset,
+        LibCImPlot.PlotShadedFloatPtrFloatPtrIntInt(label, x, y, count, y_ref, offset,
                                                       stride * sizeof(Float32))
     elseif eltype(x) == Float64
-        LibCImPlot.PlotShadeddoublePtrdoublePtrIntdouble(label, x, y, count, y_ref,
+        LibCImPlot.PlotShadeddoublePtrdoublePtrIntInt(label, x, y, count, y_ref,
                                                          offset, stride * sizeof(Float64))
     else
         x = convert.(Float32, x)
         y = convert.(Float32, y)
         y_ref = Float32(y_ref)
-        LibCImPlot.PlotShadedFloatPtrFloatPtrIntFloat(label, x, y, count, y_ref,
+        LibCImPlot.PlotShadedFloatPtrFloatPtrIntInt(label, x, y, count, y_ref,
                                                          offset, stride * sizeof(Float32))
     end
 end
@@ -77,17 +77,17 @@ function PlotShaded(x::UnitRange{<:Integer}, y::AbstractArray{T,1}, y_ref::T; la
 
     if eltype(y) == Float32
         x = collect(Float32, x)
-        LibCImPlot.PlotShadedFloatPtrFloatPtrIntFloat(label, x, y, count, y_ref, offset,
+        LibCImPlot.PlotShadedFloatPtrFloatPtrIntInt(label, x, y, count, y_ref, offset,
                                                       sizeof(Float32))
     elseif eltype(y) == Float64
         x = collect(Float64, x)
-        LibCImPlot.PlotShadeddoublePtrdoublePtrIntdouble(label, x, y, count, y_ref,
+        LibCImPlot.PlotShadeddoublePtrdoublePtrIntInt(label, x, y, count, y_ref,
                                                          offset,sizeof(Float64))
     else
         x = collect(Float32, x)
         y = convert.(Float32, y)
         y_ref = Float32(y_ref)
-        LibCImPlot.PlotShadeddoublePtrdoublePtrIntdouble(label, x, y, count, y_ref,
+        LibCImPlot.PlotShadeddoublePtrdoublePtrIntInt(label, x, y, count, y_ref,
                                                          offset, sizeof(Float32))
     end
 end
@@ -122,17 +122,17 @@ function PlotShaded(x::StepRange, y::AbstractArray{T,1}, y_ref::T; label::String
 
     if eltype(y) == Float32
         x = collect(Float32, x)
-        LibCImPlot.PlotShadedFloatPtrFloatPtrIntFloat(label, x, y, count, y_ref, offset,
+        LibCImPlot.PlotShadedFloatPtrFloatPtrIntInt(label, x, y, count, y_ref, offset,
                                                       stride * sizeof(Float32))
     elseif eltype(y) == Float64
         x = collect(Float64, x)
-        LibCImPlot.PlotShadeddoublePtrdoublePtrIntdouble(label, x, y, count, y_ref,
+        LibCImPlot.PlotShadeddoublePtrdoublePtrIntInt(label, x, y, count, y_ref,
                                                          offset, stirde * sizeof(Float64))
     else
         x = collect(Float32, x)
         y = convert.(Float32, y)
         y_ref = Float32(y_ref)
-        LibCImPlot.PlotShadedFloatPtrFloatPtrIntFloat(label, x, y, count, y_ref,
+        LibCImPlot.PlotShadedFloatPtrFloatPtrIntInt(label, x, y, count, y_ref,
                                                          offset, stride * sizeof(Float32))
     end
 end

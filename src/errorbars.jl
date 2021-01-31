@@ -25,7 +25,7 @@ function PlotErrorBars(x::Vector{Float32}, y::Vector{Float32},
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
-    LibCImPlot.PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr(label_id, x, y, error,
+    LibCImPlot.PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr(label_id, x, y, neg, pos,
                                                         Cint(count), Cint(offset),
                                                         Cint(stride * sizeof(Float32)))
 end
@@ -35,7 +35,7 @@ function PlotErrorBars(x::Vector{Float64}, y::Vector{Float64},
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
-    LibCImPlot.PlotErrorBarsdoublePtrdoublePtrdoublePtrdoublePtr(label_id, x, y, error,
+    LibCImPlot.PlotErrorBarsdoublePtrdoublePtrdoublePtrdoublePtr(label_id, x, y, neg, pos,
                                                         Cint(count), Cint(offset),
                                                         Cint(stride * sizeof(Float64)))
 end
@@ -67,7 +67,7 @@ function PlotErrorBarsH(x::Vector{Float32}, y::Vector{Float32},
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
-    LibCImPlot.PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr(label_id, x, y, error,
+    LibCImPlot.PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr(label_id, x, y, neg, pos,
                                                         Cint(count), Cint(offset),
                                                         Cint(stride * sizeof(Float32)))
 end
@@ -77,7 +77,7 @@ function PlotErrorBarsH(x::Vector{Float64}, y::Vector{Float64},
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
                        offset::Integer = 0, stride::Integer = 1)
 
-    LibCImPlot.PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr(label_id, x, y, error,
+    LibCImPlot.PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr(label_id, x, y, neg, pos,
                                                         Cint(count), Cint(offset),
                                                         Cint(stride * sizeof(Float64)))
 end
