@@ -7,16 +7,13 @@ function PlotLine(x::AbstractArray{T,1}, y::AbstractArray{T,1};
                   label::String = "") where {T}
     
     if eltype(x) == Float64
-        LibCImPlot.PlotLinedoublePtrdoublePtr(label, x, y, Cint(count),  Float64(xscale), Float64(x0), Cint(offset),
-                                          Cint(stride * sizeof(Float64)))
+        LibCImPlot.PlotLinedoublePtrdoublePtr(label, x, y, Cint(count), Cint(offset), Cint(stride * sizeof(Float64)))
     elseif eltype(x) == Float32
-        LibCImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count),  Float64(xscale), Float64(x0), Cint(offset),
-                                        Cint(stride * sizeof(Float32)))
+        LibCImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count), Cint(offset), Cint(stride * sizeof(Float32)))
     else
         x = convert.(Float32, x)
         y = convert.(Float32, y)
-        LibCImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count),  Float64(xscale), Float64(x0), Cint(offset),
-                                        Cint(stride * sizeof(Float32)))
+        LibCImPlot.PlotLineFloatPtrFloatPtr(label, x, y, Cint(count), Cint(offset), Cint(stride * sizeof(Float32)))
     end
 end
 
