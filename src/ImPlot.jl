@@ -17,7 +17,7 @@ for i in [ImPlotFlags, ImPlotAxisFlags]
     end
 end
 
-function BeginPlot(title_id, x_label, y_label, size::ImVec2;
+function BeginPlot(title_id::String, x_label, y_label, size::ImVec2;
                     flags::ImPlotFlags = ImPlotFlags_None,
                     x_flags::ImPlotAxisFlags = ImPlotAxisFlags_None,
                     y_flags::ImPlotAxisFlags = ImPlotAxisFlags_None,
