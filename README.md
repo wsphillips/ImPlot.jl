@@ -8,9 +8,19 @@ which is an auto-generated C API to [implot](https://github.com/epezent/implot),
 plotting extension library for [imgui](https://github.com/ocornut/imgui).
 
 ## Installation
+
+Simple installation via the package registry:
+
 ```julia
-]add https://github.com/wsphillips/ImPlot.jl
+]add ImPlot
 ```
+
+NOTE: The current stable version of **ImPlot on the registry is backed by binaries built from implot v0.4**. If you would like to try out some of the newer plot types and features, the development branch is currently running with binaries built from implot v0.8. To use that instead, install via:
+
+```
+]add https://github.com/wsphillips/ImPlot.jl#master
+```
+Also note, there are currently no convenience functions for the newer implot features on the development branch. You will have to work with the lower-level function wrappers in the `LibCImPlot` submodule
 
 ## Example Usage
 
