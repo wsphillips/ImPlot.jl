@@ -27,7 +27,7 @@ end
 
 function PlotShaded(x::AbstractArray{T,1}, y::AbstractArray{T,1}, y_ref::T;
                     count::Integer = min(length(x),length(y)), offset::Integer = 0,
-                    stride::Integer = 1, label_id::String = "") where {T}
+                    stride::Integer = 1, label::String = "") where {T}
     if eltype(x) == Float32
         LibCImPlot.PlotShadedFloatPtrFloatPtrIntInt(label, x, y, count, y_ref, offset,
                                                       stride * sizeof(Float32))
