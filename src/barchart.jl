@@ -25,50 +25,41 @@ const plot_bars_pointers = IdDict(Float32 => LibCImPlot.PlotBarsFloatPtrFloatPtr
                                   Int64   => LibCImPlot.PlotBarsS64PtrS64Ptr,
                                   UInt64  => LibCImPlot.PlotBarsU64PtrU64Ptr)
 
-
 function PlotBars(values::Vector{T}; count::Integer = length(values),
                   label_id::String = "", width = 0.67, shift = 0.0, offset::Integer = 0,
                   stride::Integer = 1) where {T <: ImPlotData}
 
-    plot_bars_count[T](label_id, values, Cint(count), Float64(width),
-                                        Float64(shift), Cint(offset),
-                                        Cint(stride * sizeof(T)))
+    plot_bars_count[T](label_id, values, Cint(count), Float64(width), Float64(shift),
+                       Cint(offset), Cint(stride * sizeof(T)))
 end
 
-
-function PlotBars(values::Vector{Float32}; count::Integer = length(values),
+function PlotBars(values::Vector{T}; count::Integer = length(values),
                   label_id::String = "", width = 0.67, shift = 0.0, offset::Integer = 0,
-                  stride::Integer = 1)
+                  stride::Integer = 1) where {T <: Real}
 
-    LibCImPlot.PlotBarsFloatPtrInt(label_id, values, Cint(count), Float64(width),
-                                        Float64(shift), Cint(offset),
-                                        Cint(stride * sizeof(Float32)))
+    LibCImPlot.PlotBarsdoublePtrInt(label_id, Float64.(values), Cint(count), Float64(width),
+                                    Float64(shift), Cint(offset),
+                                    Cint(stride * sizeof(Float64)))
 end
 
-function PlotBars(values::Vector{Float64}; count::Integer = length(values),
-                  label_id::String = "", width = 0.67, shift = 0.0, offset::Integer = 0,
-                  stride::Integer = 1)
+function PlotBars(x::Vector{T}, y::Vector{T}; count::Integer = min(length(x),length(y)),
+                  label_id::String = "", width = 0.67, offset::Integer = 0,
+                  stride::Integer = 1) where {T <: ImPlotData}
 
-    LibCImPlot.PlotBarsdoublePtrInt(label_id, values, Cint(count), Float64(width),
-                                          Float64(shift), Cint(offset),
+    plot_bars_pointers[T](label_id, x, y, Cint(count), Float64(width), Cint(offset),
+                          Cint(stride * sizeof(T)))
+end
+
+function PlotBars(x::Vector{T}, y::Vector{T};
+                  count::Integer = min(length(x), length(y)), label_id::String = "",
+                  width = 0.67, offset::Integer = 0, stride::Integer = 1) where {T <: Real}
+
+    LibCImPlot.PlotBarsdoublePtrdoublePtr(label_id, Float64.(x), Float64.(y), Cint(count),
+                                          Float64(width), Cint(offset),
                                           Cint(stride * sizeof(Float64)))
 end
 
-function PlotBars(x::Vector{Float32}, y::Vector{Float32};
-                  count::Integer = min(length(x),length(y)), label_id::String = "",
-                  width = 0.67, offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotBarsFloatPtrFloatPtr(label_id, x, y, Cint(count), Float64(width),
-                                        Cint(offset), Cint(stride * sizeof(Float32)))
-end
-
-function PlotBars(x::Vector{Float64}, y::Vector{Float64};
-                  count::Integer = min(length(x), length(y)), label_id::String = "",
-                  width = 0.67, offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotBarsdoublePtrdoublePtr(label_id, x, y, Cint(count), Float64(width),
-                                        Cint(offset), Cint(stride * sizeof(Float64)))
-end
+PlotBars(x::Vector{T1}, y::Vector{T2}; kwargs...) where {T1,T2} = PlotBars(promote(x, y)...; kwargs...)
 
 # Horizontal bars
 
@@ -94,9 +85,6 @@ const plot_hbars_pointers = IdDict(Float32 => LibCImPlot.PlotBarsHFloatPtrFloatP
                                    Int64   => LibCImPlot.PlotBarsHS64PtrS64Ptr,
                                    UInt64  => LibCImPlot.PlotBarsHU64PtrU64Ptr)
 
-
-
-
 function PlotBarsH(values::Vector{T}; count::Integer = length(values),
                   label_id::String = "", width = 0.67, shift = 0.0, offset::Integer = 0,
                   stride::Integer = 1) where {T <: ImPlotData}
@@ -106,40 +94,28 @@ function PlotBarsH(values::Vector{T}; count::Integer = length(values),
                                         Cint(stride * sizeof(T)))
 end
 
-
-
-function PlotBarsH(values::Vector{Float32}; count::Integer = length(values),
+function PlotBarsH(values::Vector{T}; count::Integer = length(values),
                   label_id::String = "", width = 0.67, shift = 0.0, offset::Integer = 0,
-                  stride::Integer = 1)
+                  stride::Integer = 1) where {T <: Real}
 
-    LibCImPlot.PlotBarsHFloatPtrInt(label_id, values, Cint(count), Float64(width),
-                                        Float64(shift), Cint(offset),
-                                        Cint(stride * sizeof(Float32)))
-end
-
-function PlotBarsH(values::Vector{Float64}; count::Integer = length(values),
-                  label_id::String = "", width = 0.67, shift = 0.0, offset::Integer = 0,
-                  stride::Integer = 1)
-
-    LibCImPlot.PlotBarsHdoublePtrInt(label_id, values, Cint(count), Float64(width),
+    LibCImPlot.PlotBarsHdoublePtrInt(label_id, Float64.(values), Cint(count), Float64(width),
                                           Float64(shift), Cint(offset),
                                           Cint(stride * sizeof(Float64)))
 end
 
-function PlotBarsH(x::Vector{Float32}, y::Vector{Float32};
+function PlotBarsH(x::Vector{T}, y::Vector{T};
                   count::Integer = min(length(x),length(y)), label_id::String = "",
-                  width = 0.67, offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotBarsHFloatPtrFloatPtr(label_id, x, y, Cint(count), Float64(width),
-                                        Cint(offset), Cint(stride * sizeof(Float32)))
+                  width = 0.67, offset::Integer = 0, stride::Integer = 1) where {T <: ImPlotData}
+    plot_hbars_pointers[T](label_id, x, y, Cint(count), Float64(width), Cint(offset), Cint(stride * sizeof(Float32)))
 end
 
-function PlotBarsH(x::Vector{Float64}, y::Vector{Float64};
+function PlotBarsH(x::Vector{T}, y::Vector{T};
                   count::Integer = min(length(x), length(y)), label_id::String = "",
-                  width = 0.67, offset::Integer = 0, stride::Integer = 1)
+                  width = 0.67, offset::Integer = 0, stride::Integer = 1) where {T <: Real}
 
-    LibCImPlot.PlotBarsHdoublePtrdoublePtr(label_id, x, y, Cint(count), Float64(width),
+    LibCImPlot.PlotBarsHdoublePtrdoublePtr(label_id, Float64.(x), Float64.(y), Cint(count), Float64(width),
                                         Cint(offset), Cint(stride * sizeof(Float64)))
 end
 
+PlotBarsH(x::Vector{T1}, y::Vector{T2}; kwargs...) where {T1,T2} = PlotBarsH(promote(x, y)...; kwargs...)
 
