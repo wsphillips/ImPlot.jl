@@ -8,6 +8,8 @@ import .LibCImPlot: SetLegendLocation
 LibCImPlot.SetLegendLocation(location, orientation) = LibCImPlot.SetLegendLocation(location, orientation, false)
 LibCImPlot.SetLegendLocation(location) = LibCImPlot.SetLegendLocation(location, LibCImPlot.ImPlotOrientation_Vertical, false)
 
+LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax) = LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax, ImGuiCond_Once)
+
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
                            labels::Vector{String} = [""], show_default::Bool = false)
 

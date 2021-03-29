@@ -6,7 +6,9 @@ include("libcimplot/libcimplot.jl")
 
 # Types
 using .LibCImPlot
-import CImGui: ImVec2, ImVec4
+import CImGui: ImVec2, ImVec4, ImGuiCond_Always, ImGuiCond_Appearing, ImGuiCond_FirstUseEver,
+               ImGuiCond_Once
+
 import .LibCImPlot: ImPlotStyleVar, ImPlotPoint, ImPlotColormap, ImPlotCol
 import .LibCImPlot: ImPlotFlags, ImPlotAxisFlags
 
@@ -17,7 +19,7 @@ for i in [ImPlotFlags, ImPlotAxisFlags]
     end
 end
 
-function BeginPlot(title_id::String, x_label, y_label, size::ImVec2;
+function BeginPlot(title_id::String, x_label, y_label, size::ImVec2 = ImVec2(-1,0);
                     flags::ImPlotFlags = ImPlotFlags_None,
                     x_flags::ImPlotAxisFlags = ImPlotAxisFlags_None,
                     y_flags::ImPlotAxisFlags = ImPlotAxisFlags_None,
@@ -29,6 +31,8 @@ function BeginPlot(title_id::String, x_label, y_label, size::ImVec2;
 end
 
 import .LibCImPlot: EndPlot
+
+const ImPlotData = Union{Float32, Float64, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64}
 
 include("lines.jl")
 include("stairs.jl")

@@ -1,7 +1,6 @@
 # Histogram (Bar) plots
 #
 # Vertical bars
-const ImPlotData = Union{Float32, Float64, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64}
 
 const plot_bars_count = IdDict(Float32 => LibCImPlot.PlotBarsFloatPtrInt,
                                Float64 => LibCImPlot.PlotBarsdoublePtrInt,

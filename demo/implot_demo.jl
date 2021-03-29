@@ -128,7 +128,7 @@ function ShowDemoWindow()
         CImGui.BulletText(@sprintf("ImGuiBackendFlags_RendererHasVtxOffset: %s", (CImGui.GetIO().BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset > 0) ? "True" : "False"))
         CImGui.Unindent()
         CImGui.Unindent()
-#ifdef IMPLOT_DEMO_USE_DOUBLE
+#ifdef IMPLOT_DEMO_USE_DOUBLE -- Maybe just use Sys.WORD_SIZE? Since that's default precision in Julia per system.
         CImGui.BulletText("The demo data precision is: Float64")
 #else
 #        CImGui.BulletText("The demo data precision is: Float32") #?
@@ -163,7 +163,7 @@ function ShowDemoWindow()
                 ys2[i] = xs2[i] * xs2[i]
             end
             CImGui.BulletText("Anti-aliasing can be enabled from the plot's context menu (see Help).")
-            if ImPlot.BeginPlot("Line Plot", "x", "f(x)", ImVec2(-1, 200)) #? ImVec2 required, no default value
+            if ImPlot.BeginPlot("Line Plot", "x", "f(x)")
                 ImPlot.PlotLine(xs1, ys1, label = "sin(x)")
                 SetNextMarkerStyle_fix(ImPlotMarker_Circle) #! error in api #? ImPlot.LibCImPlot #? no default values
                 ImPlot.PlotLine(xs2, ys2, label = "x^2")
@@ -188,7 +188,7 @@ function ShowDemoWindow()
             @c CImGui.DragFloat("Reference", &fill_ref, 1, -100, 500)
 
             ImPlot.SetNextPlotLimits(0, 100, 0, 500, ImGuiCond_Once) #? no default cond argument
-            if (ImPlot.BeginPlot("Stock Prices", "Days", "Price", ImVec2(-1, 200))) #? no default size
+            if (ImPlot.BeginPlot("Stock Prices", "Days", "Price"))
                 if (show_fills) 
                     ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
                     ImPlot.PlotShaded(xs1, ys1, fill_ref, label = "Stock 1")
@@ -219,7 +219,7 @@ function ShowDemoWindow()
             end
             @c CImGui.DragFloat("Alpha", &alpha, 0.01, 0, 1)
 
-            if (ImPlot.BeginPlot("Shaded Plots", "X-Axis", "Y-Axis", ImVec2(-1, 200))) #? no default size
+            if (ImPlot.BeginPlot("Shaded Plots", "X-Axis", "Y-Axis"))
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, alpha)
                 ImPlot.PlotShaded(xs, ys1, ys2, label = "Uncertain Data")
                 ImPlot.PlotLine(xs, ys, label = "Uncertain Data")
@@ -245,7 +245,7 @@ function ShowDemoWindow()
                 ys2[i] = 0.75 + 0.2 * rand(0 : 0.0001 : 1)
             end
 
-            if ImPlot.BeginPlot("Scatter Plot", "", "", ImVec2(-1, 200)) #? no default size
+            if ImPlot.BeginPlot("Scatter Plot", "", "")
                 ImPlot.PlotScatter(xs1, ys1, label = "Data 1")
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
                 SetNextMarkerStyle_fix(ImPlotMarker_Square, 6, ImVec4(0,1,0,0.5), IMPLOT_AUTO, ImVec4(0,1,0,1))
@@ -262,7 +262,7 @@ function ShowDemoWindow()
                 ys1[i] = 0.5 + 0.4 * sin(50 * i * 0.01)
                 ys2[i] = 0.5 + 0.2 * sin(25 * i * 0.01)
             end
-            if ImPlot.BeginPlot("Stairstep Plot", "x", "f(x)", ImVec2(-1, 200)) #? no default size
+            if ImPlot.BeginPlot("Stairstep Plot", "x", "f(x)")
                 ImPlot.PlotStairs(ys1, xscale = 0.01, label = "Signal 1")
                 SetNextMarkerStyle_fix(ImPlotMarker_Square, 2.0)
                 ImPlot.PlotStairs(ys2, xscale = 0.01, label = "Signal 2")
@@ -312,37 +312,39 @@ function ShowDemoWindow()
             end) # cstatic end
     end
     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Error Bars")) 
-#         @cstatic xs    = Float32[1,2,3,4,5]
-#         @cstatic bar   = Float32[1,2,5,3,4]
-#         @cstatic lin1  = Float32[8,8,9,7,8]
-#         @cstatic lin2  = Float32[6,7,6,9,6]
-#         @cstatic err1  = Float32[0.2, 0.4, 0.2, 0.6, 0.4]
-#         @cstatic err2  = Float32[0.4, 0.2, 0.4, 0.8, 0.6]
-#         @cstatic err3  = Float32[0.09, 0.14, 0.09, 0.12, 0.16]
-#         @cstatic err4  = Float32[0.02, 0.08, 0.15, 0.05, 0.2]
+    if (CImGui.CollapsingHeader("Error Bars")) 
+        @cstatic(xs    = Float32[1,2,3,4,5],
+            bar   = Float32[1,2,5,3,4],
+            lin1  = Float32[8,8,9,7,8],
+            lin2  = Float32[6,7,6,9,6],
+            err1  = Float32[0.2, 0.4, 0.2, 0.6, 0.4],
+            err2  = Float32[0.4, 0.2, 0.4, 0.8, 0.6],
+            err3  = Float32[0.09, 0.14, 0.09, 0.12, 0.16],
+            err4  = Float32[0.02, 0.08, 0.15, 0.05, 0.2],
+            begin
 
 
-#         ImPlot.SetNextPlotLimits(0, 6, 0, 10)
-#         if ImPlot.BeginPlot("##ErrorBars","","", ImVec2(-1, 200)) #? no default size
+         ImPlot.SetNextPlotLimits(0, 6, 0, 10)
+         if ImPlot.BeginPlot("##ErrorBars","","")
 
-#             ImPlot.PlotBars("Bar", xs, bar, 5, 0.5)
-#             ImPlot.PlotErrorBars("Bar", xs, bar, err1, 5)
+             ImPlot.PlotBars(xs, bar, count = 5, width = 0.5, label_id = "Bar")
+             ImPlot.PlotErrorBars(xs, bar, err1, count = 5, label_id = "Bar")
 
 #             ImPlot.SetNextErrorBarStyle(ImPlot.GetColormapColor(1), 0)
-#             ImPlot.PlotErrorBars("Line", xs, lin1, err1, err2, 5)
-#             ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
-#             ImPlot.PlotLine("Line", xs, lin1, 5)
+             ImPlot.PlotErrorBars(xs, lin1, err1, err2, count = 5, label_id = "Line")
+#             ImPlot.SetNextMarkerStyle_fix(ImPlotMarker_Circle)
+             ImPlot.PlotLine(xs, lin1, count = 5, label = "Line") # FIXME: consistency of label/label_id
 
 #             ImPlot.PushStyleColor(ImPlotCol_ErrorBar, ImPlot.GetColormapColor(2))
-#             ImPlot.PlotErrorBars("Scatter", xs, lin2, err2, 5)
-#             ImPlot.PlotErrorBarsH("Scatter", xs, lin2,  err3, err4, 5)
+             ImPlot.PlotErrorBars(xs, lin2, err2, count = 5, label_id = "Scatter")
+             ImPlot.PlotErrorBarsH(xs, lin2,  err3, err4, count = 5, label_id = "Scatter")
 #             ImPlot.PopStyleColor()
-#             ImPlot.PlotScatter("Scatter", xs, lin2, 5)
+             ImPlot.PlotScatter(xs, lin2, count = 5, label = "Scatter")
 
-#             ImPlot.EndPlot()
-#         end
-#     end
+             ImPlot.EndPlot()
+         end
+        end) #cstatic 
+     end
 #     if (CImGui.CollapsingHeader("Stem Plots##")) 
 #         @cstatic xs = zeros(Float64, 51) ys1 = zeros(Float64, 51) ys2 = zeros(Float64, 51)
 #         for i = 1:51
