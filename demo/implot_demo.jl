@@ -10,6 +10,7 @@ using CImGui.CSyntax.CStatic
 import CImGui:  # do we need to import this separately?
     ImVec2, # I don't get all of this Im*, ImGui_* and so on - instead of a consistent namespace CImGui.* (or Im::*)
     ImVec4,
+    ImGuiCond_Always,
     ImGuiCond_Appearing, # CImGui.Cond_Appearing would be cleaner, but probably too excessive to replace all...
     ImGuiCond_FirstUseEver,
     ImGuiCond_Once,
@@ -31,7 +32,12 @@ import ImPlot.LibCImPlot: # do we need to import this separately?
     SetNextMarkerStyle,
     IMPLOT_AUTO,
     IMPLOT_AUTO_COL,
-    ImPlotStyleVar_FillAlpha
+    ImPlotStyleVar_FillAlpha,
+    ImPlotLocation_West,
+    ImPlotLocation_South,
+    ImPlotOrientation_Horizontal,
+    ImPlotOrientation_Vertical,
+    ImPlotAxisFlags_Invert
 
 using Random
 
@@ -268,42 +274,44 @@ function ShowDemoWindow()
     # the rest code is copy-pasted from C++, fast find-and-change patterns applied and some shallow errors fixed
     # TODO: make this code working one-by-one
     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Bar Plots")) 
+    if (CImGui.CollapsingHeader("Bar Plots")) 
 
-#         @cstatic horz   = false
-#         @cstatic midtm  = ImS8[83, 67, 23, 89, 83, 78, 91, 82, 85, 90]
-#         @cstatic final  = ImS16[80, 62, 56, 99, 55, 78, 88, 78, 90, 100]
-#         @cstatic grade  = ImS32[80, 69, 52, 92, 72, 78, 75, 76, 89, 95]
+        @cstatic(
+            horz   = false,
+            midtm  = Int8[83, 67, 23, 89, 83, 78, 91, 82, 85, 90],
+            final  = Int16[80, 62, 56, 99, 55, 78, 88, 78, 90, 100],
+            grade  = Int32[80, 69, 52, 92, 72, 78, 75, 76, 89, 95],
+            labels = ["S1","S2","S3","S4","S5","S6","S7","S8","S9","S10"],
+            positions = Float64[0,1,2,3,4,5,6,7,8,9],
+            begin
 
-#         @cstatic labels = ["S1","S2","S3","S4","S5","S6","S7","S8","S9","S10"]
-#         @cstatic positions = Float64[0,1,2,3,4,5,6,7,8,9]
+                @c CImGui.Checkbox("Horizontal", &horz)
 
-#         CImGui.Checkbox("Horizontal",&horz)
-
-#         if (horz) 
-#             ImPlot.SetNextPlotLimits(0, 110, -0.5, 9.5, ImGuiCond_Always)
-#             ImPlot.SetNextPlotTicksY(positions, 10, labels)
-#         else 
-#             ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 110, ImGuiCond_Always)
-#             ImPlot.SetNextPlotTicksX(positions, 10, labels)
-#         end
-#         if (ImPlot.BeginPlot("Bar Plot", horz ? "Score" :  "Student", horz ? "Student" : "Score",
-#                               ImVec2(-1,0), 0, 0, horz ? ImPlotAxisFlags_Invert : 0))
-#             if (horz) 
-#                 ImPlot.SetLegendLocation(ImPlotLocation_West, ImPlotOrientation_Vertical)
-#                 ImPlot.PlotBarsH("Midterm Exam", midtm, 10, 0.2, -0.2)
-#                 ImPlot.PlotBarsH("Final Exam",   final, 10, 0.2,    0)
-#                 ImPlot.PlotBarsH("Course Grade", grade, 10, 0.2,  0.2)
-#             else 
-#                 ImPlot.SetLegendLocation(ImPlotLocation_South, ImPlotOrientation_Horizontal)
-#                 ImPlot.PlotBars("Midterm Exam", midtm, 10, 0.2, -0.2)
-#                 ImPlot.PlotBars("Final Exam",   final, 10, 0.2,    0)
-#                 ImPlot.PlotBars("Course Grade", grade, 10, 0.2,  0.2)
-#             end
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     #-------------------------------------------------------------------------
+                if (horz) 
+                    ImPlot.SetNextPlotLimits(0, 110, -0.5, 9.5, ImGuiCond_Always)
+                    ImPlot.SetNextPlotTicksY(positions, 10; labels = labels)
+                else 
+                    ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 110, ImGuiCond_Always)
+                    ImPlot.SetNextPlotTicksX(positions, 10; labels = labels)
+                end
+                if (ImPlot.BeginPlot("Bar Plot", horz ? "Score" :  "Student", horz ? "Student" : "Score",
+                                      ImVec2(-1,0), y_flags = horz ? ImPlotAxisFlags_Invert : ImPlotAxisFlags_None))
+                    if (horz) 
+                        ImPlot.SetLegendLocation(ImPlotLocation_West, ImPlotOrientation_Vertical)
+                        ImPlot.PlotBarsH(midtm, label_id = "Midterm Exam", count = 10, width = 0.2, shift = -0.2)
+                        ImPlot.PlotBarsH(final, label_id = "Final Exam", count = 10, width = 0.2, shift = 0)
+                        ImPlot.PlotBarsH(grade, label_id = "Course Grade", count = 10, width = 0.2, shift = 0.2)
+                    else 
+                        ImPlot.SetLegendLocation(ImPlotLocation_South, ImPlotOrientation_Horizontal)
+                        ImPlot.PlotBars(midtm, label_id = "Midterm Exam", count = 10, width = 0.2, shift = -0.2)
+                        ImPlot.PlotBars(final, label_id = "Final Exam", count = 10, width = 0.2, shift = 0)
+                        ImPlot.PlotBars(grade, label_id = "Course Grade", count = 10, width = 0.2, shift = 0.2)
+                    end
+                    ImPlot.EndPlot()
+                end
+            end) # cstatic end
+    end
+    #-------------------------------------------------------------------------
 #     if (CImGui.CollapsingHeader("Error Bars")) 
 #         @cstatic xs    = Float32[1,2,3,4,5]
 #         @cstatic bar   = Float32[1,2,5,3,4]

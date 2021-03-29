@@ -2,6 +2,11 @@
 import .LibCImPlot: IsPlotHovered, GetPlotMousePos, GetPlotLimits, IsPlotQueried, GetPlotQuery
 import .LibCImPlot: SetNextPlotLimits, SetNextPlotLimitsX, SetNextPlotLimitsY, SetPlotYAxis
 import .LibCImPlot: ShowColormapScale, PushPlotClipRect, PopPlotClipRect
+import .LibCImPlot: SetLegendLocation
+
+
+LibCImPlot.SetLegendLocation(location, orientation) = LibCImPlot.SetLegendLocation(location, orientation, false)
+LibCImPlot.SetLegendLocation(location) = LibCImPlot.SetLegendLocation(location, LibCImPlot.ImPlotOrientation_Vertical, false)
 
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
                            labels::Vector{String} = [""], show_default::Bool = false)
