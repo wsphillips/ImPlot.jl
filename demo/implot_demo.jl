@@ -408,57 +408,71 @@ function ShowDemoWindow()
             end) # cstatic
      end
      #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Heatmaps")) 
-#         @cstatic  values1 = [Float32[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
-#                             Float32[2.4, 0.0, 4.0, 1.0, 2.7, 0.0, 0.0],
-#                             Float32[1.1, 2.4, 0.8, 4.3, 1.9, 4.4, 0.0],
-#                             Float32[0.6, 0.0, 0.3, 0.0, 3.1, 0.0, 0.0],
-#                             Float32[0.7, 1.7, 0.6, 2.6, 2.2, 6.2, 0.0],
-#                             Float32[1.3, 1.2, 0.0, 0.0, 0.0, 3.2, 5.1],
-#                             Float32[0.1, 2.0, 0.0, 1.4, 0.0, 1.9, 6.3]]
-#         @cstatic scale_min       = Float32(0)
-#         @cstatic scale_max       = Float32(6.3)
-#         @cstatic xlabels = ["C1","C2","C3","C4","C5","C6","C7"]
-#         @cstatic ylabels = ["R1","R2","R3","R4","R5","R6","R7"]
+    if (CImGui.CollapsingHeader("Heatmaps")) 
+        @cstatic(
+            # this might need transpose + collect to match C++ precisely
+            values1 = Float32[0.8 2.4 2.5 3.9 0.0 4.0 0.0;
+                              2.4 0.0 4.0 1.0 2.7 0.0 0.0;
+                              1.1 2.4 0.8 4.3 1.9 4.4 0.0;
+                              0.6 0.0 0.3 0.0 3.1 0.0 0.0;
+                              0.7 1.7 0.6 2.6 2.2 6.2 0.0;
+                              1.3 1.2 0.0 0.0 0.0 3.2 5.1;
+                              0.1 2.0 0.0 1.4 0.0 1.9 6.3],
+                scale_min = Float32(0),
+                scale_max = Float32(6.3),
+                xlabels = ["C1","C2","C3","C4","C5","C6","C7"],
+                ylabels = ["R1","R2","R3","R4","R5","R6","R7"],
+                map = Cint(ImPlot.ImPlotColormap_Viridis),
+                axes_flags = ImPlot.ImPlotAxisFlags(ImPlot.ImPlotAxisFlags_Lock | ImPlot.ImPlotAxisFlags_NoGridLines | ImPlot.ImPlotAxisFlags_NoTickMarks),
+                values2 = zeros(Float64, 100*100),
+                gray = [ImVec4(0,0,0,1), ImVec4(1,1,1,1)],
+                begin
 
-#         @cstatic ImPlotColormap map = ImPlotColormap_Viridis
-#         if (CImGui.Button("Change Colormap",ImVec2(225,0)))
-#             map = (map + 1) % ImPlotColormap_COUNT
-#         end
+         if (CImGui.Button("Change Colormap",ImVec2(225,0)))
+             map = (map + 1) % Cint(ImPlot.ImPlotColormap_COUNT)
+         end
 #         CImGui.SameLine()
-#         CImGui.LabelText("##Colormap Index", "%s", ImPlot.GetColormapName(map))
-#         CImGui.SetNextItemWidth(225)
-#         CImGui.DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01, -20, 20)
-#         @cstatic ImPlotAxisFlags axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks
+         # FIXME: string formatting doesn't work for LabelText, so we need to do it ourselves
+         # via @sprintf. Also, helper functions like GetColormapName need to be looked at
+#         CImGui.LabelText("##Colormap Index", @sprintf("%s", ImPlot.GetColormapName(map)))
+         CImGui.SetNextItemWidth(225)
+         @c CImGui.DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01, -20, 20)
 
 #         ImPlot.PushColormap(map)
-#         SetNextPlotTicksX(0 + 1.0/14.0, 1 - 1.0/14.0, 7, xlabels)
-#         SetNextPlotTicksY(1 - 1.0/14.0, 0 + 1.0/14.0, 7, ylabels)
-#         if (ImPlot.BeginPlot("##Heatmap1","","",ImVec2(225,225),ImPlotFlags_NoLegend|ImPlotFlags_NoMousePos,axes_flags,axes_flags)) 
-#             ImPlot.PlotHeatmap("heat",values1[0],7,7,scale_min,scale_max)
-#             ImPlot.EndPlot()
-#         end
+         ImPlot.SetNextPlotTicksX(0 + 1.0/14.0, 1 - 1.0/14.0, 7, labels = xlabels)
+         ImPlot.SetNextPlotTicksY(1 - 1.0/14.0, 0 + 1.0/14.0, 7, labels = ylabels)
+         if (ImPlot.BeginPlot("##Heatmap1","","",ImVec2(225,225),
+            flags = ImPlot.ImPlotFlags(ImPlotFlags_NoLegend|ImPlotFlags_NoMousePos),
+            x_flags = axes_flags, y_flags = axes_flags)) 
+
+             ImPlot.PlotHeatmap(values1, 7, 7, scale_min, scale_max, label_id = "heat")
+             ImPlot.EndPlot()
+         end
 #         CImGui.SameLine()
 #         ImPlot.ShowColormapScale(scale_min, scale_max, 225)
 #         ImPlot.PopColormap()
 
-#         CImGui.SameLine()
-
-#         @cstatic values2 = zeros(Float64, 100*100)
-#         Random.seed!(DEMO_TIME*1000000)
-#         for i = 1:100*100
-#             values2[i] = rand(0 : 0.0001 : 1)
-#         end
-#         @cstatic gray = [ImVec4(0,0,0,1), ImVec4(1,1,1,1)]
+         CImGui.SameLine()
+         
+         #Random.seed!(DEMO_TIME*1000000)
+         for i = 1:100*100
+             values2[i] = rand(0 : 0.0001 : 1) # alternatively, just: values2 .= rand(100,100)
+         end
 #         ImPlot.PushColormap(gray, 2)
-#         ImPlot.SetNextPlotLimits(-1,1,-1,1)
-#         if (ImPlot.BeginPlot("##Heatmap2","","",ImVec2(225,225),0,ImPlotAxisFlags_NoDecorations,ImPlotAxisFlags_NoDecorations)) 
-#             ImPlot.PlotHeatmap("heat1",values2,100,100,0,1,"")
-#             ImPlot.PlotHeatmap("heat2",values2,100,100,0,1,"", ImPlotPoint(-1,-1), ImPlotPoint(0,0))
-#             ImPlot.EndPlot()
-#         end
+         ImPlot.SetNextPlotLimits(-1,1,-1,1)
+         if (ImPlot.BeginPlot("##Heatmap2","","", ImVec2(225,225),
+             x_flags = ImPlot.ImPlotAxisFlags_NoDecorations,
+             y_flags = ImPlot.ImPlotAxisFlags_NoDecorations)) 
+
+             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label_id = "heat1")
+             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label_id = "heat2",
+                                bounds_min = ImPlot.ImPlotPoint(-1,-1),
+                                bounds_max = ImPlot.ImPlotPoint(0,0))
+             ImPlot.EndPlot()
+         end
 #         ImPlot.PopColormap()
-#     end
+        end) # cstatic
+     end
 #     #-------------------------------------------------------------------------
 #     if (CImGui.CollapsingHeader("Images")) 
 #         CImGui.BulletText("Below we are displaying the font texture, which is the only texture we have\naccess to in this demo.")

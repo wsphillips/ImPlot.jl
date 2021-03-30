@@ -10,12 +10,23 @@ import CImGui.LibCImGui: ImGuiContext
 include("libcimplot_common.jl")
 include("libcimplot_api.jl")
 
-for i in [ImPlotFlags, ImPlotAxisFlags]
+enums = [ImPlotFlags, 
+         ImPlotAxisFlags, 
+         ImPlotCol,
+         ImPlotStyleVar,
+         ImPlotMarker,
+         ImPlotColormap,
+         ImPlotLocation,
+         ImPlotOrientation,
+         ImPlotYAxis]
+
+for i in enums
+    @eval export $(Symbol(i))
     for j in instances(i)
         @eval export $(Symbol(j))
     end
 end
 
-export CreateContext, DestroyContext, SetImGuiContext
+export CreateContext, DestroyContext, SetImGuiContext, ImPlotPoint
 
 end # module
