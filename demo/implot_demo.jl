@@ -345,25 +345,26 @@ function ShowDemoWindow()
          end
         end) #cstatic 
      end
-#     if (CImGui.CollapsingHeader("Stem Plots##")) 
-#         @cstatic xs = zeros(Float64, 51) ys1 = zeros(Float64, 51) ys2 = zeros(Float64, 51)
-#         for i = 1:51
-#             xs[i] = i * 0.02
-#             ys1[i] = 1.0 + 0.5 * sin(25*xs[i]) * cos(2*xs[i])
-#             ys2[i] = 0.5 + 0.25  * sin(10*xs[i]) * sin(xs[i])
-#         end
-#         ImPlot.SetNextPlotLimits(0,1,0,1.6)
-#         if ImPlot.BeginPlot("Stem Plots", "", "", ImVec2(-1, 200)) #? no default size 
+     if (CImGui.CollapsingHeader("Stem Plots##")) 
+         @cstatic xs = zeros(Float64, 51) ys1 = zeros(Float64, 51) ys2 = zeros(Float64, 51) begin
+         for i = 1:51
+             xs[i] = i * 0.02
+             ys1[i] = 1.0 + 0.5 * sin(25*xs[i]) * cos(2*xs[i])
+             ys2[i] = 0.5 + 0.25  * sin(10*xs[i]) * sin(xs[i])
+         end
+         ImPlot.SetNextPlotLimits(0,1,0,1.6)
+         if ImPlot.BeginPlot("Stem Plots", "", "") #? no default size 
 
-#             ImPlot.PlotStems("Stems 1",xs,ys1,51)
+             ImPlot.PlotStems(xs, ys1, count = 51, label_id = "Stems 1")
 
 #             ImPlot.SetNextLineStyle(ImVec4(1,0.5,0,0.75))
 #             ImPlot.SetNextMarkerStyle(ImPlotMarker_Square,5,ImVec4(1,0.5,0,0.25))
-#             ImPlot.PlotStems("Stems 2", xs, ys2,51)
+             ImPlot.PlotStems(xs, ys2, count = 51, label_id = "Stems 2")
 
-#             ImPlot.EndPlot()
-#         end
-#     end
+             ImPlot.EndPlot()
+         end
+        end #cstatic
+     end
 #     #-------------------------------------------------------------------------
 #     if (CImGui.CollapsingHeader("Pie Charts")) 
 #         @cstatic labels1 = ["Frogs","Hogs","Dogs","Logs"]
