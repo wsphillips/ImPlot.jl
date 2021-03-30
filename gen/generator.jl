@@ -1,53 +1,38 @@
-using Clang
+using Clang.Generators
 
-using CImPlot.LibCImPlot.CImPlot_jll
+# using ImPlot.LibCImPlot.CImPlot_jll
 
-const CIMGUI_H = joinpath(dirname(CImPlot_jll.libcimplot_path), "..", "include", "cimplot.h") |> normpath
+using CImGui_jll
 
-# create a work context
-ctx = DefaultContext()
+include_dir = joinpath(CImGui_jll.artifact_dir, "include")
 
-# parse headers
-parse_headers!(ctx, [CIMGUI_H], args=[map(x->"-I"*x, find_std_headers())..., "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS"], includes=[LLVM_INCLUDE])
+cd(@__DIR__)
 
-# settings
-ctx.libname = "libcimplot"
-ctx.options["is_function_strictly_typed"] = false
-ctx.options["is_struct_mutable"] = false
+const CIMPLOT_H = joinpath(@__DIR__, "cimplot_patched.h") |> normpath
 
-# write output
-api_file = joinpath(@__DIR__, "libcimplot_api.jl")
-api_stream = open(api_file, "w")
+options = load_options(joinpath(@__DIR__, "generator.toml"))
 
-for trans_unit in ctx.trans_units
-    root_cursor = getcursor(trans_unit)
-    push!(ctx.cursor_stack, root_cursor)
-    header = spelling(root_cursor)
-    @info "wrapping header: $header ..."
-    # loop over all of the child cursors and wrap them, if appropriate.
-    ctx.children = children(root_cursor)
-    for (i, child) in enumerate(ctx.children)
-        child_name = name(child)
-        child_header = filename(child)
-        ctx.children_index = i
-        # choose which cursor to wrap
-        startswith(child_name, "__") && continue  # skip compiler definitions
-        child_name in keys(ctx.common_buffer) && continue  # already wrapped
-        child_header != header && continue  # skip if cursor filename is not in the headers to be wrapped
+args = ["-I$include_dir", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS"]
 
-        wrap!(ctx, child)
-    end
-    @info "writing $(api_file)"
-    println(api_stream, "# Julia wrapper for header: $(basename(header))")
-    println(api_stream, "# Automatically generated using Clang.jl\n")
-    print_buffer(api_stream, ctx.api_buffer)
-    empty!(ctx.api_buffer)  # clean up api_buffer for the next header
-end
-close(api_stream)
+# add definitions
+@add_def ImVec2
+@add_def ImVec4
+@add_def ImGuiMouseButton
+@add_def ImGuiKeyModFlags
+@add_def ImS8
+@add_def ImU8
+@add_def ImS16
+@add_def ImU16
+@add_def ImS32
+@add_def ImU32
+@add_def ImS64
+@add_def ImU64
+@add_def ImTextureID
+@add_def ImGuiCond
+@add_def ImGuiDragDropFlags
+@add_def ImDrawList
+@add_def ImGuiContext
 
-# write "common" definitions: types, typealiases, etc.
-common_file = joinpath(@__DIR__, "libcimplot_common.jl")
-open(common_file, "w") do f
-    println(f, "# Automatically generated using Clang.jl\n")
-    print_buffer(f, dump_to_buffer(ctx.common_buffer))
-end
+ctx = create_context(CIMPLOT_H, args, options)
+
+build!(ctx)

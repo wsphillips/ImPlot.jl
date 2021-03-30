@@ -1,8 +1,6 @@
 module ImPlot
 
-using CEnum
-
-include("libcimplot/libcimplot.jl")
+include("libcimplot.jl")
 
 # Types
 using .LibCImPlot
@@ -10,8 +8,8 @@ import CImGui: ImVec2, ImVec4
 import .LibCImPlot: ImPlotStyleVar, ImPlotPoint, ImPlotColormap, ImPlotCol
 import .LibCImPlot: ImPlotFlags, ImPlotAxisFlags
 
-# Export plot flags 
-for i in [ImPlotFlags, ImPlotAxisFlags]
+# Export plot flags
+for i in [ImPlotFlags_, ImPlotAxisFlags_]
     for j in instances(i)
         @eval export $(Symbol(j))
     end
@@ -23,7 +21,7 @@ function BeginPlot(title_id::String, x_label, y_label, size::ImVec2;
                     y_flags::ImPlotAxisFlags = ImPlotAxisFlags_None,
                     y2_flags::ImPlotAxisFlags = ImPlotAxisFlags_None,
                     y3_flags::ImPlotAxisFlags = ImPlotAxisFlags_None)::Bool
- 
+
     LibCImPlot.BeginPlot(title_id, x_label, y_label, size,
                          flags, x_flags, y_flags, y2_flags, y3_flags)
 end
