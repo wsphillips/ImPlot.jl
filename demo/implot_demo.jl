@@ -365,38 +365,49 @@ function ShowDemoWindow()
          end
         end #cstatic
      end
-#     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Pie Charts")) 
-#         @cstatic labels1 = ["Frogs","Hogs","Dogs","Logs"]
-#         @cstatic data1[]           = Float32[0.15,  0.30,  0.2, 0.05]
-#         @cstatic normalize         = false
-#         CImGui.SetNextItemWidth(250)
-#         CImGui.DragFloat4("Values", data1, 0.01, 0, 1)
-#         if ((data1[0] + data1[1] + data1[2] + data1[3]) < 1) 
-#             CImGui.SameLine()
-#             CImGui.Checkbox("Normalize", &normalize)
-#         end
+     #-------------------------------------------------------------------------
+     if (CImGui.CollapsingHeader("Pie Charts")) 
+         @cstatic(
+            labels1 = ["Frogs","Hogs","Dogs","Logs"],
+            data1 = Float32[0.15,  0.30,  0.2, 0.05],
+            normalize = false,
+            labels2 = ["A","B","C","D","E"],
+            data2 = [1,1,2,3,5],
+            begin
+                CImGui.SetNextItemWidth(250)
+                @c CImGui.DragFloat4("Values", data1, 0.01, 0, 1)
+                if (data1[1] + data1[2] + data1[3] + data1[4]) < 1
+                    CImGui.SameLine()
+                    @c CImGui.Checkbox("Normalize", &normalize)
+                end
 
-#         ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##Pie1", "", "", ImVec2(250,250), ImPlotFlags_Equal | ImPlotFlags_NoMousePos, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
-#             ImPlot.PlotPieChart(labels1, data1, 4, 0.5, 0.5, 0.4, normalize, "%.2f")
-#             ImPlot.EndPlot()
-#         end
+                ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
+                if (ImPlot.BeginPlot("##Pie1", "", "", ImVec2(250,250),
+                    flags = ImPlot.LibCImPlot.ImPlotFlags(ImPlotFlags_Equal | ImPlotFlags_NoMousePos),
+                    y_flags = ImPlotAxisFlags_NoDecorations,
+                    y2_flags = ImPlotAxisFlags_NoDecorations)) 
+                    
+                    ImPlot.PlotPieChart(data1, 4, 0.5, 0.5, 0.4, normalize = normalize,
+                                        label_fmt = "%.2f", label_ids = labels1)
+                    ImPlot.EndPlot()
+                end
 
-#         CImGui.SameLine()
+                CImGui.SameLine()
+#                ImPlot.PushColormap(ImPlotColormap_Pastel) # TODO: add more enum exports to libcimplot.jl
+                ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
+                if (ImPlot.BeginPlot("##Pie2", "", "", ImVec2(250,250),
+                    flags = ImPlot.LibCImPlot.ImPlotFlags(ImPlotFlags_Equal | ImPlotFlags_NoMousePos),
+                    y_flags = ImPlotAxisFlags_NoDecorations,
+                    y2_flags = ImPlotAxisFlags_NoDecorations)) 
 
-#         @cstatic labels2 = ["A","B","C","D","E"]
-#         @cstatic data2 = [1,1,2,3,5]
-
-#         ImPlot.PushColormap(ImPlotColormap_Pastel)
-#         ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##Pie2", "", "", ImVec2(250,250), ImPlotFlags_Equal | ImPlotFlags_NoMousePos, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
-#             ImPlot.PlotPieChart(labels2, data2, 5, 0.5, 0.5, 0.4, true, "%.0f", 180)
-#             ImPlot.EndPlot()
-#         end
-#         ImPlot.PopColormap()
-#     end
-#     #-------------------------------------------------------------------------
+                    ImPlot.PlotPieChart(data2, 5, 0.5, 0.5, 0.4, normalize = true,
+                                        label_fmt = "%.0f", angle0 = 180, label_ids = labels2)
+                    ImPlot.EndPlot()
+                end
+#                ImPlot.PopColormap()
+            end) # cstatic
+     end
+     #-------------------------------------------------------------------------
 #     if (CImGui.CollapsingHeader("Heatmaps")) 
 #         @cstatic  values1 = [Float32[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
 #                             Float32[2.4, 0.0, 4.0, 1.0, 2.7, 0.0, 0.0],
