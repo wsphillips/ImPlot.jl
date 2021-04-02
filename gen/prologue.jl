@@ -1,22 +1,20 @@
 using CImPlot_jll
-#export CImPlot_jll
 
 using CImGui
 
-const ImVec2 = CImGui.ImVec2
-const ImVec4 = CImGui.ImVec4
-const ImGuiMouseButton = CImGui.ImGuiMouseButton
-const ImGuiKeyModFlags = CImGui.ImGuiKeyModFlags
-const ImS8 = CImGui.ImS8
-const ImU8 = CImGui.ImU8
-const ImS16 = CImGui.ImS16
-const ImU16 = CImGui.ImU16
-const ImS32 = CImGui.ImS32
-const ImU32 = CImGui.ImU32
-const ImS64 = CImGui.ImS64
-const ImU64 = CImGui.ImU64
-const ImTextureID = CImGui.ImTextureID
-const ImGuiCond = CImGui.ImGuiCond
-const ImGuiDragDropFlags = CImGui.ImGuiDragDropFlags
-const ImDrawList = CImGui.ImDrawList
-const ImGuiContext = CImGui.ImGuiContext
+import CImGui: 
+    # Vector primitives:
+    ImVec2, ImVec4,
+    # Enums
+    ImGuiMouseButton, ImGuiKeyModFlags, ImGuiCond, ImGuiDragDropFlags,
+    # Primitive type aliases; uncomment after CImGui update
+    #=ImS8,=# ImU8, ImS16, ImU16, ImS32, ImU32, ImS64, ImU64,
+    ImTextureID,
+    ImDrawList,
+    ImGuiContext
+            
+#Temporary patch; CImGui.jl v1.79.0 aliases ImS8 incorrectly
+const ImS8 = Int8
+
+const IMPLOT_AUTO = Cint(-1)
+const IMPLOT_AUTO_COL = ImVec4(0,0,0,-1)

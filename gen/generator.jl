@@ -40,7 +40,7 @@ typedict = Dict(zip(imtypes,jltypes))
 #type_names = ["FloatPtr", "doublePtr", "S8Ptr", "U8Ptr", "S16Ptr", "U16Ptr", "S32Ptr", "U32Ptr", "S64Ptr", "U64Ptr"]  
 
 imdatatypes = [:Cfloat, :Cdouble, :ImS8, :ImU8, :ImS16, :ImU16, :ImS32, :ImU32, :ImS64, :ImU64]
-plot_types = ["Line", "Scatter", "Stairs", "Shaded", "Bars", "BarsH", "ErrorBars", "ErrorBarsH", "Stems", "VLines", "HLines", "PieChart", "Heatmap", "Histogram", "Histogram2D", "Digital"]
+plot_types = ["Line", "Scatter", "Stairs", "Shaded", "BarsH", "Bars", "ErrorBarsH", "ErrorBars", "Stems", "VLines", "HLines", "PieChart", "Heatmap", "Histogram", "Histogram2D", "Digital"]
 
 ctx = create_context(CIMPLOT_H, args, options)
 
@@ -96,7 +96,7 @@ function revise_function!(e::Expr)
         for ptype in plot_types
             fullname = "Plot" * ptype
             if startswith(fname, fullname)
-                if fname[length(fullname)+1] == 'G'
+                if fname[length(fullname)+1] == 'G' || fname[length(fullname)+1] == 'H'
                     fname = fname[1:length(fullname)+1]
                 else
                     fname = fname[1:length(fullname)]
