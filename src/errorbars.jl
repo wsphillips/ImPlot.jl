@@ -1,85 +1,50 @@
 # Error bar plotting/annotation
 
-function PlotErrorBars(x::Vector{Float32}, y::Vector{Float32},
+import .LibCImPlot: PlotErrorBars, PlotErrorBarsH
+
+function PlotErrorBars(x::AbstractArray{T}, y::AbstractArray{T},
                        error::Vector{Float32}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(error)),
-                       offset::Integer = 0, stride::Integer = 1)
+                       offset::Integer = 0, stride::Integer = 1) where {T <: ImPlotData}
 
-    LibCImPlot.PlotErrorBarsFloatPtrFloatPtrFloatPtrInt(label_id, x, y, error,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float32)))
+    LibCImPlot.PlotErrorBars(label_id, x, y, error, count, offset, stride * sizeof(T))
 end
 
-function PlotErrorBars(x::Vector{Float64}, y::Vector{Float64},
-                       error::Vector{Float64}; label_id::String = "",
-                       count::Integer = min(length(x), length(y), length(error)),
-                       offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotErrorBarsdoublePtrdoublePtrdoublePtrInt(label_id, x, y, error,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float64)))
-end
-
-function PlotErrorBars(x::Vector{Float32}, y::Vector{Float32},
-                       negative::Vector{Float32}, positive::Vector{Float32}; label_id::String = "",
+function PlotErrorBars(x::AbstractArray{T}, y::AbstractArray{T},
+                       negative::AbstractArray{T}, positive::AbstractArray{T}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
-                       offset::Integer = 0, stride::Integer = 1)
+                       offset::Integer = 0, stride::Integer = 1) where {T <: ImPlotData}
 
-    LibCImPlot.PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr(label_id, x, y, neg, pos,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float32)))
+    LibCImPlot.PlotErrorBars(label_id, x, y, neg, pos, count, offset, stride * sizeof(T))
 end
 
-function PlotErrorBars(x::Vector{Float64}, y::Vector{Float64},
-                       negative::Vector{Float64}, positive::Vector{Float64}; label_id::String = "",
-                       count::Integer = min(length(x), length(y), length(negative), length(positive)),
-                       offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotErrorBarsdoublePtrdoublePtrdoublePtrdoublePtr(label_id, x, y, neg, pos,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float64)))
+function PlotErrorBars(x::AbstractArray{T1}, y::AbstractArray{T2}, neg::AbstractArray{T3},
+                       pos::AbstractArray{T4}; kwargs...) where {T1<:Real,T2<:Real,T3<:Real,T4<:Real}
+    
+    LibCImPlot.PlotErrorBars(label_id, promote(x,y,pos,neg)...; kwargs...)
 end
 
 # Horizontal error bars/annotations
 
-function PlotErrorBarsH(x::Vector{Float32}, y::Vector{Float32},
+function PlotErrorBarsH(x::AbstractArray{T}, y::AbstractArray{T},
                        error::Vector{Float32}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(error)),
-                       offset::Integer = 0, stride::Integer = 1)
+                       offset::Integer = 0, stride::Integer = 1) where {T <: ImPlotData}
 
-    LibCImPlot.PlotErrorBarsHFloatPtrFloatPtrFloatPtrInt(label_id, x, y, error,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float32)))
+    LibCImPlot.PlotErrorBarsH(label_id, x, y, error, count, offset, stride * sizeof(T))
 end
 
-function PlotErrorBarsH(x::Vector{Float64}, y::Vector{Float64},
-                       error::Vector{Float64}; label_id::String = "",
-                       count::Integer = min(length(x), length(y), length(error)),
-                       offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotErrorBarsHdoublePtrdoublePtrdoublePtrInt(label_id, x, y, error,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float64)))
-end
-
-function PlotErrorBarsH(x::Vector{Float32}, y::Vector{Float32},
-                       negative::Vector{Float32}, positive::Vector{Float32}; label_id::String = "",
+function PlotErrorBarsH(x::AbstractArray{T}, y::AbstractArray{T},
+                       negative::AbstractArray{T}, positive::AbstractArray{T}; label_id::String = "",
                        count::Integer = min(length(x), length(y), length(negative), length(positive)),
-                       offset::Integer = 0, stride::Integer = 1)
+                       offset::Integer = 0, stride::Integer = 1) where {T <: ImPlotData}
 
-    LibCImPlot.PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr(label_id, x, y, neg, pos,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float32)))
+    LibCImPlot.PlotErrorBarsH(label_id, x, y, neg, pos, count, offset, stride * sizeof(T))
 end
 
-function PlotErrorBarsH(x::Vector{Float64}, y::Vector{Float64},
-                       negative::Vector{Float64}, positive::Vector{Float64}; label_id::String = "",
-                       count::Integer = min(length(x), length(y), length(negative), length(positive)),
-                       offset::Integer = 0, stride::Integer = 1)
-
-    LibCImPlot.PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr(label_id, x, y, neg, pos,
-                                                        Cint(count), Cint(offset),
-                                                        Cint(stride * sizeof(Float64)))
+function PlotErrorBarsH(x::AbstractArray{T1}, y::AbstractArray{T2}, neg::AbstractArray{T3},
+                       pos::AbstractArray{T4}; kwargs...) where {T1<:Real,T2<:Real,T3<:Real,T4<:Real}
+    
+    LibCImPlot.PlotErrorBarsH(label_id, promote(x,y,pos,neg)...; kwargs...)
 end
-
 

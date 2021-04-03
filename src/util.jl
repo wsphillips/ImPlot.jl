@@ -1,4 +1,5 @@
 
+import .LibCImPlot: GetPlotPos, GetPlotSize # ,PlotToPixels
 
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
                            labels::Vector{String} = [""], show_default::Bool = false)
@@ -50,10 +51,15 @@ function GetPlotSize()
     return out[]
 end
 
+#=
 function PlotToPixels(plt::ImPlotPoint, y_axis::Integer = -1)
     out = Ref{ImVec2}()
     LibCImPlot.PlotToPixels(out, plt, Cint(y_axis))
     return out[]
 end
+=#
+LibCImPlot.SetLegendLocation(location, orientation) = LibCImPlot.SetLegendLocation(location, orientation, false)
+LibCImPlot.SetLegendLocation(location) = LibCImPlot.SetLegendLocation(location, LibCImPlot.ImPlotOrientation_Vertical, false)
 
+LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax) = LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax, ImGuiCond_Once)
 
