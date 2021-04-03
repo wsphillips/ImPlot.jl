@@ -2,7 +2,7 @@
 
 import .LibCImPlot.GetColormapSize
 
-function SetColormap(colormap::ImPlotColormap, samples::Integer = 1)
+function SetColormap(colormap, samples::Integer = 1)
     LibCImPlot.SetColormapPlotColormap(colormap, Cint(samples))
 end
 
