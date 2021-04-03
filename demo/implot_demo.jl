@@ -22,6 +22,9 @@ import CImGui.LibCImGui:  # do we need to import this separately?
 
 using ImPlot
 
+import ImPlot: # do we need to import this separately?
+    ImPlotAxisFlags
+
 import ImPlot.LibCImPlot: # do we need to import this separately?
     ImPlotMarker_Circle,
     ImPlotMarker_Square,
@@ -37,9 +40,17 @@ import ImPlot.LibCImPlot: # do we need to import this separately?
     ImPlotLocation_South,
     ImPlotOrientation_Horizontal,
     ImPlotOrientation_Vertical,
-    ImPlotAxisFlags_Invert
+    ImPlotAxisFlags_Invert,
+    ImPlotFlags
 
 using Random
+
+
+#! TODO: 
+# check all `ImPlot.LibCImPlot. below and move them into import statement,
+# then add them to export from ImPlot
+
+#import DataStructures: CircularBuffer
 
 # ==== fixes in api (should be fixed after auto-generation...) ====
 function SetNextMarkerStyle_fix(marker = IMPLOT_AUTO, size = IMPLOT_AUTO, fill = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO, outline = IMPLOT_AUTO_COL)
@@ -52,13 +63,64 @@ function SetNextLineStyle_fix(col = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO)
 end
 # ======================
 
+# utility structure for realtime plot
+struct ScrollingBuffer
+    maxsize::Int
+    offset::Int
+    data::Vector{ImVec2}
+    function ScrollingBuffer()
+        maxsize = 2000
+        data = ImVec2[] # CircularBuffer{ImVec2}(maxsize)
+        sizehint!(data, maxsize)
+        new(maxsize, 0, data)
+    end
+end
+function AddPoint(buf::ScrollingBuffer, x, y)
+    if length(buf.data) < buf.maxsize
+        push!(buf.data, ImVec2(x, y))
+    else
+        buf.data[buf.offset + 1] = ImVec2(x, y) # 1-based indexing
+        buf.offset = (buf.offset + 1) % buf.maxsize
+    end
+end
+function Erase(buf::ScrollingBuffer)
+    empty!(buf.data)
+    buf.offset = 0
+end
+
+# utility structure for realtime plot
+mutable struct RollingBuffer
+    span::Float32
+    data::Vector{ImVec2}
+    function RollingBuffer()
+        span = Float32(10.0)
+        data = ImVec2[]
+        sizehint!(data, 2000)
+        new(span, data)
+    end
+end
+function AddPoint(buf::RollingBuffer, x, y)
+    xmod = mod(x, buf.span)
+    if (!isempty(buf.data) && xmod < last(buf.data).x)
+        empty!(buf.data)
+    end
+    push!(buf.data, ImVec2(xmod, y))
+end
+
+# ======================
 
 function ShowDemoWindow()
 
     DEMO_TIME = CImGui.GetTime()
-    #? ouch... maybe a mutable state will handle these fields?
-    #? bool* p_open was input argument
-    @cstatic p_open, show_imgui_metrics, show_implot_metrics, show_imgui_style_editor, show_implot_style_editor, show_implot_benchmark = false, false, false, false, false, false begin
+    
+    @cstatic(
+        p_open = false, #? bool* p_open was input argument
+        show_imgui_metrics = false,
+        show_implot_metrics = false,
+        show_imgui_style_editor = false,
+        show_implot_style_editor = false,
+        show_implot_benchmark = false,
+    begin
         if (show_imgui_metrics) 
             @c CImGui.ShowMetricsWindow(&show_imgui_metrics)
         end
@@ -98,7 +160,7 @@ function ShowDemoWindow()
             end
             CImGui.EndMenuBar()
         end
-    end # @cstatic
+    end) # @cstatic
     
     #-------------------------------------------------------------------------
     CImGui.Text("ImPlot says hello - but what version?") #! IMPLOT_VERSION)
@@ -152,8 +214,12 @@ function ShowDemoWindow()
     
     #-------------------------------------------------------------------------
     if (CImGui.CollapsingHeader("Line Plots")) 
-        #? ouch...
-        @cstatic xs1, ys1, xs2, ys2 = zeros(Float32, 1001), zeros(Float32, 1001), zeros(Float32, 11), zeros(Float32, 11) begin
+        @cstatic(
+            xs1 = zeros(Float32, 1001),
+            ys1 = zeros(Float32, 1001),
+            xs2 = zeros(Float32, 11),
+            ys2 = zeros(Float32, 11),
+        begin
             for i = 1:1001 #! not 0-based 
                 xs1[i] = i * 0.001
                 ys1[i] = 0.5 + 0.5 * sin(50 * (xs1[i] + DEMO_TIME / 10))
@@ -169,11 +235,19 @@ function ShowDemoWindow()
                 ImPlot.PlotLine(xs2, ys2, label = "x^2")
                 ImPlot.EndPlot()
             end
-        end
+        end) # @cstatic
     end
     #-------------------------------------------------------------------------
     if (CImGui.CollapsingHeader("Filled Line Plots")) 
-        @cstatic xs1, ys1, ys2, ys3, show_lines, show_fills, fill_ref = zeros(Float64, 101), zeros(Float64, 101), zeros(Float64, 101), zeros(Float64, 101), true, true, Float32(0.0) begin
+        @cstatic(
+            xs1 = zeros(Float64, 101), 
+            ys1 = zeros(Float64, 101), 
+            ys2 = zeros(Float64, 101), 
+            ys3 = zeros(Float64, 101), 
+            show_lines = true, 
+            show_fills = true, 
+            fill_ref = Float32(0.0),
+        begin
             Random.seed!(0)
             for i = 1:101 
                 xs1[i] = i
@@ -203,11 +277,19 @@ function ShowDemoWindow()
                 end
                 ImPlot.EndPlot()
             end
-        end
+        end) # @cstatic
     end
     #-------------------------------------------------------------------------
     if (CImGui.CollapsingHeader("Shaded Plots##")) 
-        @cstatic xs, ys, ys1, ys2, ys3, ys4, alpha = zeros(Float32, 1001), zeros(Float32, 1001), zeros(Float32, 1001), zeros(Float32, 1001), zeros(Float32, 1001), zeros(Float32, 1001), Float32(0.25) begin
+        @cstatic(
+            xs = zeros(Float32, 1001), 
+            ys = zeros(Float32, 1001), 
+            ys1 = zeros(Float32, 1001), 
+            ys2 = zeros(Float32, 1001), 
+            ys3 = zeros(Float32, 1001), 
+            ys4 = zeros(Float32, 1001), 
+            alpha = Float32(0.25),
+        begin
             Random.seed!(0)
             for i = 1:1001
                 xs[i]  = i * 0.001
@@ -229,13 +311,18 @@ function ShowDemoWindow()
                 ImPlot.PopStyleVar()
                 ImPlot.EndPlot()
             end
-        end
+        end) # @cstatic
     end
 
     #-------------------------------------------------------------------------
     if (CImGui.CollapsingHeader("Scatter Plots")) 
         Random.seed!(0)
-        @cstatic xs1, ys1 = zeros(Float32, 100), zeros(Float32, 100) xs2, ys2 = zeros(Float32, 50), zeros(Float32, 50) begin
+        @cstatic(
+            xs1 = zeros(Float32, 100),
+            ys1 = zeros(Float32, 100),
+            xs2 = zeros(Float32, 50), 
+            ys2 = zeros(Float32, 50),
+        begin
             for i = 1:100
                 xs1[i] = i * 0.01
                 ys1[i] = xs1[i] + 0.1 * rand(0 : 0.0001 : 1)
@@ -253,7 +340,7 @@ function ShowDemoWindow()
                 ImPlot.PopStyleVar()
                 ImPlot.EndPlot()
             end
-        end
+        end) # @cstatic
     end
     #-------------------------------------------------------------------------
     if (CImGui.CollapsingHeader("Stairstep Plots")) 
@@ -270,9 +357,6 @@ function ShowDemoWindow()
             end
         end
     end
-    #-------------------------------------------------------------------------
-    # the rest code is copy-pasted from C++, fast find-and-change patterns applied and some shallow errors fixed
-    # TODO: make this code working one-by-one
     #-------------------------------------------------------------------------
     if (CImGui.CollapsingHeader("Bar Plots")) 
 
@@ -321,7 +405,7 @@ function ShowDemoWindow()
             err2  = Float32[0.4, 0.2, 0.4, 0.8, 0.6],
             err3  = Float32[0.09, 0.14, 0.09, 0.12, 0.16],
             err4  = Float32[0.02, 0.08, 0.15, 0.05, 0.2],
-            begin
+        begin
 
 
          ImPlot.SetNextPlotLimits(0, 6, 0, 10)
@@ -339,7 +423,7 @@ function ShowDemoWindow()
              ImPlot.PlotErrorBars(xs, lin2, err2, count = 5, label_id = "Scatter")
              ImPlot.PlotErrorBarsH(xs, lin2,  err3, err4, count = 5, label_id = "Scatter")
 #             ImPlot.PopStyleColor()
-             ImPlot.PlotScatter(xs, lin2, count = 5, label = "Scatter")
+             ImPlot.PlotScatter(xs, lin2, count = 5, label = "Scatter") #! label vs label_id - make them consistent
 
              ImPlot.EndPlot()
          end
@@ -473,59 +557,76 @@ function ShowDemoWindow()
 #         ImPlot.PopColormap()
         end) # cstatic
      end
-#     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Images")) 
-#         CImGui.BulletText("Below we are displaying the font texture, which is the only texture we have\naccess to in this demo.")
-#         CImGui.BulletText("Use the 'ImTextureID' type as storage to pass pointers or identifiers to your\nown texture data.")
-#         CImGui.BulletText("See ImGui Wiki page 'Image Loading and Displaying Examples'.")
-#         @cstatic ImVec2 bmin(0,0)
-#         @cstatic ImVec2 bmax(1,1)
-#         @cstatic ImVec2 uv0(0,0)
-#         @cstatic ImVec2 uv1(1,1)
-#         @cstatic ImVec4 tint(1,1,1,1)
-#         CImGui.SliderFloat2("Min", &bmin.x, -2, 2, "%.1f")
-#         CImGui.SliderFloat2("Max", &bmax.x, -2, 2, "%.1f")
-#         CImGui.SliderFloat2("UV0", &uv0.x, -2, 2, "%.1f")
-#         CImGui.SliderFloat2("UV1", &uv1.x, -2, 2, "%.1f")
-#         CImGui.ColorEdit4("Tint",&tint.x)
-#         if (ImPlot.BeginPlot("##image", "", "", ImVec2(-1, 200)) #? no default size
-#             ImPlot.PlotImage("my image",CImGui.GetIO().Fonts->TexID, bmin, bmax, uv0, uv1, tint)
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Realtime Plots")) 
-#         CImGui.BulletText("Move your mouse to change the data!")
-#         CImGui.BulletText("This example assumes 60 FPS. Higher FPS requires larger buffer size.")
-#         @cstatic ScrollingBuffer sdata1, sdata2
-#         @cstatic RollingBuffer   rdata1, rdata2
-#         mouse = CImGui.GetMousePos()
-#         @cstatic  t = Float32(0)
-#         t += CImGui.GetIO().DeltaTime
-#         sdata1.AddPoint(t, mouse.x * 0.0005)
-#         rdata1.AddPoint(t, mouse.x * 0.0005)
-#         sdata2.AddPoint(t, mouse.y * 0.0005)
-#         rdata2.AddPoint(t, mouse.y * 0.0005)
+    #-------------------------------------------------------------------------
+    if (CImGui.CollapsingHeader("Images")) 
+        CImGui.BulletText("Below we are displaying the font texture, which is the only texture we have\naccess to in this demo.")
+        CImGui.BulletText("Use the 'ImTextureID' type as storage to pass pointers or identifiers to your\nown texture data.")
+        CImGui.BulletText("See ImGui Wiki page 'Image Loading and Displaying Examples'.")
+        @cstatic(
+            bmin = ImVec2(0,0),
+            bmax = ImVec2(1,1),
+            uv0 = ImVec2(0,0),
+            uv1 = ImVec2(1,1),
+            tint = ImVec4(1,1,1,1),
+        begin
+            @c CImGui.SliderFloat2("Min", &bmin.x, -2, 2, "%.1f") #! exception = setfield! immutable struct of type ImVec2 cannot be changed
+            @c CImGui.SliderFloat2("Max", &bmax.x, -2, 2, "%.1f")
+            @c CImGui.SliderFloat2("UV0", &uv0.x, -2, 2, "%.1f")
+            @c CImGui.SliderFloat2("UV1", &uv1.x, -2, 2, "%.1f")
+            @c CImGui.ColorEdit4("Tint",&tint.x)
+            if ImPlot.BeginPlot("##image", "", "")
+                ImPlot.PlotImage("my image",CImGui.GetIO().Fonts.TexID, bmin, bmax, uv0, uv1, tint)
+                ImPlot.EndPlot()
+            end
+        end) # @cstatic
+    end
+    #-------------------------------------------------------------------------
+    if (CImGui.CollapsingHeader("Realtime Plots")) 
+        CImGui.BulletText("Move your mouse to change the data!")
+        CImGui.BulletText("This example assumes 60 FPS. Higher FPS requires larger buffer size.")
+        @cstatic(
+            sdata1 = ScrollingBuffer(),
+            sdata2 = ScrollingBuffer(),
+            rdata1 = RollingBuffer(),
+            rdata2 = RollingBuffer(),
+            t = Float32(0),
+            history = Float32(10.0),
+            rt_axis = ImPlotAxisFlags_NoTickLabels,
+        begin
+            mouse = CImGui.GetMousePos() 
+            t += CImGui.GetIO().DeltaTime
+            AddPoint(sdata1, t, mouse.x * 0.0005)
+            AddPoint(rdata1, t, mouse.x * 0.0005)
+            AddPoint(sdata2, t, mouse.y * 0.0005)
+            AddPoint(rdata2, t, mouse.y * 0.0005)
 
-#         @cstatic history = Float32(10.0)
-#         CImGui.SliderFloat("History",&history,1,30,"%.1f s")
-#         rdata1.Span = history
-#         rdata2.Span = history
-
-#         @cstatic ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels
-#         ImPlot.SetNextPlotLimitsX(t - history, t, ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##Scrolling", NULL, NULL, ImVec2(-1,150), 0, rt_axis, rt_axis | ImPlotAxisFlags_LockMin)) 
-#             ImPlot.PlotShaded("Data 1", &sdata1.Data[0].x, &sdata1.Data[0].y, sdata1.Data.size(), 0, sdata1.Offset, 2 * sizeof(Float32))
-#             ImPlot.PlotLine("Data 2", &sdata2.Data[0].x, &sdata2.Data[0].y, sdata2.Data.size(), sdata2.Offset, 2*sizeof(Float32))
-#             ImPlot.EndPlot()
-#         end
-#         ImPlot.SetNextPlotLimitsX(0, history, ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##Rolling", NULL, NULL, ImVec2(-1,150), 0, rt_axis, rt_axis)) 
-#             ImPlot.PlotLine("Data 1", &rdata1.Data[0].x, &rdata1.Data[0].y, rdata1.Data.size(), 0, 2 * sizeof(Float32))
-#             ImPlot.PlotLine("Data 2", &rdata2.Data[0].x, &rdata2.Data[0].y, rdata2.Data.size(), 0, 2 * sizeof(Float32))
-#             ImPlot.EndPlot()
-#         end
-#     end
+            @c CImGui.SliderFloat("History",&history,1,30,"%.1f s")
+            rdata1.span = history
+            rdata2.span = history
+            
+            ImPlot.SetNextPlotLimitsX(t - history, t, ImGuiCond_Always)
+            #? tried to use CircularBuffer here from DataStructures.jl, but it can't be properly passed into PlotLine functions...
+            if ImPlot.BeginPlot("##Scrolling", "", "", ImVec2(-1,150); 
+                flags = ImPlotFlags(0), #? IMPLOT_AUTO ?
+                x_flags = rt_axis, 
+                y_flags = ImPlotAxisFlags(rt_axis | ImPlotAxisFlags_LockMin)
+            )
+                @c ImPlot.PlotShaded(&sdata1.data[1].x, &sdata1.data[1].y, 0; count = length(sdata1.data), offset = sdata1.offset, stride = 2 * sizeof(Float32), label = "Data 1")
+                @c ImPlot.PlotLine(&sdata2.data[1].x, &sdata2.data[1].y; count = length(sdata2.data), offset = sdata2.offset, stride = 2 * sizeof(Float32), label = "Data 2")
+                ImPlot.EndPlot()
+            end
+            ImPlot.SetNextPlotLimitsX(0, history, ImGuiCond_Always)
+            if ImPlot.BeginPlot("##Rolling", "", "", ImVec2(-1,150); 
+                flags = ImPlotFlags(0), #? IMPLOT_AUTO ?
+                x_flags = rt_axis, 
+                y_flags = rt_axis
+            ) 
+                @c ImPlot.PlotLine(&rdata1.data[1].x, &rdata1.data[1].y; count = length(rdata1.data), stride = 2 * sizeof(Float32), label = "Data 1")
+                @c ImPlot.PlotLine(&rdata2.data[1].x, &rdata2.data[1].y; count = length(rdata2.data), stride = 2 * sizeof(Float32), label = "Data 2")
+                ImPlot.EndPlot()
+            end
+        end) # @cstatic
+    end
 #     #-------------------------------------------------------------------------
 #     if (CImGui.CollapsingHeader("Markers and Text")) 
 #         @cstatic mk_size = ImPlot.GetStyle().MarkerSize
