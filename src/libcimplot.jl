@@ -1,5 +1,7 @@
 module LibCImPlot
 
+using CEnum
+
 using CImPlot_jll
 
 using CImGui
@@ -107,7 +109,7 @@ const ImPlotOrientation = Cint
 
 const ImPlotYAxis = Cint
 
-@enum ImPlotFlags_::UInt32 begin
+@cenum ImPlotFlags_::UInt32 begin
     ImPlotFlags_None = 0
     ImPlotFlags_NoTitle = 1
     ImPlotFlags_NoLegend = 2
@@ -125,7 +127,7 @@ const ImPlotYAxis = Cint
     ImPlotFlags_CanvasOnly = 31
 end
 
-@enum ImPlotAxisFlags_::UInt32 begin
+@cenum ImPlotAxisFlags_::UInt32 begin
     ImPlotAxisFlags_None = 0
     ImPlotAxisFlags_NoGridLines = 1
     ImPlotAxisFlags_NoTickMarks = 2
@@ -139,7 +141,7 @@ end
     ImPlotAxisFlags_NoDecorations = 7
 end
 
-@enum ImPlotCol_::UInt32 begin
+@cenum ImPlotCol_::UInt32 begin
     ImPlotCol_Line = 0
     ImPlotCol_Fill = 1
     ImPlotCol_MarkerOutline = 2
@@ -167,7 +169,7 @@ end
     ImPlotCol_COUNT = 24
 end
 
-@enum ImPlotStyleVar_::UInt32 begin
+@cenum ImPlotStyleVar_::UInt32 begin
     ImPlotStyleVar_LineWeight = 0
     ImPlotStyleVar_Marker = 1
     ImPlotStyleVar_MarkerSize = 2
@@ -198,7 +200,7 @@ end
     ImPlotStyleVar_COUNT = 27
 end
 
-@enum ImPlotMarker_::Int32 begin
+@cenum ImPlotMarker_::Int32 begin
     ImPlotMarker_None = -1
     ImPlotMarker_Circle = 0
     ImPlotMarker_Square = 1
@@ -213,7 +215,7 @@ end
     ImPlotMarker_COUNT = 10
 end
 
-@enum ImPlotColormap_::UInt32 begin
+@cenum ImPlotColormap_::UInt32 begin
     ImPlotColormap_Default = 0
     ImPlotColormap_Deep = 1
     ImPlotColormap_Dark = 2
@@ -228,7 +230,7 @@ end
     ImPlotColormap_COUNT = 11
 end
 
-@enum ImPlotLocation_::UInt32 begin
+@cenum ImPlotLocation_::UInt32 begin
     ImPlotLocation_Center = 0
     ImPlotLocation_North = 1
     ImPlotLocation_South = 2
@@ -240,12 +242,12 @@ end
     ImPlotLocation_SouthEast = 10
 end
 
-@enum ImPlotOrientation_::UInt32 begin
+@cenum ImPlotOrientation_::UInt32 begin
     ImPlotOrientation_Horizontal = 0
     ImPlotOrientation_Vertical = 1
 end
 
-@enum ImPlotYAxis_::UInt32 begin
+@cenum ImPlotYAxis_::UInt32 begin
     ImPlotYAxis_1 = 0
     ImPlotYAxis_2 = 1
     ImPlotYAxis_3 = 2
