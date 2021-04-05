@@ -22,8 +22,8 @@ import CImGui.LibCImGui:  # do we need to import this separately?
 
 using ImPlot
 
-import ImPlot: # do we need to import this separately?
-    ImPlotAxisFlags
+# import ImPlot: # do we need to import this separately?
+#     ImPlotAxisFlags
 
 import ImPlot.LibCImPlot: # do we need to import this separately?
     ImPlotMarker_Circle,
@@ -101,7 +101,7 @@ mutable struct RollingBuffer
 end
 function AddPoint(buf::RollingBuffer, x, y)
     xmod = mod(x, buf.span)
-    if (!isempty(buf.data) && xmod < last(buf.data).x)
+    if !isempty(buf.data) && xmod < last(buf.data).x
         empty!(buf.data)
     end
     push!(buf.data, ImVec2(xmod, y))
@@ -121,24 +121,24 @@ function ShowDemoWindow()
         show_implot_style_editor = false,
         show_implot_benchmark = false,
     begin
-        if (show_imgui_metrics) 
+        if show_imgui_metrics 
             @c CImGui.ShowMetricsWindow(&show_imgui_metrics)
         end
-        if (show_implot_metrics) 
+        if show_implot_metrics
             @c ShowMetricsWindow(&show_implot_metrics) #? ImPlot.LibCImPlot.
         end
-        if (show_imgui_style_editor) 
+        if show_imgui_style_editor
             @c CImGui.Begin("Style Editor (CImGui)", &show_imgui_style_editor)
             CImGui.ShowStyleEditor()
             CImGui.End()
         end
-        if (show_implot_style_editor) 
+        if show_implot_style_editor
             CImGui.SetNextWindowSize(ImVec2(415,762), ImGuiCond_Appearing)
             @c CImGui.Begin("Style Editor (ImPlot)", &show_implot_style_editor)
             ImPlot.ShowStyleEditor()
             CImGui.End()
         end
-        if (show_implot_benchmark) 
+        if show_implot_benchmark
             CImGui.SetNextWindowSize(ImVec2(530,740), ImGuiCond_Appearing)
             @c CImGui.Begin("ImPlot Benchmark Tool", &show_implot_benchmark)
             ImPlot.ShowBenchmarkTool()
@@ -149,8 +149,8 @@ function ShowDemoWindow()
         CImGui.SetNextWindowPos(ImVec2(50, 50), ImGuiCond_FirstUseEver)
         CImGui.SetNextWindowSize(ImVec2(600, 750), ImGuiCond_FirstUseEver) 
         @c CImGui.Begin("ImPlot Demo", &p_open, ImGuiWindowFlags_MenuBar)
-        if (CImGui.BeginMenuBar()) 
-            if (CImGui.BeginMenu("Tools")) 
+        if CImGui.BeginMenuBar()
+            if CImGui.BeginMenu("Tools")
                 @c CImGui.MenuItem("Metrics (CImGui)",      "", &show_imgui_metrics) # NULL -> ""
                 @c CImGui.MenuItem("Metrics (ImPlot)",      "", &show_implot_metrics)
                 @c CImGui.MenuItem("Style Editor (CImGui)", "", &show_imgui_style_editor)
@@ -166,7 +166,7 @@ function ShowDemoWindow()
     CImGui.Text("ImPlot says hello - but what version?") #! IMPLOT_VERSION)
     CImGui.Spacing()
 
-    if (CImGui.CollapsingHeader("Help")) 
+    if CImGui.CollapsingHeader("Help")
         CImGui.Text("ABOUT THIS DEMO:")
         CImGui.BulletText("Sections below are demonstrating many aspects of the library.")
         CImGui.BulletText("The \"Tools\" menu above gives access to: Style Editors (ImPlot/CImGui)\nand Metrics (general purpose Dear CImGui debugging tool).")
@@ -201,7 +201,7 @@ function ShowDemoWindow()
         ShowUserGuide()
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Configuration")) 
+    if CImGui.CollapsingHeader("Configuration")
         CImGui.ShowFontSelector("Font")
         CImGui.ShowStyleSelector("CImGui Style")
         ShowStyleSelector("ImPlot Style") #? ImPlot.LibCImPlot
@@ -213,7 +213,7 @@ function ShowDemoWindow()
     end
     
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Line Plots")) 
+    if CImGui.CollapsingHeader("Line Plots")
         @cstatic(
             xs1 = zeros(Float32, 1001),
             ys1 = zeros(Float32, 1001),
@@ -238,7 +238,7 @@ function ShowDemoWindow()
         end) # @cstatic
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Filled Line Plots")) 
+    if CImGui.CollapsingHeader("Filled Line Plots")
         @cstatic(
             xs1 = zeros(Float64, 101), 
             ys1 = zeros(Float64, 101), 
@@ -262,15 +262,15 @@ function ShowDemoWindow()
             @c CImGui.DragFloat("Reference", &fill_ref, 1, -100, 500)
 
             ImPlot.SetNextPlotLimits(0, 100, 0, 500, ImGuiCond_Once) #? no default cond argument
-            if (ImPlot.BeginPlot("Stock Prices", "Days", "Price"))
-                if (show_fills) 
+            if ImPlot.BeginPlot("Stock Prices", "Days", "Price")
+                if show_fills
                     ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
                     ImPlot.PlotShaded(xs1, ys1, fill_ref, label = "Stock 1")
                     ImPlot.PlotShaded(xs1, ys2, fill_ref, label = "Stock 2")
                     ImPlot.PlotShaded(xs1, ys3, fill_ref, label = "Stock 3")
-                    ImPlot.PopStyleVar()
+                    ImPlot.PopStyleVar(1) #! how should we add default arguments in api functions???
                 end
-                if (show_lines) 
+                if show_lines 
                     ImPlot.PlotLine(xs1, ys1, label = "Stock 1")
                     ImPlot.PlotLine(xs1, ys2, label = "Stock 2")
                     ImPlot.PlotLine(xs1, ys3, label = "Stock 3")
@@ -280,7 +280,7 @@ function ShowDemoWindow()
         end) # @cstatic
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Shaded Plots##")) 
+    if CImGui.CollapsingHeader("Shaded Plots##")
         @cstatic(
             xs = zeros(Float32, 1001), 
             ys = zeros(Float32, 1001), 
@@ -301,21 +301,21 @@ function ShowDemoWindow()
             end
             @c CImGui.DragFloat("Alpha", &alpha, 0.01, 0, 1)
 
-            if (ImPlot.BeginPlot("Shaded Plots", "X-Axis", "Y-Axis"))
+            if ImPlot.BeginPlot("Shaded Plots", "X-Axis", "Y-Axis")
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, alpha)
                 ImPlot.PlotShaded(xs, ys1, ys2, label = "Uncertain Data")
                 ImPlot.PlotLine(xs, ys, label = "Uncertain Data")
                 ImPlot.PlotShaded(xs, ys3, ys4, label = "Overlapping")
                 ImPlot.PlotLine(xs, ys3, label = "Overlapping")
                 ImPlot.PlotLine(xs, ys4, label = "Overlapping")
-                ImPlot.PopStyleVar()
+                ImPlot.PopStyleVar(1)
                 ImPlot.EndPlot()
             end
         end) # @cstatic
     end
 
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Scatter Plots")) 
+    if CImGui.CollapsingHeader("Scatter Plots")
         Random.seed!(0)
         @cstatic(
             xs1 = zeros(Float32, 100),
@@ -337,13 +337,13 @@ function ShowDemoWindow()
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
                 SetNextMarkerStyle_fix(ImPlotMarker_Square, 6, ImVec4(0,1,0,0.5), IMPLOT_AUTO, ImVec4(0,1,0,1))
                 ImPlot.PlotScatter(xs2, ys2, label = "Data 2")
-                ImPlot.PopStyleVar()
+                ImPlot.PopStyleVar(1)
                 ImPlot.EndPlot()
             end
         end) # @cstatic
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Stairstep Plots")) 
+    if CImGui.CollapsingHeader("Stairstep Plots")
         @cstatic ys1 = zeros(Float32, 101) ys2 = zeros(Float32, 101) begin
             for i = 1:101
                 ys1[i] = 0.5 + 0.4 * sin(50 * i * 0.01)
@@ -358,7 +358,7 @@ function ShowDemoWindow()
         end
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Bar Plots")) 
+    if CImGui.CollapsingHeader("Bar Plots")
 
         @cstatic(
             horz   = false,
@@ -371,16 +371,16 @@ function ShowDemoWindow()
 
                 @c CImGui.Checkbox("Horizontal", &horz)
 
-                if (horz) 
+                if horz
                     ImPlot.SetNextPlotLimits(0, 110, -0.5, 9.5, ImGuiCond_Always)
                     ImPlot.SetNextPlotTicksY(positions, 10; labels = labels)
                 else 
                     ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 110, ImGuiCond_Always)
                     ImPlot.SetNextPlotTicksX(positions, 10; labels = labels)
                 end
-                if (ImPlot.BeginPlot("Bar Plot", horz ? "Score" :  "Student", horz ? "Student" : "Score",
-                                      ImVec2(-1,0), y_flags = horz ? ImPlotAxisFlags_Invert : ImPlotAxisFlags_None))
-                    if (horz) 
+                if ImPlot.BeginPlot("Bar Plot", horz ? "Score" :  "Student", horz ? "Student" : "Score",
+                                      ImVec2(-1,0), y_flags = horz ? ImPlotAxisFlags_Invert : ImPlotAxisFlags_None)
+                    if horz
                         ImPlot.SetLegendLocation(ImPlotLocation_West, ImPlotOrientation_Vertical)
                         ImPlot.PlotBarsH(midtm, label_id = "Midterm Exam", count = 10, width = 0.2, shift = -0.2)
                         ImPlot.PlotBarsH(final, label_id = "Final Exam", count = 10, width = 0.2, shift = 0)
@@ -396,8 +396,9 @@ function ShowDemoWindow()
             end) # cstatic end
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Error Bars")) 
-        @cstatic(xs    = Float32[1,2,3,4,5],
+    if CImGui.CollapsingHeader("Error Bars")
+        @cstatic(
+            xs    = Float32[1,2,3,4,5],
             bar   = Float32[1,2,5,3,4],
             lin1  = Float32[8,8,9,7,8],
             lin2  = Float32[6,7,6,9,6],
@@ -410,7 +411,7 @@ function ShowDemoWindow()
 
          ImPlot.SetNextPlotLimits(0, 6, 0, 10)
          if ImPlot.BeginPlot("##ErrorBars","","")
-
+            #@info typeof(xs), typeof(bar)
              ImPlot.PlotBars(xs, bar, count = 5, width = 0.5, label_id = "Bar")
              ImPlot.PlotErrorBars(xs, bar, err1, count = 5, label_id = "Bar")
 
@@ -429,7 +430,7 @@ function ShowDemoWindow()
          end
         end) #cstatic 
      end
-     if (CImGui.CollapsingHeader("Stem Plots##")) 
+     if CImGui.CollapsingHeader("Stem Plots##") 
          @cstatic xs = zeros(Float64, 51) ys1 = zeros(Float64, 51) ys2 = zeros(Float64, 51) begin
          for i = 1:51
              xs[i] = i * 0.02
@@ -450,7 +451,7 @@ function ShowDemoWindow()
         end #cstatic
      end
      #-------------------------------------------------------------------------
-     if (CImGui.CollapsingHeader("Pie Charts")) 
+     if CImGui.CollapsingHeader("Pie Charts")
          @cstatic(
             labels1 = ["Frogs","Hogs","Dogs","Logs"],
             data1 = Float32[0.15,  0.30,  0.2, 0.05],
@@ -466,10 +467,10 @@ function ShowDemoWindow()
                 end
 
                 ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
-                if (ImPlot.BeginPlot("##Pie1", "", "", ImVec2(250,250),
-                    flags = ImPlot.LibCImPlot.ImPlotFlags(ImPlotFlags_Equal | ImPlotFlags_NoMousePos),
+                if ImPlot.BeginPlot("##Pie1", "", "", ImVec2(250,250),
+                    flags = ImPlotFlags_Equal | ImPlotFlags_NoMousePos,
                     y_flags = ImPlotAxisFlags_NoDecorations,
-                    y2_flags = ImPlotAxisFlags_NoDecorations)) 
+                    y2_flags = ImPlotAxisFlags_NoDecorations) 
                     
                     ImPlot.PlotPieChart(data1, 4, 0.5, 0.5, 0.4, normalize = normalize,
                                         label_fmt = "%.2f", label_ids = labels1)
@@ -479,10 +480,10 @@ function ShowDemoWindow()
                 CImGui.SameLine()
 #                ImPlot.PushColormap(ImPlotColormap_Pastel) # TODO: add more enum exports to libcimplot.jl
                 ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
-                if (ImPlot.BeginPlot("##Pie2", "", "", ImVec2(250,250),
-                    flags = ImPlot.LibCImPlot.ImPlotFlags(ImPlotFlags_Equal | ImPlotFlags_NoMousePos),
+                if ImPlot.BeginPlot("##Pie2", "", "", ImVec2(250,250),
+                    flags = ImPlotFlags_Equal | ImPlotFlags_NoMousePos,
                     y_flags = ImPlotAxisFlags_NoDecorations,
-                    y2_flags = ImPlotAxisFlags_NoDecorations)) 
+                    y2_flags = ImPlotAxisFlags_NoDecorations)
 
                     ImPlot.PlotPieChart(data2, 5, 0.5, 0.5, 0.4, normalize = true,
                                         label_fmt = "%.0f", angle0 = 180, label_ids = labels2)
@@ -492,7 +493,7 @@ function ShowDemoWindow()
             end) # cstatic
      end
      #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Heatmaps")) 
+    if CImGui.CollapsingHeader("Heatmaps") 
         @cstatic(
             # this might need transpose + collect to match C++ precisely
             values1 = Float32[0.8 2.4 2.5 3.9 0.0 4.0 0.0;
@@ -507,12 +508,12 @@ function ShowDemoWindow()
                 xlabels = ["C1","C2","C3","C4","C5","C6","C7"],
                 ylabels = ["R1","R2","R3","R4","R5","R6","R7"],
                 map = Cint(ImPlot.ImPlotColormap_Viridis),
-                axes_flags = ImPlot.ImPlotAxisFlags(ImPlot.ImPlotAxisFlags_Lock | ImPlot.ImPlotAxisFlags_NoGridLines | ImPlot.ImPlotAxisFlags_NoTickMarks),
+                axes_flags = ImPlot.ImPlotAxisFlags_Lock | ImPlot.ImPlotAxisFlags_NoGridLines | ImPlot.ImPlotAxisFlags_NoTickMarks,
                 values2 = zeros(Float64, 100*100),
                 gray = [ImVec4(0,0,0,1), ImVec4(1,1,1,1)],
                 begin
 
-         if (CImGui.Button("Change Colormap",ImVec2(225,0)))
+         if CImGui.Button("Change Colormap",ImVec2(225,0))
              map = (map + 1) % Cint(ImPlot.ImPlotColormap_COUNT)
          end
 #         CImGui.SameLine()
@@ -525,11 +526,11 @@ function ShowDemoWindow()
 #         ImPlot.PushColormap(map)
          ImPlot.SetNextPlotTicksX(0 + 1.0/14.0, 1 - 1.0/14.0, 7, labels = xlabels)
          ImPlot.SetNextPlotTicksY(1 - 1.0/14.0, 0 + 1.0/14.0, 7, labels = ylabels)
-         if (ImPlot.BeginPlot("##Heatmap1","","",ImVec2(225,225),
-            flags = ImPlot.ImPlotFlags(ImPlotFlags_NoLegend|ImPlotFlags_NoMousePos),
-            x_flags = axes_flags, y_flags = axes_flags)) 
+         if ImPlot.BeginPlot("##Heatmap1","","",ImVec2(225,225),
+            flags = ImPlotFlags_NoLegend | ImPlotFlags_NoMousePos,
+            x_flags = axes_flags, y_flags = axes_flags)
 
-             ImPlot.PlotHeatmap(values1, 7, 7, scale_min, scale_max, label_id = "heat")
+             ImPlot.PlotHeatmap(values1, 7, 7, scale_min, scale_max, label = "heat")
              ImPlot.EndPlot()
          end
 #         CImGui.SameLine()
@@ -544,12 +545,12 @@ function ShowDemoWindow()
          end
 #         ImPlot.PushColormap(gray, 2)
          ImPlot.SetNextPlotLimits(-1,1,-1,1)
-         if (ImPlot.BeginPlot("##Heatmap2","","", ImVec2(225,225),
+         if ImPlot.BeginPlot("##Heatmap2","","", ImVec2(225,225),
              x_flags = ImPlot.ImPlotAxisFlags_NoDecorations,
-             y_flags = ImPlot.ImPlotAxisFlags_NoDecorations)) 
+             y_flags = ImPlot.ImPlotAxisFlags_NoDecorations)
 
-             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label_id = "heat1")
-             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label_id = "heat2",
+             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label = "heat1")
+             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label = "heat2",
                                 bounds_min = ImPlot.ImPlotPoint(-1,-1),
                                 bounds_max = ImPlot.ImPlotPoint(0,0))
              ImPlot.EndPlot()
@@ -558,7 +559,7 @@ function ShowDemoWindow()
         end) # cstatic
      end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Images")) 
+    if CImGui.CollapsingHeader("Images")
         CImGui.BulletText("Below we are displaying the font texture, which is the only texture we have\naccess to in this demo.")
         CImGui.BulletText("Use the 'ImTextureID' type as storage to pass pointers or identifiers to your\nown texture data.")
         CImGui.BulletText("See ImGui Wiki page 'Image Loading and Displaying Examples'.")
@@ -581,7 +582,7 @@ function ShowDemoWindow()
         end) # @cstatic
     end
     #-------------------------------------------------------------------------
-    if (CImGui.CollapsingHeader("Realtime Plots")) 
+    if CImGui.CollapsingHeader("Realtime Plots")
         CImGui.BulletText("Move your mouse to change the data!")
         CImGui.BulletText("This example assumes 60 FPS. Higher FPS requires larger buffer size.")
         @cstatic(
@@ -607,9 +608,9 @@ function ShowDemoWindow()
             ImPlot.SetNextPlotLimitsX(t - history, t, ImGuiCond_Always)
             #? tried to use CircularBuffer here from DataStructures.jl, but it can't be properly passed into PlotLine functions...
             if ImPlot.BeginPlot("##Scrolling", "", "", ImVec2(-1,150); 
-                flags = ImPlotFlags(0), #? IMPLOT_AUTO ?
+                flags = 0, #? IMPLOT_AUTO ?
                 x_flags = rt_axis, 
-                y_flags = ImPlotAxisFlags(rt_axis | ImPlotAxisFlags_LockMin)
+                y_flags = rt_axis | ImPlotAxisFlags_LockMin
             )
                 @c ImPlot.PlotShaded(&sdata1.data[1].x, &sdata1.data[1].y, 0; count = length(sdata1.data), offset = sdata1.offset, stride = 2 * sizeof(Float32), label = "Data 1")
                 @c ImPlot.PlotLine(&sdata2.data[1].x, &sdata2.data[1].y; count = length(sdata2.data), offset = sdata2.offset, stride = 2 * sizeof(Float32), label = "Data 2")
@@ -617,7 +618,7 @@ function ShowDemoWindow()
             end
             ImPlot.SetNextPlotLimitsX(0, history, ImGuiCond_Always)
             if ImPlot.BeginPlot("##Rolling", "", "", ImVec2(-1,150); 
-                flags = ImPlotFlags(0), #? IMPLOT_AUTO ?
+                flags = 0, #? IMPLOT_AUTO ?
                 x_flags = rt_axis, 
                 y_flags = rt_axis
             ) 
@@ -628,14 +629,14 @@ function ShowDemoWindow()
         end) # @cstatic
     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Markers and Text")) 
+#     if CImGui.CollapsingHeader("Markers and Text")) 
 #         @cstatic mk_size = ImPlot.GetStyle().MarkerSize
 #         @cstatic mk_weight = ImPlot.GetStyle().MarkerWeight
 #         CImGui.DragFloat("Marker Size",&mk_size,0.1,2.0,10.0,"%.2f px")
 #         CImGui.DragFloat("Marker Weight", &mk_weight,0.05,0.5,3.0,"%.2f px")
 
 #         ImPlot.SetNextPlotLimits(0, 10, 0, 12)
-#         if (ImPlot.BeginPlot("##MarkerStyles", NULL, NULL, ImVec2(-1,0), ImPlotFlags_CanvasOnly, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
+#         if ImPlot.BeginPlot("##MarkerStyles", NULL, NULL, ImVec2(-1,0), ImPlotFlags_CanvasOnly, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
 #             xs[2] = ImS8[1,4]
 #             ys[2] = ImS8[10,11]
 
@@ -668,7 +669,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Log Scale")) 
+#     if CImGui.CollapsingHeader("Log Scale")) 
 #         @cstatic xs, ys1, ys2, ys3 = zeros(Float64, 1001), zeros(Float64, 1001), zeros(Float64, 1001), zeros(Float64, 1001) begin
 #         for i = 1:1001
 #             xs[i]  = i*0.1
@@ -679,7 +680,7 @@ function ShowDemoWindow()
 #         CImGui.BulletText("Open the plot context menu (Float64 right click) to change scales.")
 
 #         ImPlot.SetNextPlotLimits(0.1, 100, 0, 10)
-#         if (ImPlot.BeginPlot("Log Plot", NULL, NULL, ImVec2(-1,0), 0, ImPlotAxisFlags_LogScale )) 
+#         if ImPlot.BeginPlot("Log Plot", NULL, NULL, ImVec2(-1,0), 0, ImPlotAxisFlags_LogScale )) 
 #             ImPlot.PlotLine("f(x) = x",        xs, xs,  1001)
 #             ImPlot.PlotLine("f(x) = sin(x)+1", xs, ys1, 1001)
 #             ImPlot.PlotLine("f(x) = log(x)",   xs, ys2, 1001)
@@ -687,7 +688,7 @@ function ShowDemoWindow()
 #             ImPlot.EndPlot()
 #         end
 #     end
-#     if (CImGui.CollapsingHeader("Time Formatted Axes")) 
+#     if CImGui.CollapsingHeader("Time Formatted Axes")) 
 
 #         #@cstatic t_min = Float64(1577836800) # 01/01/2020 @ 12:00:00am (UTC)
 #         #@cstatic t_max = Float64(1609459200) # 01/01/2021 @ 12:00:00am (UTC)
@@ -705,17 +706,17 @@ function ShowDemoWindow()
 #         CImGui.Checkbox("24 Hour Clock",&ImPlot.GetStyle().Use24HourClock)
 
 #         @cstatic HugeTimeData* data = NULL #???
-#         if (data == NULL) 
+#         if data == NULL) 
 #             CImGui.SameLine()
-#             if (CImGui.Button("Generate Huge Data (~500MB!)")) 
+#             if CImGui.Button("Generate Huge Data (~500MB!)")) 
 #                 @cstatic HugeTimeData sdata(t_min)
 #                 data = &sdata
 #             end
 #         end
 
 #         ImPlot.SetNextPlotLimits(t_min,t_max,0,1)
-#         if (ImPlot.BeginPlot("##Time", NULL, NULL, ImVec2(-1,0), 0, ImPlotAxisFlags_Time)) 
-#             if (data != NULL) 
+#         if ImPlot.BeginPlot("##Time", NULL, NULL, ImVec2(-1,0), 0, ImPlotAxisFlags_Time)) 
+#             if data != NULL) 
 #                 # downsample our data
 #                 downsample = Int(ImPlot.GetPlotLimits().X.Size() / 1000 + 1)
 #                 start = Int(ImPlot.GetPlotLimits().X.Min - t_min)
@@ -735,7 +736,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Multiple Y-Axes")) 
+#     if CImGui.CollapsingHeader("Multiple Y-Axes")) 
 #         @cstatic xs = zeros(Float32, 1001) xs2 = zeros(Float32, 1001) ys1 = zeros(Float32, 1001) ys2 = zeros(Float32, 1001) ys3 = zeros(Float32, 1001)
 #         for i = 1:1001
 #             xs[i]  = i*0.1
@@ -752,24 +753,24 @@ function ShowDemoWindow()
 #         CImGui.SameLine()
 
 #         # you can fit axes programatically
-#         CImGui.SameLine(); if (CImGui.Button("Fit X"))  ImPlot.FitNextPlotAxes(true, false, false, false)
-#         CImGui.SameLine(); if (CImGui.Button("Fit Y"))  ImPlot.FitNextPlotAxes(false, true, false, false)
-#         CImGui.SameLine(); if (CImGui.Button("Fit Y2")) ImPlot.FitNextPlotAxes(false, false, true, false)
-#         CImGui.SameLine(); if (CImGui.Button("Fit Y3")) ImPlot.FitNextPlotAxes(false, false, false, true)
+#         CImGui.SameLine(); if CImGui.Button("Fit X"))  ImPlot.FitNextPlotAxes(true, false, false, false)
+#         CImGui.SameLine(); if CImGui.Button("Fit Y"))  ImPlot.FitNextPlotAxes(false, true, false, false)
+#         CImGui.SameLine(); if CImGui.Button("Fit Y2")) ImPlot.FitNextPlotAxes(false, false, true, false)
+#         CImGui.SameLine(); if CImGui.Button("Fit Y3")) ImPlot.FitNextPlotAxes(false, false, false, true)
 
 #         ImPlot.SetNextPlotLimits(0.1, 100, 0, 10)
 #         ImPlot.SetNextPlotLimitsY(0, 1, ImGuiCond_Once, 1)
 #         ImPlot.SetNextPlotLimitsY(0, 300, ImGuiCond_Once, 2)
-#         if (ImPlot.BeginPlot("Multi-Axis Plot", NULL, NULL, ImVec2(-1,0),
+#         if ImPlot.BeginPlot("Multi-Axis Plot", NULL, NULL, ImVec2(-1,0),
 #                              (y2_axis ? ImPlotFlags_YAxis2 : 0) |
 #                              (y3_axis ? ImPlotFlags_YAxis3 : 0))) 
 #             ImPlot.PlotLine("f(x) = x", xs, xs, 1001)
 #             ImPlot.PlotLine("f(x) = sin(x)*3+1", xs, ys1, 1001)
-#             if (y2_axis) 
+#             if y2_axis) 
 #                 ImPlot.SetPlotYAxis(ImPlotYAxis_2)
 #                 ImPlot.PlotLine("f(x) = cos(x)*.2+.5 (Y2)", xs, ys2, 1001)
 #             end
-#             if (y3_axis) 
+#             if y3_axis) 
 #                 ImPlot.SetPlotYAxis(ImPlotYAxis_3)
 #                 ImPlot.PlotLine("f(x) = sin(x+.5)*100+200 (Y3)", xs2, ys3, 1001)
 #             end
@@ -777,7 +778,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Linked Axes")) 
+#     if CImGui.CollapsingHeader("Linked Axes")) 
 #         @cstatic xmin = 0., xmax = 1., ymin = 0., ymax = 1.
 #         @cstatic linkx = true, linky = true
 #         data = [0, 1]
@@ -785,18 +786,18 @@ function ShowDemoWindow()
 #         CImGui.SameLine()
 #         CImGui.Checkbox("Link Y", &linky)
 #         ImPlot.LinkNextPlotLimits(linkx ? &xmin : NULL , linkx ? &xmax : NULL, linky ? &ymin : NULL, linky ? &ymax : NULL)
-#         if (ImPlot.BeginPlot("Plot A")) 
+#         if ImPlot.BeginPlot("Plot A")) 
 #             ImPlot.PlotLine("Line",data,2)
 #             ImPlot.EndPlot()
 #         end
 #         ImPlot.LinkNextPlotLimits(linkx ? &xmin : NULL , linkx ? &xmax : NULL, linky ? &ymin : NULL, linky ? &ymax : NULL)
-#         if (ImPlot.BeginPlot("Plot B")) 
+#         if ImPlot.BeginPlot("Plot B")) 
 #             ImPlot.PlotLine("Line",data,2)
 #             ImPlot.EndPlot()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Equal Axes")) 
+#     if CImGui.CollapsingHeader("Equal Axes")) 
 #         @cstatic xs = zeros(Float64, 1000) ys = zeros(Float64, 1000)
 #         for i = 1:1000
 #             angle = i * 2 * PI / 999.0
@@ -804,13 +805,13 @@ function ShowDemoWindow()
 #             ys[i] = sin(angle)
 #         end
 #         ImPlot.SetNextPlotLimits(-1,1,-1,1)
-#         if (ImPlot.BeginPlot("",0,0,ImVec2(-1,0),ImPlotFlags_Equal)) 
+#         if ImPlot.BeginPlot("",0,0,ImVec2(-1,0),ImPlotFlags_Equal)) 
 #             ImPlot.PlotLine("Circle",xs,ys,1000)
 #             ImPlot.EndPlot()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Querying")) 
+#     if CImGui.CollapsingHeader("Querying")) 
 #         @cstatic data = ImPlotPoint[] #? ImVector<ImPlotPoint> data
 #         @cstatic ImPlotLimits range, query
 
@@ -822,25 +823,25 @@ function ShowDemoWindow()
 #             CImGui.BulletText("The query rect can be dragged after it's created.")
 #         CImGui.Unindent()
 
-#         if (ImPlot.BeginPlot("##Drawing", NULL, NULL, ImVec2(-1,0), ImPlotFlags_Query, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
-#             if (ImPlot.IsPlotHovered() && CImGui.IsMouseClicked(0) && CImGui.GetIO().KeyCtrl) 
+#         if ImPlot.BeginPlot("##Drawing", NULL, NULL, ImVec2(-1,0), ImPlotFlags_Query, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
+#             if ImPlot.IsPlotHovered() && CImGui.IsMouseClicked(0) && CImGui.GetIO().KeyCtrl) 
 #                 pt = ImPlot.GetPlotMousePos()
 #                 data.push_back(pt)
 #             end
-#             if (data.size() > 0)
+#             if data.size() > 0)
 #                 ImPlot.PlotScatter("Points", &data[0].x, &data[0].y, data.size(), 0, 2 * sizeof(Float64))
-#             if (ImPlot.IsPlotQueried() && data.size() > 0) 
+#             if ImPlot.IsPlotQueried() && data.size() > 0) 
 #                 range2 = ImPlot.GetPlotQuery()
 #                 cnt = 0
 #                 avg::ImPlotPoint
 #                 for i = 1:data.size()
-#                     if (range2.Contains(data[i].x, data[i].y)) 
+#                     if range2.Contains(data[i].x, data[i].y)) 
 #                         avg.x += data[i].x
 #                         avg.y += data[i].y
 #                         cnt+=1
 #                     end
 #                 end
-#                 if (cnt > 0) 
+#                 if cnt > 0) 
 #                     avg.x = avg.x / cnt
 #                     avg.y = avg.y / cnt
 #                     ImPlot.SetNextMarkerStyle(ImPlotMarker_Square)
@@ -855,7 +856,7 @@ function ShowDemoWindow()
 #         CImGui.Text("The current query limits are: [%g,%g,%g,%g]", query.X.Min, query.X.Max, query.Y.Min, query.Y.Max)
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Views")) 
+#     if CImGui.CollapsingHeader("Views")) 
 #         # mimic's soulthread's imgui_plot demo
 #         @cstatic x_data = zeros(Float32, 512)
 #         @cstatic y_data1 = zeros(Float32, 512)
@@ -875,7 +876,7 @@ function ShowDemoWindow()
 #         ImPlot.SetNextPlotLimits(0,0.01,-1,1)
 #         flags = ImPlotAxisFlags_NoTickLabels
 #         query = ImPlotLimits() #? defaults
-#         if (ImPlot.BeginPlot("##View1",NULL,NULL,ImVec2(-1,150), ImPlotFlags_Query, flags, flags)) 
+#         if ImPlot.BeginPlot("##View1",NULL,NULL,ImVec2(-1,150), ImPlotFlags_Query, flags, flags)) 
 #             ImPlot.PlotLine("Signal 1", x_data, y_data1, 512)
 #             ImPlot.PlotLine("Signal 2", x_data, y_data2, 512)
 #             ImPlot.PlotLine("Signal 3", x_data, y_data3, 512)
@@ -883,7 +884,7 @@ function ShowDemoWindow()
 #             ImPlot.EndPlot()
 #         end
 #         ImPlot.SetNextPlotLimits(query.X.Min, query.X.Max, query.Y.Min, query.Y.Max, ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##View2",NULL,NULL,ImVec2(-1,150), ImPlotFlags_CanvasOnly, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
+#         if ImPlot.BeginPlot("##View2",NULL,NULL,ImVec2(-1,150), ImPlotFlags_CanvasOnly, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations)) 
 #             ImPlot.PlotLine("Signal 1", x_data, y_data1, 512)
 #             ImPlot.PlotLine("Signal 2", x_data, y_data2, 512)
 #             ImPlot.PlotLine("Signal 3", x_data, y_data3, 512)
@@ -891,7 +892,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Legend")) 
+#     if CImGui.CollapsingHeader("Legend")) 
 #         @cstatic loc = ImPlotLocation_East h = false o = true
 #             CImGui.CheckboxFlags("North", (unsigned Int*)&loc, ImPlotLocation_North); CImGui.SameLine()
 #             CImGui.CheckboxFlags("South", (unsigned Int*)&loc, ImPlotLocation_South); CImGui.SameLine()
@@ -904,7 +905,7 @@ function ShowDemoWindow()
 #             CImGui.SliderFloat2("LegendInnerPadding", (Float32*)&GetStyle().LegendInnerPadding, 0.0, 10.0, "%.0f")
 #             CImGui.SliderFloat2("LegendSpacing", (Float32*)&GetStyle().LegendSpacing, 0.0, 5.0, "%.0f")
 
-#             if (ImPlot.BeginPlot("##Legend","x","y",ImVec2(-1,0))) 
+#             if ImPlot.BeginPlot("##Legend","x","y",ImVec2(-1,0))) 
 #                 ImPlot.SetLegendLocation(loc, h ? ImPlotOrientation_Horizontal : ImPlotOrientation_Vertical, o)
 #                 @cstatic data1 = MyImPlot.WaveData(0.001, 0.2, 2, 0.75)
 #                 @cstatic data2 = MyImPlot.WaveData(0.001, 0.2, 4, 0.25)
@@ -919,7 +920,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Drag Lines and Points")) 
+#     if CImGui.CollapsingHeader("Drag Lines and Points")) 
 #         CImGui.BulletText("Click and drag the horizontal and vertical lines.")
 #         @cstatic x1 = 0.2
 #         @cstatic x2 = 0.8
@@ -928,7 +929,7 @@ function ShowDemoWindow()
 #         @cstatic f = 0.1
 #         @cstatic show_labels = true
 #         CImGui.Checkbox("Show Labels##1",&show_labels)
-#         if (ImPlot.BeginPlot("##guides",0,0,ImVec2(-1,0),ImPlotFlags_YAxis2)) 
+#         if ImPlot.BeginPlot("##guides",0,0,ImVec2(-1,0),ImPlotFlags_YAxis2)) 
 #             ImPlot.DragLineX("x1",&x1,show_labels)
 #             ImPlot.DragLineX("x2",&x2,show_labels)
 #             ImPlot.DragLineY("y1",&y1,show_labels)
@@ -946,8 +947,8 @@ function ShowDemoWindow()
 #         end
 #         CImGui.BulletText("Click and drag any point.")
 #         CImGui.Checkbox("Show Labels##2",&show_labels)
-#         ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks
-#         if (ImPlot.BeginPlot("##Bezier",0,0,ImVec2(-1,0),ImPlotFlags_CanvasOnly,flags,flags)) 
+#         flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks
+#         if ImPlot.BeginPlot("##Bezier",0,0,ImVec2(-1,0),ImPlotFlags_CanvasOnly,flags,flags)) 
 #             @cstatic ImPlotPoint P[] = ImPlotPoint(.05,.05), ImPlotPoint(0.2,0.4),  ImPlotPoint(0.8,0.6),  ImPlotPoint(.95,.95)end
 #             @cstatic ImPlotPoint B[100]
 #             for i = 1:100
@@ -972,11 +973,11 @@ function ShowDemoWindow()
 #             ImPlot.EndPlot()
 #         end
 #     end
-#     if (CImGui.CollapsingHeader("Annotations")) 
+#     if CImGui.CollapsingHeader("Annotations")) 
 #         @cstatic clamp = false
 #         CImGui.Checkbox("Clamp",&clamp)
 #         ImPlot.SetNextPlotLimits(0,2,0,1)
-#         if (ImPlot.BeginPlot("##Annotations")) 
+#         if ImPlot.BeginPlot("##Annotations")) 
 
 #             @cstatic p = Float32[0.25, 0.25, 0.75, 0.75, 0.25]
 #             ImPlot.PlotScatter("##Points",&p[0],&p[1],4)
@@ -997,7 +998,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Drag and Drop")) 
+#     if CImGui.CollapsingHeader("Drag and Drop")) 
 #         K_CHANNELS = 9
 #         Random.seed!(10000000 * DEMO_TIME)
 #         @cstatic paused = false
@@ -1005,7 +1006,7 @@ function ShowDemoWindow()
 #         @cstatic data = ScrollingBuffer(K_CHANNELS) # ???
 #         @cstatic show = falses[K_CHANNELS]
 #         @cstatic yAxis = zeros(Int, K_CHANNELS)
-#         if (init) 
+#         if init) 
 #             for i = 1:K_CHANNELS
 #                 show[i] = false
 # 				yAxis[i] = 0
@@ -1015,20 +1016,20 @@ function ShowDemoWindow()
 #         CImGui.BulletText("Drag data items from the left column onto the plot or onto a specific y-axis.")
 #         CImGui.BulletText("Redrag data items from the legend onto other y-axes.")
 #         CImGui.BeginGroup()
-#         if (CImGui.Button("Clear", ImVec2(100, 0))) 
+#         if CImGui.Button("Clear", ImVec2(100, 0))) 
 #             for i = 1:K_CHANNELS
 #                 show[i] = false
 #                 data[i].Data.shrink(0)
 #                 data[i].Offset = 0
 #             end
 #         end
-#         if (CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0)))
+#         if CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0)))
 #             paused = !paused
 #         for i = 1:K_CHANNELS
 #             char label[16]
 #             sprintf(label, show[i] ? "data_%d (Y%d)" : "data_%d", i, yAxis[i]+1)
 #             CImGui.Selectable(label, false, 0, ImVec2(100, 0))
-#             if (CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
+#             if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
 #                 CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
 #                 CImGui.TextUnformatted(label)
 #                 CImGui.EndDragDropSource()
@@ -1038,23 +1039,23 @@ function ShowDemoWindow()
 #         CImGui.SameLine()
 #         Random.seed!(10000000 * DEMO_TIME)
 #         @cstatic t = Float32(0)
-#         if (!paused) 
+#         if !paused) 
 #             t += CImGui.GetIO().DeltaTime
 #             for i = 1:K_CHANNELS
-#                 if (show[i])
+#                 if show[i])
 #                     data[i].AddPoint(t, (i+1)*0.1 + rand(-0.01 : 0.000001 : 0.01))
 #             end
 #         end
 #         ImPlot.SetNextPlotLimitsX((Float64)t - 10, t, paused ? ImGuiCond_Once : ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##DND", NULL, NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3, ImPlotAxisFlags_NoTickLabels)) 
+#         if ImPlot.BeginPlot("##DND", NULL, NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3, ImPlotAxisFlags_NoTickLabels)) 
 #             for i = 1:K_CHANNELS
-#                 if (show[i] && data[i].Data.size() > 0) 
+#                 if show[i] && data[i].Data.size() > 0) 
 #                     char label[K_CHANNELS]
 #                     sprintf(label, "data_%d", i)
 # 					ImPlot.SetPlotYAxis(yAxis[i])
 #                     ImPlot.PlotLine(label, &data[i].Data[0].x, &data[i].Data[0].y, data[i].Data.size(), data[i].Offset, 2 * sizeof(Float32))
 #                     # allow legend labels to be dragged and dropped
-#                     if (ImPlot.BeginLegendDragDropSource(label)) 
+#                     if ImPlot.BeginLegendDragDropSource(label)) 
 #                         CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
 #                         CImGui.TextUnformatted(label)
 #                         ImPlot.EndLegendDragDropSource()
@@ -1062,14 +1063,14 @@ function ShowDemoWindow()
 #                 end
 #             end
 #             # make our plot a drag and drop target
-# 			if (CImGui.BeginDragDropTarget()) 
-# 				if (const ImGuiPayload* payload = CImGui.AcceptDragDropPayload("DND_PLOT")) 
+# 			if CImGui.BeginDragDropTarget()) 
+# 				if const ImGuiPayload* payload = CImGui.AcceptDragDropPayload("DND_PLOT")) 
 # 					Int i = *(Int*)payload->Data
 # 					show[i] = true
 #                     yAxis[i] = 0
 #                     # set specific y-axis if hovered
 # 					for y = 0:2 #? 1:3 
-# 						if (ImPlot.IsPlotYAxisHovered(y))
+# 						if ImPlot.IsPlotYAxisHovered(y))
 # 							yAxis[i] = y
 # 					end
 # 				end
@@ -1079,7 +1080,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Digital and Analog Signals")) 
+#     if CImGui.CollapsingHeader("Digital and Analog Signals")) 
 #         @cstatic paused = false
 #         #define K_PLOT_DIGITAL_CH_COUNT 4
 #         #define K_PLOT_ANALOG_CH_COUNT  4
@@ -1094,19 +1095,19 @@ function ShowDemoWindow()
 #         CImGui.Text("you can drag analog signals over the rising/falling digital edge.")
 #         CImGui.Unindent()
 #         CImGui.BeginGroup()
-#         if (CImGui.Button("Clear", ImVec2(100, 0))) 
+#         if CImGui.Button("Clear", ImVec2(100, 0))) 
 #             for i = 1:K_PLOT_DIGITAL_CH_COUNT
 #                 showDigital[i] = false
 #             for i = 1:K_PLOT_ANALOG_CH_COUNT
 #                 showAnalog[i] = false
 #         end
-#         if (CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0)))
+#         if CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0)))
 #             paused = !paused
 #         for i = 1:K_PLOT_DIGITAL_CH_COUNT
 #             char label[32]
 #             sprintf(label, "digital_%d", i)
 #             CImGui.Checkbox(label, &showDigital[i])
-#             if (CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
+#             if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
 #                 CImGui.SetDragDropPayload("DND_DIGITAL_PLOT", &i, sizeof(Int))
 #                 CImGui.TextUnformatted(label)
 #                 CImGui.EndDragDropSource()
@@ -1116,7 +1117,7 @@ function ShowDemoWindow()
 #             char label[32]
 #             sprintf(label, "analog_%d", i)
 #             CImGui.Checkbox(label, &showAnalog[i])
-#             if (CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
+#             if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
 #                 CImGui.SetDragDropPayload("DND_ANALOG_PLOT", &i, sizeof(Int))
 #                 CImGui.TextUnformatted(label)
 #                 CImGui.EndDragDropSource()
@@ -1125,73 +1126,73 @@ function ShowDemoWindow()
 #         CImGui.EndGroup()
 #         CImGui.SameLine()
 #         @cstatic t = Float32(0)
-#         if (!paused) 
+#         if !paused) 
 #             t += CImGui.GetIO().DeltaTime
 #             #digital signal values
 #             i = 0
-#             if (showDigital[i])
+#             if showDigital[i])
 #                 dataDigital[i].AddPoint(t, sinf(2*t) > 0.45)
 #             end
 #             i += 1
-#             if (showDigital[i])
+#             if showDigital[i])
 #                 dataDigital[i].AddPoint(t, sinf(2*t) < 0.45)
 #             end
 #             i += 1
-#             if (showDigital[i])
+#             if showDigital[i])
 #                 dataDigital[i].AddPoint(t, fmodf(t,5.0))
 #             end
 #             i += 1
-#             if (showDigital[i])
+#             if showDigital[i])
 #                 dataDigital[i].AddPoint(t, sinf(2*t) < 0.17)
 #             end
 #             #Analog signal values
 #             i = 0
-#             if (showAnalog[i])
+#             if showAnalog[i])
 #                 dataAnalog[i].AddPoint(t, sinf(2*t))
 #             end
 #             i += 1
-#             if (showAnalog[i])
+#             if showAnalog[i])
 #                 dataAnalog[i].AddPoint(t, cosf(2*t))
 #             end
 #             i += 1
-#             if (showAnalog[i])
+#             if showAnalog[i])
 #                 dataAnalog[i].AddPoint(t, sinf(2*t) * cosf(2*t))
 #             end
 #             i += 1
-#             if (showAnalog[i])
+#             if showAnalog[i])
 #                 dataAnalog[i].AddPoint(t, sinf(2*t) - cosf(2*t))
 #             end
 #         end
 #         ImPlot.SetNextPlotLimitsY(-1, 1)
 #         ImPlot.SetNextPlotLimitsX(t - 10.0, t, paused ? ImGuiCond_Once : ImGuiCond_Always)
-#         if (ImPlot.BeginPlot("##Digital")) 
+#         if ImPlot.BeginPlot("##Digital")) 
 #             for i = 1:K_PLOT_DIGITAL_CH_COUNT
-#                 if (showDigital[i] && dataDigital[i].Data.size() > 0) 
+#                 if showDigital[i] && dataDigital[i].Data.size() > 0) 
 #                     char label[32]
 #                     sprintf(label, "digital_%d", i)
 #                     ImPlot.PlotDigital(label, &dataDigital[i].Data[0].x, &dataDigital[i].Data[0].y, dataDigital[i].Data.size(), dataDigital[i].Offset, 2 * sizeof(Float32))
 #                 end
 #             end
 #             for i = 1:K_PLOT_ANALOG_CH_COUNT
-#                 if (showAnalog[i]) 
+#                 if showAnalog[i]) 
 #                     char label[32]
 #                     sprintf(label, "analog_%d", i)
-#                     if (dataAnalog[i].Data.size() > 0)
+#                     if dataAnalog[i].Data.size() > 0)
 #                         ImPlot.PlotLine(label, &dataAnalog[i].Data[0].x, &dataAnalog[i].Data[0].y, dataAnalog[i].Data.size(), dataAnalog[i].Offset, 2 * sizeof(Float32))
 #                 end
 #             end
 #             ImPlot.EndPlot()
 #         end
-#         if (CImGui.BeginDragDropTarget()) 
+#         if CImGui.BeginDragDropTarget()) 
 #            #=const ImGuiPayload*=# payload = CImGui.AcceptDragDropPayload("DND_DIGITAL_PLOT")
-#             if (payload) 
+#             if payload) 
 #                 i = payload.Data #? int i = *(int*)payload->Data
 #                 showDigital[i] = true
 
 #             else
             
 #                 payload = CImGui.AcceptDragDropPayload("DND_ANALOG_PLOT")
-#                 if (payload) 
+#                 if payload) 
 #                     i = payload.Data #int i = *(int*)payload->Data
 #                     showAnalog[i] = true
 #                 end
@@ -1199,16 +1200,16 @@ function ShowDemoWindow()
 #             CImGui.EndDragDropTarget()
 #         end
 #     end
-#     if (CImGui.CollapsingHeader("Tables")) 
+#     if CImGui.CollapsingHeader("Tables")) 
 # #ifdef IMGUI_HAS_TABLE
 #         @cstatic ImGuiTableFlags flags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_RowBg
 #         @cstatic anim = true
 #         @cstatic offset = 0
 #         CImGui.BulletText("Plots can be used inside of ImGui tables.")
 #         CImGui.Checkbox("Animate",&anim)
-#         if (anim)
+#         if anim)
 #             offset = (offset + 1) % 100
-#         if (CImGui.BeginTable("##table", 3, flags, ImVec2(-1,0))) 
+#         if CImGui.BeginTable("##table", 3, flags, ImVec2(-1,0))) 
 #             CImGui.TableSetupColumn("Electrode", ImGuiTableColumnFlags_WidthFixed, 75.0)
 #             CImGui.TableSetupColumn("Voltage", ImGuiTableColumnFlags_WidthFixed, 75.0)
 #             CImGui.TableSetupColumn("EMG Signal")
@@ -1238,7 +1239,7 @@ function ShowDemoWindow()
 # #endif
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Offset and Stride")) 
+#     if CImGui.CollapsingHeader("Offset and Stride")) 
 #         @cstatic k_circles    = 11
 #         @cstatic k_points_per = 50
 #         @cstatic k_size       = 2 * k_points_per * k_circles
@@ -1258,7 +1259,7 @@ function ShowDemoWindow()
 #         CImGui.BulletText("The offset value indicates which circle point index is considered the first.")
 #         CImGui.BulletText("Offsets can be negative and/or larger than the actual data count.")
 #         CImGui.SliderInt("Offset", &offset, -2*k_points_per, 2*k_points_per)
-#         if (ImPlot.BeginPlot("##strideoffset",0,0,ImVec2(-1,0), ImPlotFlags_Equal)) 
+#         if ImPlot.BeginPlot("##strideoffset",0,0,ImVec2(-1,0), ImPlotFlags_Equal)) 
 #             ImPlot.PushColormap(ImPlotColormap_Jet)
 #             char buff[16]
 #             for c = 0:k_circles-1 #? 1:k_circles
@@ -1271,7 +1272,7 @@ function ShowDemoWindow()
 #         # offset++ uncomment for animation!
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Custom Data and Getters")) 
+#     if CImGui.CollapsingHeader("Custom Data and Getters")) 
 #         CImGui.BulletText("You can plot custom structs using the stride feature.")
 #         CImGui.BulletText("Most plotters can also be passed a function pointer for getting data.")
 #         CImGui.Indent()
@@ -1281,7 +1282,7 @@ function ShowDemoWindow()
 
 #         vec2_data = [MyImPlot.Vector2f(0,0), MyImPlot.Vector2f(1,1)]
 
-#         if (ImPlot.BeginPlot("##Custom Data")) 
+#         if ImPlot.BeginPlot("##Custom Data")) 
 
 #             # custom structs using stride example:
 #             ImPlot.PlotLine("Vector2f", &vec2_data[0].x, &vec2_data[0].y, 2, 0, sizeof(MyImPlot.Vector2f) /* or sizeof(Float32) * 2 */)
@@ -1296,7 +1297,7 @@ function ShowDemoWindow()
 #             ImPlot.PlotLineG("Waves", MyImPlot.SawWave, &data2, 1000)
 #             ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
 #             ImPlot.PlotShadedG("Waves", MyImPlot.SineWave, &data1, MyImPlot.SawWave, &data2, 1000)
-#             ImPlot.PopStyleVar()
+#             ImPlot.PopStyleVar(1)
 
 #             # you can also pass C++ lambdas:
 #             # auto lamda = [](void* data, Int idx)  ... return ImPlotPoint(x,y) end
@@ -1306,11 +1307,11 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Custom Ticks##")) 
+#     if CImGui.CollapsingHeader("Custom Ticks##")) 
 #         @cstatic custom_ticks  = true
 #         @cstatic custom_labels = true
 #         CImGui.Checkbox("Show Custom Ticks", &custom_ticks)
-#         if (custom_ticks) 
+#         if custom_ticks) 
 #             CImGui.SameLine()
 #             CImGui.Checkbox("Show Custom Labels", &custom_labels)
 #         end
@@ -1320,26 +1321,26 @@ function ShowDemoWindow()
 #         @cstatic ylabels[] = ["One","Three","Seven","Nine"]
 #         @cstatic yticks_aux[] = [0.2,0.4,0.6]
 #         @cstatic ylabels_aux[] = ["A","B","C","D","E","F"]
-#         if (custom_ticks)
+#         if custom_ticks)
 #             ImPlot.SetNextPlotTicksX(&pi,1,custom_labels ? pi_str : NULL, true)
 #             ImPlot.SetNextPlotTicksY(yticks, 4, custom_labels ? ylabels : NULL)
 #             ImPlot.SetNextPlotTicksY(yticks_aux, 3, custom_labels ? ylabels_aux : NULL, false, 1)
 #             ImPlot.SetNextPlotTicksY(0, 1, 6, custom_labels ? ylabels_aux : NULL, false, 2)
 #         end
 #         ImPlot.SetNextPlotLimits(2.5,5,0,10)
-#         if (ImPlot.BeginPlot("Custom Ticks", NULL, NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3)) 
+#         if ImPlot.BeginPlot("Custom Ticks", NULL, NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3)) 
 #             # nothing to see here, just the ticks
 #             ImPlot.EndPlot()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Custom Styles")) 
+#     if CImGui.CollapsingHeader("Custom Styles")) 
 #         ImPlot.PushColormap(ImPlotColormap_Deep)
 #         # normally you wouldn't change the entire style each frame
 #         ImPlotStyle backup = ImPlot.GetStyle()
 #         MyImPlot.StyleSeaborn()
 #         ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 10)
-#         if (ImPlot.BeginPlot("seaborn style", "x-axis", "y-axis")) 
+#         if ImPlot.BeginPlot("seaborn style", "x-axis", "y-axis")) 
 #             lin = UInt[8,8,9,7,8,8,8,9,7,8]
 #             bar = UInt[1,2,5,3,4,1,2,5,3,4]
 #             dot = UInt[7,6,6,7,8,5,6,5,8,7]
@@ -1353,8 +1354,8 @@ function ShowDemoWindow()
 #         ImPlot.PopColormap()
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Custom Rendering")) 
-#         if (ImPlot.BeginPlot("##CustomRend")) 
+#     if CImGui.CollapsingHeader("Custom Rendering")) 
+#         if ImPlot.BeginPlot("##CustomRend")) 
 #             ImVec2 cntr = ImPlot.PlotToPixels(ImPlotPoint(0.5,  0.5))
 #             ImVec2 rmin = ImPlot.PlotToPixels(ImPlotPoint(0.25, 0.75))
 #             ImVec2 rmax = ImPlot.PlotToPixels(ImPlotPoint(0.75, 0.25))
@@ -1366,7 +1367,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Custom Context Menus")) 
+#     if CImGui.CollapsingHeader("Custom Context Menus")) 
 #         CImGui.BulletText("You can implement legend context menus to inject per-item controls and widgets.")
 #         CImGui.BulletText("Right click the legend label/icon to edit custom item attributes.")
 
@@ -1384,28 +1385,28 @@ function ShowDemoWindow()
 #             vals[i] = amplitude * sin(frequency * i)
 #         end
 #         ImPlot.SetNextPlotLimits(0,100,-1,1)
-#         if (ImPlot.BeginPlot("Right Click the Legend")) 
+#         if ImPlot.BeginPlot("Right Click the Legend")) 
 #             # rendering logic
 #             ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, alpha)
-#             if (!line) 
+#             if !line) 
 #                 ImPlot.SetNextFillStyle(color)
 #                 ImPlot.PlotBars("Right Click Me", vals, 101)
 #             else 
-#                 if (markers) ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
+#                 if markers) ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
 #                 ImPlot.SetNextLineStyle(color, thickness)
 #                 ImPlot.PlotLine("Right Click Me", vals, 101)
-#                 if (shaded) ImPlot.PlotShaded("Right Click Me",vals,101)
+#                 if shaded) ImPlot.PlotShaded("Right Click Me",vals,101)
 #             end
-#             ImPlot.PopStyleVar()
+#             ImPlot.PopStyleVar(1)
 #             # custom legend context menu
-#             if (ImPlot.BeginLegendPopup("Right Click Me")) 
+#             if ImPlot.BeginLegendPopup("Right Click Me")) 
 #                 CImGui.SliderFloat("Frequency",&frequency,0,1,"%0.2f")
 #                 CImGui.SliderFloat("Amplitude",&amplitude,0,1,"%0.2f")
 #                 CImGui.Separator()
 #                 CImGui.ColorEdit3("Color",&color.x)
 #                 CImGui.SliderFloat("Transparency",&alpha,0,1,"%.2f")
 #                 CImGui.Checkbox("Line Plot", &line)
-#                 if (line) 
+#                 if line) 
 #                     CImGui.SliderFloat("Thickness", &thickness, 0, 5)
 #                     CImGui.Checkbox("Markers", &markers)
 #                     CImGui.Checkbox("Shaded",&shaded)
@@ -1416,7 +1417,7 @@ function ShowDemoWindow()
 #         end
 #     end
 #     #-------------------------------------------------------------------------
-#     if (CImGui.CollapsingHeader("Custom Plotters and Tooltips")) 
+#     if CImGui.CollapsingHeader("Custom Plotters and Tooltips")) 
 #         CImGui.BulletText("You can create custom plotters or extend ImPlot using implot_internal.h.")
 # 		dates  = [1546300800,1546387200,1546473600,1546560000,1546819200,1546905600,1546992000,1547078400,1547164800,1547424000,1547510400,1547596800,1547683200,1547769600,1547942400,1548028800,1548115200,1548201600,1548288000,1548374400,1548633600,1548720000,1548806400,1548892800,1548979200,1549238400,1549324800,1549411200,1549497600,1549584000,1549843200,1549929600,1550016000,1550102400,1550188800,1550361600,1550448000,1550534400,1550620800,1550707200,1550793600,1551052800,1551139200,1551225600,1551312000,1551398400,1551657600,1551744000,1551830400,1551916800,1552003200,1552262400,1552348800,1552435200,1552521600,1552608000,1552867200,1552953600,1553040000,1553126400,1553212800,1553472000,1553558400,1553644800,1553731200,1553817600,1554076800,1554163200,1554249600,1554336000,1554422400,1554681600,1554768000,1554854400,1554940800,1555027200,1555286400,1555372800,1555459200,1555545600,1555632000,1555891200,1555977600,1556064000,1556150400,1556236800,1556496000,1556582400,1556668800,1556755200,1556841600,1557100800,1557187200,1557273600,1557360000,1557446400,1557705600,1557792000,1557878400,1557964800,1558051200,1558310400,1558396800,1558483200,1558569600,1558656000,1558828800,1558915200,1559001600,1559088000,1559174400,1559260800,1559520000,1559606400,1559692800,1559779200,1559865600,1560124800,1560211200,1560297600,1560384000,1560470400,1560729600,1560816000,1560902400,1560988800,1561075200,1561334400,1561420800,1561507200,1561593600,1561680000,1561939200,1562025600,1562112000,1562198400,1562284800,1562544000,1562630400,1562716800,1562803200,1562889600,1563148800,1563235200,1563321600,1563408000,1563494400,1563753600,1563840000,1563926400,1564012800,1564099200,1564358400,1564444800,1564531200,1564617600,1564704000,1564963200,1565049600,1565136000,1565222400,1565308800,1565568000,1565654400,1565740800,1565827200,1565913600,1566172800,1566259200,1566345600,1566432000,1566518400,1566777600,1566864000,1566950400,1567036800,1567123200,1567296000,1567382400,1567468800,1567555200,1567641600,1567728000,1567987200,1568073600,1568160000,1568246400,1568332800,1568592000,1568678400,1568764800,1568851200,1568937600,1569196800,1569283200,1569369600,1569456000,1569542400,1569801600,1569888000,1569974400,1570060800,1570147200,1570406400,1570492800,1570579200,1570665600,1570752000,1571011200,1571097600,1571184000,1571270400,1571356800,1571616000,1571702400,1571788800,1571875200,1571961600]
 # 		opens  = [1284.7,1319.9,1318.7,1328,1317.6,1321.6,1314.3,1325,1319.3,1323.1,1324.7,1321.3,1323.5,1322,1281.3,1281.95,1311.1,1315,1314,1313.1,1331.9,1334.2,1341.3,1350.6,1349.8,1346.4,1343.4,1344.9,1335.6,1337.9,1342.5,1337,1338.6,1337,1340.4,1324.65,1324.35,1349.5,1371.3,1367.9,1351.3,1357.8,1356.1,1356,1347.6,1339.1,1320.6,1311.8,1314,1312.4,1312.3,1323.5,1319.1,1327.2,1332.1,1320.3,1323.1,1328,1330.9,1338,1333,1335.3,1345.2,1341.1,1332.5,1314,1314.4,1310.7,1314,1313.1,1315,1313.7,1320,1326.5,1329.2,1314.2,1312.3,1309.5,1297.4,1293.7,1277.9,1295.8,1295.2,1290.3,1294.2,1298,1306.4,1299.8,1302.3,1297,1289.6,1302,1300.7,1303.5,1300.5,1303.2,1306,1318.7,1315,1314.5,1304.1,1294.7,1293.7,1291.2,1290.2,1300.4,1284.2,1284.25,1301.8,1295.9,1296.2,1304.4,1323.1,1340.9,1341,1348,1351.4,1351.4,1343.5,1342.3,1349,1357.6,1357.1,1354.7,1361.4,1375.2,1403.5,1414.7,1433.2,1438,1423.6,1424.4,1418,1399.5,1435.5,1421.25,1434.1,1412.4,1409.8,1412.2,1433.4,1418.4,1429,1428.8,1420.6,1441,1460.4,1441.7,1438.4,1431,1439.3,1427.4,1431.9,1439.5,1443.7,1425.6,1457.5,1451.2,1481.1,1486.7,1512.1,1515.9,1509.2,1522.3,1513,1526.6,1533.9,1523,1506.3,1518.4,1512.4,1508.8,1545.4,1537.3,1551.8,1549.4,1536.9,1535.25,1537.95,1535.2,1556,1561.4,1525.6,1516.4,1507,1493.9,1504.9,1506.5,1513.1,1506.5,1509.7,1502,1506.8,1521.5,1529.8,1539.8,1510.9,1511.8,1501.7,1478,1485.4,1505.6,1511.6,1518.6,1498.7,1510.9,1510.8,1498.3,1492,1497.7,1484.8,1494.2,1495.6,1495.6,1487.5,1491.1,1495.1,1506.4]
@@ -1432,7 +1433,7 @@ function ShowDemoWindow()
 #         CImGui.SameLine() CImGui.ColorEdit4("##Bear", &bearCol.x, ImGuiColorEditFlags_NoInputs)
 #         ImPlot.GetStyle().UseLocalTime = false
 #         ImPlot.SetNextPlotLimits(1546300800, 1571961600, 1250, 1600)
-#         if (ImPlot.BeginPlot("Candlestick Chart","Day","USD",ImVec2(-1,0),0,ImPlotAxisFlags_Time)) 
+#         if ImPlot.BeginPlot("Candlestick Chart","Day","USD",ImVec2(-1,0),0,ImPlotAxisFlags_Time)) 
 #             MyImPlot.PlotCandlestick("GOOGL",dates, opens, closes, lows, highs, 218, tooltip, 0.25, bullCol, bearCol)
 #             ImPlot.EndPlot()
 #         end

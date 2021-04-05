@@ -15,11 +15,11 @@ function PlotBars(x::AbstractArray{T}, y::AbstractArray{T};
     LibCImPlot.PlotBars(label_id, x, y, count, width, offset, stride * sizeof(T))
 end
 
-function PlotBars(x::AbstractArray{T1}, y::AbstractArray{T2}; kwargs...) where {T1<:Real, T2<:Real}
+function PlotBars(x::AbstractArray{T1}, y::AbstractArray{T2}; 
+                  kwargs...) where {T1<:Real, T2<:Real}
+
     PlotBars(promote(x, y)..., kwargs...)
 end
-
-PlotBars(x::Vector{T1}, y::Vector{T2}; kwargs...) where {T1,T2} = PlotBars(promote(x, y)...; kwargs...)
 
 # Horizontal bars
 function PlotBarsH(values::AbstractArray{T}; count::Integer = length(values),
@@ -36,7 +36,9 @@ function PlotBarsH(x::AbstractArray{T}, y::AbstractArray{T};
     LibCImPlot.PlotBarsH(label_id, x, y, count, width, offset, stride * sizeof(T))
 end
 
-function PlotBarsH(x::AbstractArray{T1}, y::AbstractArray{T2}; kwargs...) where {T1<:Real, T2<:Real}
+function PlotBarsH(x::AbstractArray{T1}, y::AbstractArray{T2}; 
+                   kwargs...) where {T1<:Real, T2<:Real}
+
     PlotBarsH(promote(x, y)..., kwargs...)
 end
 
