@@ -2,11 +2,11 @@
 
 import .LibCImPlot: PlotDigital
 
-function PlotDigital(x::AbstractArray{T}, y::AbstractArray{T}; label::String = "",
+function PlotDigital(x::AbstractArray{T}, y::AbstractArray{T}; label_id::String = "",
                      count::Integer = min(length(x),length(y)), offset::Integer = 0,
                      stride::Integer = 1) where {T<:ImPlotData}
 
-    LibCImPlot.PlotDigital(label, x, y, count, offset, stride * sizeof(T))
+    LibCImPlot.PlotDigital(label_id, x, y, count, offset, stride * sizeof(T))
 end
 
 function PlotDigital(x::AbstractArray{T1}, y::AbstractArray{T2}; kwargs...) where {T1<:Real,T2<:Real}
