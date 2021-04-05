@@ -230,9 +230,9 @@ function ShowDemoWindow()
             end
             CImGui.BulletText("Anti-aliasing can be enabled from the plot's context menu (see Help).")
             if ImPlot.BeginPlot("Line Plot", "x", "f(x)")
-                ImPlot.PlotLine(xs1, ys1, label = "sin(x)")
+                ImPlot.PlotLine(xs1, ys1, label_id = "sin(x)")
                 SetNextMarkerStyle_fix(ImPlotMarker_Circle) #! error in api #? ImPlot.LibCImPlot #? no default values
-                ImPlot.PlotLine(xs2, ys2, label = "x^2")
+                ImPlot.PlotLine(xs2, ys2, label_id = "x^2")
                 ImPlot.EndPlot()
             end
         end) # @cstatic
@@ -265,15 +265,15 @@ function ShowDemoWindow()
             if ImPlot.BeginPlot("Stock Prices", "Days", "Price")
                 if show_fills
                     ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
-                    ImPlot.PlotShaded(xs1, ys1, fill_ref, label = "Stock 1")
-                    ImPlot.PlotShaded(xs1, ys2, fill_ref, label = "Stock 2")
-                    ImPlot.PlotShaded(xs1, ys3, fill_ref, label = "Stock 3")
+                    ImPlot.PlotShaded(xs1, ys1, fill_ref, label_id = "Stock 1")
+                    ImPlot.PlotShaded(xs1, ys2, fill_ref, label_id = "Stock 2")
+                    ImPlot.PlotShaded(xs1, ys3, fill_ref, label_id = "Stock 3")
                     ImPlot.PopStyleVar(1) #! how should we add default arguments in api functions???
                 end
                 if show_lines 
-                    ImPlot.PlotLine(xs1, ys1, label = "Stock 1")
-                    ImPlot.PlotLine(xs1, ys2, label = "Stock 2")
-                    ImPlot.PlotLine(xs1, ys3, label = "Stock 3")
+                    ImPlot.PlotLine(xs1, ys1, label_id = "Stock 1")
+                    ImPlot.PlotLine(xs1, ys2, label_id = "Stock 2")
+                    ImPlot.PlotLine(xs1, ys3, label_id = "Stock 3")
                 end
                 ImPlot.EndPlot()
             end
@@ -303,11 +303,11 @@ function ShowDemoWindow()
 
             if ImPlot.BeginPlot("Shaded Plots", "X-Axis", "Y-Axis")
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, alpha)
-                ImPlot.PlotShaded(xs, ys1, ys2, label = "Uncertain Data")
-                ImPlot.PlotLine(xs, ys, label = "Uncertain Data")
-                ImPlot.PlotShaded(xs, ys3, ys4, label = "Overlapping")
-                ImPlot.PlotLine(xs, ys3, label = "Overlapping")
-                ImPlot.PlotLine(xs, ys4, label = "Overlapping")
+                ImPlot.PlotShaded(xs, ys1, ys2, label_id = "Uncertain Data")
+                ImPlot.PlotLine(xs, ys, label_id = "Uncertain Data")
+                ImPlot.PlotShaded(xs, ys3, ys4, label_id = "Overlapping")
+                ImPlot.PlotLine(xs, ys3, label_id = "Overlapping")
+                ImPlot.PlotLine(xs, ys4, label_id = "Overlapping")
                 ImPlot.PopStyleVar(1)
                 ImPlot.EndPlot()
             end
@@ -333,10 +333,10 @@ function ShowDemoWindow()
             end
 
             if ImPlot.BeginPlot("Scatter Plot", "", "")
-                ImPlot.PlotScatter(xs1, ys1, label = "Data 1")
+                ImPlot.PlotScatter(xs1, ys1, label_id = "Data 1")
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
                 SetNextMarkerStyle_fix(ImPlotMarker_Square, 6, ImVec4(0,1,0,0.5), IMPLOT_AUTO, ImVec4(0,1,0,1))
-                ImPlot.PlotScatter(xs2, ys2, label = "Data 2")
+                ImPlot.PlotScatter(xs2, ys2, label_id = "Data 2")
                 ImPlot.PopStyleVar(1)
                 ImPlot.EndPlot()
             end
@@ -350,9 +350,9 @@ function ShowDemoWindow()
                 ys2[i] = 0.5 + 0.2 * sin(25 * i * 0.01)
             end
             if ImPlot.BeginPlot("Stairstep Plot", "x", "f(x)")
-                ImPlot.PlotStairs(ys1, xscale = 0.01, label = "Signal 1")
+                ImPlot.PlotStairs(ys1, xscale = 0.01, label_id = "Signal 1")
                 SetNextMarkerStyle_fix(ImPlotMarker_Square, 2.0)
-                ImPlot.PlotStairs(ys2, xscale = 0.01, label = "Signal 2")
+                ImPlot.PlotStairs(ys2, xscale = 0.01, label_id = "Signal 2")
                 ImPlot.EndPlot()
             end
         end
@@ -418,13 +418,13 @@ function ShowDemoWindow()
 #             ImPlot.SetNextErrorBarStyle(ImPlot.GetColormapColor(1), 0)
              ImPlot.PlotErrorBars(xs, lin1, err1, err2, count = 5, label_id = "Line")
 #             ImPlot.SetNextMarkerStyle_fix(ImPlotMarker_Circle)
-             ImPlot.PlotLine(xs, lin1, count = 5, label = "Line") # FIXME: consistency of label/label_id
+             ImPlot.PlotLine(xs, lin1, count = 5, label_id = "Line")
 
 #             ImPlot.PushStyleColor(ImPlotCol_ErrorBar, ImPlot.GetColormapColor(2))
              ImPlot.PlotErrorBars(xs, lin2, err2, count = 5, label_id = "Scatter")
              ImPlot.PlotErrorBarsH(xs, lin2,  err3, err4, count = 5, label_id = "Scatter")
 #             ImPlot.PopStyleColor()
-             ImPlot.PlotScatter(xs, lin2, count = 5, label = "Scatter") #! label vs label_id - make them consistent
+             ImPlot.PlotScatter(xs, lin2, count = 5, label_id = "Scatter")
 
              ImPlot.EndPlot()
          end
@@ -530,7 +530,7 @@ function ShowDemoWindow()
             flags = ImPlotFlags_NoLegend | ImPlotFlags_NoMousePos,
             x_flags = axes_flags, y_flags = axes_flags)
 
-             ImPlot.PlotHeatmap(values1, 7, 7, scale_min, scale_max, label = "heat")
+             ImPlot.PlotHeatmap(values1, 7, 7, scale_min, scale_max, label_id = "heat")
              ImPlot.EndPlot()
          end
 #         CImGui.SameLine()
@@ -549,8 +549,8 @@ function ShowDemoWindow()
              x_flags = ImPlot.ImPlotAxisFlags_NoDecorations,
              y_flags = ImPlot.ImPlotAxisFlags_NoDecorations)
 
-             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label = "heat1")
-             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label = "heat2",
+             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label_id = "heat1")
+             ImPlot.PlotHeatmap(values2,100,100,0,1, label_fmt = "", label_id = "heat2",
                                 bounds_min = ImPlot.ImPlotPoint(-1,-1),
                                 bounds_max = ImPlot.ImPlotPoint(0,0))
              ImPlot.EndPlot()
@@ -612,8 +612,8 @@ function ShowDemoWindow()
                 x_flags = rt_axis, 
                 y_flags = rt_axis | ImPlotAxisFlags_LockMin
             )
-                @c ImPlot.PlotShaded(&sdata1.data[1].x, &sdata1.data[1].y, 0; count = length(sdata1.data), offset = sdata1.offset, stride = 2 * sizeof(Float32), label = "Data 1")
-                @c ImPlot.PlotLine(&sdata2.data[1].x, &sdata2.data[1].y; count = length(sdata2.data), offset = sdata2.offset, stride = 2 * sizeof(Float32), label = "Data 2")
+                @c ImPlot.PlotShaded(&sdata1.data[1].x, &sdata1.data[1].y, 0; count = length(sdata1.data), offset = sdata1.offset, stride = 2 * sizeof(Float32), label_id = "Data 1")
+                @c ImPlot.PlotLine(&sdata2.data[1].x, &sdata2.data[1].y; count = length(sdata2.data), offset = sdata2.offset, stride = 2 * sizeof(Float32), label_id = "Data 2")
                 ImPlot.EndPlot()
             end
             ImPlot.SetNextPlotLimitsX(0, history, ImGuiCond_Always)
@@ -622,8 +622,8 @@ function ShowDemoWindow()
                 x_flags = rt_axis, 
                 y_flags = rt_axis
             ) 
-                @c ImPlot.PlotLine(&rdata1.data[1].x, &rdata1.data[1].y; count = length(rdata1.data), stride = 2 * sizeof(Float32), label = "Data 1")
-                @c ImPlot.PlotLine(&rdata2.data[1].x, &rdata2.data[1].y; count = length(rdata2.data), stride = 2 * sizeof(Float32), label = "Data 2")
+                @c ImPlot.PlotLine(&rdata1.data[1].x, &rdata1.data[1].y; count = length(rdata1.data), stride = 2 * sizeof(Float32), label_id = "Data 1")
+                @c ImPlot.PlotLine(&rdata2.data[1].x, &rdata2.data[1].y; count = length(rdata2.data), stride = 2 * sizeof(Float32), label_id = "Data 2")
                 ImPlot.EndPlot()
             end
         end) # @cstatic
