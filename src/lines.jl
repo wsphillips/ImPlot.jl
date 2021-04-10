@@ -38,3 +38,24 @@ end
 
 PlotLine(x::UnitRange{<:Integer}, y::AbstractArray{<:Real}; kwargs...) = PlotLine(x, Float64.(y); kwargs...)
 PlotLine(x::StepRange, y::AbstractArray{<:Real}; kwargs...) = PlotLine(x, Float64.(y); kwargs...)
+
+# xfield, yfield should be propertynames of eltype(structvec)
+function PlotLine(
+    structvec::Vector{T}, xfield::Symbol, yfield::Symbol; 
+    count::Integer = length(structvec), offset::Integer = 0,
+    stride::Integer = 1, label_id::String = ""
+) where T
+    
+    Tx = fieldtype(T, xfield)
+    Ty = fieldtype(T, yfield)
+    x_offset = fieldoffset(T, Base.fieldindex(T, xfield))
+    y_offset = fieldoffset(T, Base.fieldindex(T, yfield))
+    x_ptr = (pointer(structvec, 1) + x_offset) |> Ptr{Tx}
+    y_ptr = (pointer(structvec, 1) + y_offset) |> Ptr{Ty} 
+
+    # this is somewhat illegal and is used only to pass a pointer through AbstractArray argument into ccall
+    x = unsafe_wrap(Vector{Tx}, x_ptr, size(structvec); own = false)
+    y = unsafe_wrap(Vector{Ty}, y_ptr, size(structvec); own = false)
+
+    LibCImPlot.PlotLine(label_id, x, y, count, offset, stride * sizeof(T))
+end

@@ -22,8 +22,8 @@ import CImGui.LibCImGui:  # do we need to import this separately?
 
 using ImPlot
 
-# import ImPlot: # do we need to import this separately?
-#     ImPlotAxisFlags
+import ImPlot: # do we need to import this separately?
+    ImPlotPoint
 
 import ImPlot.LibCImPlot: # do we need to import this separately?
     ImPlotMarker_Circle,
@@ -44,7 +44,7 @@ import ImPlot.LibCImPlot: # do we need to import this separately?
     ImPlotFlags
 
 using Random
-
+using Setfield
 
 #! TODO: 
 # check all `ImPlot.LibCImPlot. below and move them into import statement,
@@ -64,7 +64,7 @@ end
 # ======================
 
 # utility structure for realtime plot
-struct ScrollingBuffer
+mutable struct ScrollingBuffer
     maxsize::Int
     offset::Int
     data::Vector{ImVec2}
@@ -84,8 +84,10 @@ function AddPoint(buf::ScrollingBuffer, x, y)
     end
 end
 function Erase(buf::ScrollingBuffer)
-    empty!(buf.data)
-    buf.offset = 0
+    if length(buf.data) > 0
+        empty!(buf.data)
+        buf.offset = 0
+    end
 end
 
 # utility structure for realtime plot
@@ -93,7 +95,7 @@ mutable struct RollingBuffer
     span::Float32
     data::Vector{ImVec2}
     function RollingBuffer()
-        span = Float32(10.0)
+        span = 10.0f0
         data = ImVec2[]
         sizehint!(data, 2000)
         new(span, data)
@@ -467,7 +469,7 @@ function ShowDemoWindow()
                 end
 
                 ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
-                if ImPlot.BeginPlot("##Pie1", "", "", ImVec2(250,250),
+                if ImPlot.BeginPlot("##Pie1", C_NULL, C_NULL, ImVec2(250,250),
                     flags = ImPlotFlags_Equal | ImPlotFlags_NoMousePos,
                     y_flags = ImPlotAxisFlags_NoDecorations,
                     y2_flags = ImPlotAxisFlags_NoDecorations) 
@@ -480,7 +482,7 @@ function ShowDemoWindow()
                 CImGui.SameLine()
 #                ImPlot.PushColormap(ImPlotColormap_Pastel) # TODO: add more enum exports to libcimplot.jl
                 ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
-                if ImPlot.BeginPlot("##Pie2", "", "", ImVec2(250,250),
+                if ImPlot.BeginPlot("##Pie2", C_NULL, C_NULL, ImVec2(250,250),
                     flags = ImPlotFlags_Equal | ImPlotFlags_NoMousePos,
                     y_flags = ImPlotAxisFlags_NoDecorations,
                     y2_flags = ImPlotAxisFlags_NoDecorations)
@@ -526,7 +528,7 @@ function ShowDemoWindow()
 #         ImPlot.PushColormap(map)
          ImPlot.SetNextPlotTicksX(0 + 1.0/14.0, 1 - 1.0/14.0, 7, labels = xlabels)
          ImPlot.SetNextPlotTicksY(1 - 1.0/14.0, 0 + 1.0/14.0, 7, labels = ylabels)
-         if ImPlot.BeginPlot("##Heatmap1","","",ImVec2(225,225),
+         if ImPlot.BeginPlot("##Heatmap1",C_NULL,C_NULL,ImVec2(225,225),
             flags = ImPlotFlags_NoLegend | ImPlotFlags_NoMousePos,
             x_flags = axes_flags, y_flags = axes_flags)
 
@@ -545,7 +547,7 @@ function ShowDemoWindow()
          end
 #         ImPlot.PushColormap(gray, 2)
          ImPlot.SetNextPlotLimits(-1,1,-1,1)
-         if ImPlot.BeginPlot("##Heatmap2","","", ImVec2(225,225),
+         if ImPlot.BeginPlot("##Heatmap2",C_NULL,C_NULL, ImVec2(225,225),
              x_flags = ImPlot.ImPlotAxisFlags_NoDecorations,
              y_flags = ImPlot.ImPlotAxisFlags_NoDecorations)
 
@@ -564,19 +566,21 @@ function ShowDemoWindow()
         CImGui.BulletText("Use the 'ImTextureID' type as storage to pass pointers or identifiers to your\nown texture data.")
         CImGui.BulletText("See ImGui Wiki page 'Image Loading and Displaying Examples'.")
         @cstatic(
-            bmin = ImVec2(0,0),
-            bmax = ImVec2(1,1),
+            bmin = ImPlotPoint(0,0), #? how can they use ImVec2 in cpp?
+            bmax = ImPlotPoint(1,1),
             uv0 = ImVec2(0,0),
             uv1 = ImVec2(1,1),
             tint = ImVec4(1,1,1,1),
         begin
-            @c CImGui.SliderFloat2("Min", &bmin.x, -2, 2, "%.1f") #! exception = setfield! immutable struct of type ImVec2 cannot be changed
-            @c CImGui.SliderFloat2("Max", &bmax.x, -2, 2, "%.1f")
-            @c CImGui.SliderFloat2("UV0", &uv0.x, -2, 2, "%.1f")
-            @c CImGui.SliderFloat2("UV1", &uv1.x, -2, 2, "%.1f")
-            @c CImGui.ColorEdit4("Tint",&tint.x)
+            
+            # @c CImGui.SliderFloat2("Min", &r_bmin, -2, 2, "%.1f") #! exception = setfield! immutable struct of type ImVec2 cannot be changed
+            # @c CImGui.SliderFloat2("Max", &bmax_x, -2, 2, "%.1f") 
+            # @c CImGui.SliderFloat2("UV0", &uv0_x, -2, 2, "%.1f")
+            # @c CImGui.SliderFloat2("UV1", &uv1_x, -2, 2, "%.1f")
+            # @c CImGui.ColorEdit4("Tint", &tint_x)
+            
             if ImPlot.BeginPlot("##image", "", "")
-                ImPlot.PlotImage("my image",CImGui.GetIO().Fonts.TexID, bmin, bmax, uv0, uv1, tint)
+                ImPlot.PlotImage(CImGui.GetIO().Fonts.TexID, bmin, bmax, uv0, uv1, tint, label_id = "my image")
                 ImPlot.EndPlot()
             end
         end) # @cstatic
@@ -607,23 +611,23 @@ function ShowDemoWindow()
             
             ImPlot.SetNextPlotLimitsX(t - history, t, ImGuiCond_Always)
             #? tried to use CircularBuffer here from DataStructures.jl, but it can't be properly passed into PlotLine functions...
-            if ImPlot.BeginPlot("##Scrolling", "", "", ImVec2(-1,150); 
+            if ImPlot.BeginPlot("##Scrolling", C_NULL, C_NULL, ImVec2(-1,150); 
                 flags = 0, #? IMPLOT_AUTO ?
                 x_flags = rt_axis, 
                 y_flags = rt_axis | ImPlotAxisFlags_LockMin
             )
-                @c ImPlot.PlotShaded(&sdata1.data[1].x, &sdata1.data[1].y, 0; count = length(sdata1.data), offset = sdata1.offset, stride = 2 * sizeof(Float32), label_id = "Data 1")
-                @c ImPlot.PlotLine(&sdata2.data[1].x, &sdata2.data[1].y; count = length(sdata2.data), offset = sdata2.offset, stride = 2 * sizeof(Float32), label_id = "Data 2")
+                ImPlot.PlotShaded(sdata1.data, :x, :y, 0; label_id = "Data 1")
+                ImPlot.PlotLine(sdata2.data, :x, :y; label_id = "Data 2")
                 ImPlot.EndPlot()
             end
             ImPlot.SetNextPlotLimitsX(0, history, ImGuiCond_Always)
-            if ImPlot.BeginPlot("##Rolling", "", "", ImVec2(-1,150); 
+            if ImPlot.BeginPlot("##Rolling", C_NULL, C_NULL, ImVec2(-1,150); 
                 flags = 0, #? IMPLOT_AUTO ?
                 x_flags = rt_axis, 
                 y_flags = rt_axis
             ) 
-                @c ImPlot.PlotLine(&rdata1.data[1].x, &rdata1.data[1].y; count = length(rdata1.data), stride = 2 * sizeof(Float32), label_id = "Data 1")
-                @c ImPlot.PlotLine(&rdata2.data[1].x, &rdata2.data[1].y; count = length(rdata2.data), stride = 2 * sizeof(Float32), label_id = "Data 2")
+                ImPlot.PlotLine(rdata1.data, :x, :y; label_id = "Data 1")
+                ImPlot.PlotLine(rdata2.data, :x, :y; label_id = "Data 2")
                 ImPlot.EndPlot()
             end
         end) # @cstatic

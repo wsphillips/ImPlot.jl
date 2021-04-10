@@ -63,12 +63,43 @@ end
 
 function PlotShaded(x::OrdinalRange, y1::AbstractArray{T1}, y2::AbstractArray{T2};
                     kwargs...) where {T1<:Real, T2<:Real}
-    LibCImPlot.PlotShaded(x,promote(y1,y2)...; kwargs...)
+    LibCImPlot.PlotShaded(x,promote(y1,y2)...; kwargs...) # label_id first?
 end
 
 function PlotShaded(x::OrdinalRange, y::AbstractArray{T1}, y_ref::T2;
                     kwargs...) where {T1<:Real, T2<:Real}
     y_ref = eltype(y)(y_ref)
-    LibCImPlot.PlotShaded(x, y, y_ref; kwargs...)
+    LibCImPlot.PlotShaded(x, y, y_ref; kwargs...) # label_id first?
 end
 
+# xfield, yfield should be propertynames of eltype(structvec)
+function PlotShaded(
+    structvec::Vector{T}, xfield::Symbol, yfield::Symbol, y_ref::Real; 
+    count::Integer = length(structvec), offset::Integer = 0,
+    stride::Integer = 1, label_id::String = ""
+) where T
+
+    Tx = fieldtype(T, xfield)
+    Ty = fieldtype(T, yfield)
+    x_offset = fieldoffset(T, Base.fieldindex(T, xfield))
+    y_offset = fieldoffset(T, Base.fieldindex(T, yfield))
+    x_ptr = (pointer(structvec, 1) + x_offset) |> Ptr{Tx}
+    y_ptr = (pointer(structvec, 1) + y_offset) |> Ptr{Ty} 
+
+    # this is somewhat illegal and is used only to pass a pointer through AbstractArray argument into ccall
+    x = unsafe_wrap(Vector{Tx}, x_ptr, size(structvec); own = false)
+    y = unsafe_wrap(Vector{Ty}, y_ptr, size(structvec); own = false)
+
+    LibCImPlot.PlotShaded(label_id, x, y, count, y_ref, offset, stride * sizeof(T))
+end
+
+
+
+# function test_fieldvec(structvec::Vector{T}, field::Symbol) where T
+#     Tf = fieldtype(T, field)
+#     offset = fieldoffset(T, Base.fieldindex(T, field))
+#     ptr = (pointer(structvec, 1) + offset) |> Ptr{Tf}
+
+#     x = unsafe_wrap(Vector{Tf}, ptr, size(structvec); own = false)
+#     return x[1]
+# end
