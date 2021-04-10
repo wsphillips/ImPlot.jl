@@ -112,6 +112,28 @@ function AddPoint(buf::RollingBuffer, x, y)
     push!(buf.data, ImVec2(xmod, y))
 end
 
+# Huge data used by Time Formatting example (~500 MB allocation!)
+module Huge
+
+    const SIZE = 60*60*24*366
+    GetY(t::Float64) = 0.5 + 0.25 * sin(t/86400/12) +  0.005 * sin(t/3600)
+
+    struct TimeData
+        ts::Vector{Float64}
+        ys::Vector{Float64}
+        function TimeData(min::Float64)
+            ts = Vector{Float64}(undef, SIZE)
+            ys = Vector{Float64}(undef, SIZE)
+            for i in 1:SIZE
+                ts[i] = min + i
+                ys[i] = GetY(ts[i])
+            end
+            new(ts, ys)
+        end
+    end
+
+end
+
 # ======================
 
 function ShowDemoWindow()
@@ -714,69 +736,66 @@ function ShowDemoWindow()
         end)
     end
     #-------------------------------------------------------------------------
-    # if CImGui.CollapsingHeader("Time Formatted Axes")
+    if CImGui.CollapsingHeader("Time Formatted Axes")
 
-    #     #@cstatic t_min = Float64(1577836800) # 01/01/2020 @ 12:00:00am (UTC)
-    #     #@cstatic t_max = Float64(1609459200) # 01/01/2021 @ 12:00:00am (UTC)
-    #     t_min = parse(DateTime, "01/01/2020 @ 12:00:00am", dateformat"dd/mm/yyyy @ HH:MM:SSp") |> datetime2unix
-    #     t_min = parse(DateTime, "01/01/2021 @ 12:00:00am", dateformat"dd/mm/yyyy @ HH:MM:SSp") |> datetime2unix
+        CImGui.BulletText("When ImPlotAxisFlags_Time is enabled on the X-Axis, values are interpreted as\nUNIX timestamps in seconds and axis labels are formated as date/time.")
+        CImGui.BulletText("By default, labels are in UTC time but can be set to use local time instead.")
 
-    #     CImGui.BulletText("When ImPlotAxisFlags_Time is enabled on the X-Axis, values are interpreted as\nUNIX timestamps in seconds and axis labels are formated as date/time.")
-    #     CImGui.BulletText("By default, labels are in UTC time but can be set to use local time instead.")
+        @cstatic(
+            use_local_time = false,
+            use_ISO8601 = false,
+            use_24hour_clock = false,
+        begin 
+            if @c CImGui.Checkbox("Local Time", &use_local_time)
+                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :UseLocalTime, use_24hour_clock) #! somewhat ugly (in cpp this is one-liner)
+            end
+            CImGui.SameLine()
+            if @c CImGui.Checkbox("ISO 8601", &use_ISO8601)
+                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :UseISO8601, use_ISO8601)
+            end
+            CImGui.SameLine()
+            if @c CImGui.Checkbox("24 Hour Clock", &use_24hour_clock)
+                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
+            end
+        end)
 
-    #     @cstatic(
-    #         use_local_time = false,
-    #         use_ISO8601 = false,
-    #         use_24hour_clock = false,
-    #     begin 
-    #         if @c CImGui.Checkbox("Local Time", &use_local_time)
-    #             CImGui.Set(ImPlot.CLibImPlot.GetStyle(), :UseLocalTime, use_24hour_clock) #! somewhat ugly (in cpp this is one-liner)
-    #         end
-    #         CImGui.SameLine()
-    #         if @c CImGui.Checkbox("ISO 8601",&use_ISO8601)
-    #             CImGui.Set(ImPlot.CLibImPlot.GetStyle(), :UseISO8601, use_ISO8601)
-    #         end
-    #         CImGui.SameLine()
-    #         if @c CImGui.Checkbox("24 Hour Clock",use_24hour_clock)
-    #             CImGui.Set(ImPlot.CLibImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
-    #         end
-    #     end)
+        @cstatic( 
+            t_min = parse(DateTime, "01/01/2020 @ 12:00:00am", dateformat"dd/mm/yyyy @ HH:MM:SSp") |> datetime2unix,
+            t_max = parse(DateTime, "01/01/2021 @ 12:00:00am", dateformat"dd/mm/yyyy @ HH:MM:SSp") |> datetime2unix,
+            data::Union{Nothing, Huge.TimeData} = nothing,
+        begin
+            if data === nothing
+                CImGui.SameLine()
+                if CImGui.Button("Generate Huge Data (~500MB!)")
+                    data = Huge.TimeData(t_min)
+                end
+            end
 
-    #     @cstatic( 
-    #         #HugeTimeData* data = C_NULL #???
-    #         data = nothing
-    #     begin
-    #         if data === nothing
-    #             CImGui.SameLine()
-    #             if CImGui.Button("Generate Huge Data (~500MB!)")
-    #                 @cstatic HugeTimeData sdata(t_min)
-    #                 data = &sdata
-    #             end
-    #         end
+            ImPlot.SetNextPlotLimits(t_min,t_max,0,1)
+            if ImPlot.BeginPlot("##Time"; x_flags = ImPlotAxisFlags_Time)
+                if data !== nothing
+                    # downsample our data
+                    #downsample = trunc(Int, ImPlot.GetPlotLimits().X.Size() / 1000 + 1) #! I don't find Size() method on ImPlotRange!
+                    downsample = trunc(Int, (ImPlot.GetPlotLimits().X.Max - ImPlot.GetPlotLimits().X.Min) / 1000 + 1)
+                    start = trunc(Int, ImPlot.GetPlotLimits().X.Min - t_min)
+                    start = start < 0 ? 0 : start > Huge.SIZE - 1 ? Huge.SIZE - 1 : start
+                    end_ = trunc(Int, (ImPlot.GetPlotLimits().X.Max - t_min) + 1000)
+                    end_ = end_ < 0 ? 0 : end_ > Huge.SIZE - 1 ? Huge.SIZE - 1 : end_
+                    size = (end_ - start) ÷ downsample
+                    # plot it
+                    ImPlot.PlotLine(data.ts, data.ys, count = size, offset = start, stride = sizeof(Float64)*downsample, label_id = "Time Series")
+                end
+                # plot time now
+                t_now = now() |> datetime2unix
+                y_now = Huge.GetY(t_now)
+                ImPlot.PlotScatter([t_now], [y_now], label_id = "Now")
+                
+                # ImPlot.Annotate(t_now,y_now,ImVec2(10,10),ImPlot.GetLastItemColor(),"Now") #! we're missing Annotate from api!!
+                ImPlot.EndPlot()
+            end
+        end)
 
-    #         ImPlot.SetNextPlotLimits(t_min,t_max,0,1)
-    #         if ImPlot.BeginPlot("##Time"; x_flags = ImPlotAxisFlags_Time)
-    #             if data !== nothing
-    #                 # downsample our data
-    #                 downsample = Int(ImPlot.GetPlotLimits().X.Size() / 1000 + 1)
-    #                 start = Int(ImPlot.GetPlotLimits().X.Min - t_min)
-    #                 start = start < 0 ? 0 : start > HugeTimeData.Size - 1 ? HugeTimeData.Size - 1 : start
-    #                 end_ = Int(ImPlot.GetPlotLimits().X.Max - t_min) + 1000
-    #                 end_ = end_ < 0 ? 0 : end_ > HugeTimeData.Size - 1 ? HugeTimeData.Size - 1 : end_
-    #                 size = (end_ - start) ÷ downsample
-    #                 # plot it
-    #                 ImPlot.PlotLine("Time Series", &data->Ts[start], &data->Ys[start], size, 0, sizeof(Float64)*downsample)
-    #             end
-    #             # plot time now
-    #             t_now = (Float64)time(0)
-    #             y_now = HugeTimeData.GetY(t_now)
-    #             ImPlot.PlotScatter("Now",&t_now,&y_now,1)
-    #             ImPlot.Annotate(t_now,y_now,ImVec2(10,10),ImPlot.GetLastItemColor(),"Now")
-    #             ImPlot.EndPlot()
-    #         end
-    #     end)
-
-    # end
+    end
 #     #-------------------------------------------------------------------------
 #     if CImGui.CollapsingHeader("Multiple Y-Axes")) 
 #         @cstatic xs = zeros(Float32, 1001) xs2 = zeros(Float32, 1001) ys1 = zeros(Float32, 1001) ys2 = zeros(Float32, 1001) ys3 = zeros(Float32, 1001)

@@ -1,5 +1,18 @@
 
-import .LibCImPlot: GetPlotPos, GetPlotSize # ,PlotToPixels
+import .LibCImPlot: GetPlotPos, 
+    GetPlotSize,
+    PixelsToPlotVec2,
+    PixelsToPlotFloat,
+    PlotToPixelsPlotPoInt,
+    PlotToPixelsdouble,
+    GetPlotMousePos,
+    GetPlotLimits,
+    GetPlotQuery,
+    GetLastItemColor,
+    GetColormapColor,
+    LerpColormap,
+    NextColormapColor
+
 
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
                            labels::Vector{String} = [""], show_default::Bool = false)
@@ -63,3 +76,60 @@ LibCImPlot.SetLegendLocation(location) = LibCImPlot.SetLegendLocation(location, 
 
 LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax) = LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax, ImGuiCond_Once)
 
+function PixelsToPlotVec2(pix, y_axis = 0)
+    out = Ref(LibCImPlot.ImPlotPoint(0, 0))
+    LibCImPlot.PixelsToPlotVec2(out, pix, y_axis)
+    return out[]
+end
+function PixelsToPlotFloat(x, y, y_axis = 0)
+    out = Ref(LibCImPlot.ImPlotPoint(0, 0))
+    LibCImPlot.PixelsToPlotFloat(out, x, y, y_axis)
+    return out[]
+end
+function PlotToPixelsPlotPoInt(plt, y_axis = 0)
+    out = Ref{ImVec2}()
+    LibCImPlot.PlotToPixelsPlotPoInt(out, plt, y_axis)
+    return out[]
+end
+function PlotToPixelsdouble(x::Real, y::Real, y_axis = 0)
+    out = Ref{ImVec2}()
+    LibCImPlot.PlotToPixelsdouble(out, x, y, y_axis)
+    return out[]
+end
+function GetPlotMousePos(y_axis = 0)
+    out = Ref(LibCImPlot.ImPlotPoint(0, 0))
+    LibCImPlot.GetPlotMousePos(out, y_axis)
+    return out[]
+end
+function GetPlotLimits(y_axis = 0)
+    r = LibCImPlot.ImPlotRange(0,0)
+    out = Ref(LibCImPlot.ImPlotLimits(r, r))
+    LibCImPlot.GetPlotLimits(out, y_axis)
+    return out[]
+end
+function GetPlotQuery(y_axis = 0)
+    r = LibCImPlot.ImPlotRange(0,0)
+    out = Ref(LibCImPlot.ImPlotLimits(r, r))
+    LibCImPlot.GetPlotQuery(out, y_axis)
+    return out[]
+end
+function GetLastItemColor()
+    out = Ref{ImVec4}()
+    LibCImPlot.GetLastItemColor(out)
+    return out[]
+end
+function GetColormapColor(index)
+    out = Ref{ImVec4}()
+    LibCImPlot.GetColormapColor(out, index)
+    return out[]
+end
+function LerpColormap(t)
+    out = Ref{ImVec4}()
+    LibCImPlot.LerpColormap(out, t)
+    return out[]
+end
+function NextColormapColor()
+    out = Ref{ImVec4}()
+    LibCImPlot.NextColormapColor(out)
+    return out[]
+end
