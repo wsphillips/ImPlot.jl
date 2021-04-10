@@ -23,7 +23,7 @@ for i in IMPLOT_ENUMS
     end
 end
 
-function LibCImPlot.BeginPlot(title_id::String, x_label, y_label, size::ImVec2 = ImVec2(-1,0);
+function LibCImPlot.BeginPlot(title_id::String, x_label = C_NULL, y_label = C_NULL, size::ImVec2 = ImVec2(-1,0);
                     flags = ImPlotFlags_None,
                     x_flags = ImPlotAxisFlags_None,
                     y_flags = ImPlotAxisFlags_None,

@@ -16,7 +16,7 @@ end
 
 function PlotShaded(x::AbstractArray{T}, y::AbstractArray{T}, y_ref::T;
                     count::Integer = min(length(x),length(y)), offset::Integer = 0,
-                    stride::Integer = 1, label::String = "") where {T <: ImPlotData}
+                    stride::Integer = 1, label_id::String = "") where {T <: ImPlotData}
 
     LibCImPlot.PlotShaded(label_id, x, y, count, y_ref, offset, stride * sizeof(T))
 end
