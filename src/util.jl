@@ -133,3 +133,14 @@ function NextColormapColor()
     LibCImPlot.NextColormapColor(out)
     return out[]
 end
+
+
+function Contains(range::LibCImPlot.ImPlotRange, value)
+    return value >= range.Min && value <= range.Max
+end
+function Contains(limits::LibCImPlot.ImPlotLimits, x, y)
+    return Contains(limits.X, x) && Contains(limits.Y, y)
+end
+function Contains(limits::LibCImPlot.ImPlotLimits, p::LibCImPlot.ImPlotPoint)
+    return Contains(limits.X, p.x) && Contains(limits.Y, p.y)
+end
