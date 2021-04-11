@@ -15,3 +15,15 @@ function PlotImage(
 )
     LibCImPlot.PlotImage(label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
 end
+
+function PlotImage(
+    label_id::String,
+    user_texture_id, 
+    bounds_min::LibCImPlot.ImPlotPoint = (0,0), #ImVec2 = ImVec2(0,0),
+    bounds_max::LibCImPlot.ImPlotPoint = (0,0), #ImVec2 = ImVec2(1,1),
+    uv0::ImVec2 = (0,0), 
+    uv1::ImVec2=(1,1), 
+    tint_col::ImVec4=(1,1,1,1)
+)
+    LibCImPlot.PlotImage(label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
+end

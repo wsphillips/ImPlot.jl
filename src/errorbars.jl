@@ -1,6 +1,20 @@
 # Error bar plotting/annotation
 
-import .LibCImPlot: PlotErrorBars, PlotErrorBarsH
+function PlotErrorBars(label_id, x::AbstractArray{T}, y::AbstractArray{T}, err::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotErrorBars(label_id, x, y, err, count, offset, stride)
+end
+
+function PlotErrorBars(label_id, x::AbstractArray{T}, y::AbstractArray{T}, neg::AbstractArray{T}, pos::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotErrorBars(label_id, x, y, neg, pos, count, offset, stride)
+end
+
+function PlotErrorBars(label_id, x::AbstractArray{T}, y::AbstractArray{T}, err::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotErrorBars(label_id, Float64.(x), Float64.(y), Float64.(err), count, offset, stride)
+end
+
+function PlotErrorBars(label_id, x::AbstractArray{T}, y::AbstractArray{T}, neg::AbstractArray{T}, pos::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotErrorBars(label_id, Float64.(x), Float64.(y), Floa64.(neg), Float64.(pos), count, offset, stride)
+end
 
 function PlotErrorBars(x::AbstractArray{T}, y::AbstractArray{T}, error::AbstractArray{T}; 
                        label_id::String = "",
@@ -29,6 +43,22 @@ function PlotErrorBars(x::AbstractArray{T1}, y::AbstractArray{T2}, neg::Abstract
                        pos::AbstractArray{T4}; kwargs...) where {T1<:Real,T2<:Real,T3<:Real,T4<:Real}
     
     PlotErrorBars(promote(x,y,pos,neg)...; kwargs...)
+end
+
+function PlotErrorBarsH(label_id, x::AbstractArray{T}, y::AbstractArray{T}, err::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotErrorBarsH(label_id, x, y, err, count, offset, stride)
+end
+
+function PlotErrorBarsH(label_id, x::AbstractArray{T}, y::AbstractArray{T}, neg::AbstractArray{T}, pos::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotErrorBarsH(label_id, x, y, neg, pos, count, offset, stride)
+end
+
+function PlotErrorBarsH(label_id, x::AbstractArray{T}, y::AbstractArray{T}, err::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotErrorBarsH(label_id, Float64.(x), Float64.(y), Float64.(err), count, offset, stride)
+end
+
+function PlotErrorBarsH(label_id, x::AbstractArray{T}, y::AbstractArray{T}, neg::AbstractArray{T}, pos::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotErrorBarsH(label_id, Float64.(x), Float64.(y), Floa64.(neg), Float64.(pos), count, offset, stride)
 end
 
 

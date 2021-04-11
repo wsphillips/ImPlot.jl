@@ -1,6 +1,28 @@
 # Shaded line plots
 
-import .LibCImPlot: PlotShaded
+function PlotShaded(label_id, values::AbstractArray{T}, count::Integer, y_ref::Real = 0., xscale::Real = 1., x0::Real = 0., offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotShaded(label_id, values, count, y_ref, xscale, x0, offset, stride)
+end
+
+function PlotShaded(label_id, x::AbstractArray{T}, y::AbstractArray{T}, count::Integer, y_ref::Real = 0., offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotShaded(label_id, x, y, count, y_ref, offset, stride)
+end
+
+function PlotShaded(label_id, x::AbstractArray{T}, y1::AbstractArray{T}, y2::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotShaded(label_id, x, y1, y2, count, offset, stride)
+end
+
+function PlotShaded(label_id, values::AbstractArray{T}, count::Integer, y_ref::Real = 0., xscale::Real = 1., x0::Real = 0., offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotShaded(label_id, Float64.(values), count, y_ref, xscale, x0, offset, stride)
+end
+
+function PlotShaded(label_id, x::AbstractArray{T}, y::AbstractArray{T}, count::Integer, y_ref::Real = 0., offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotShaded(label_id, Float64.(x), Float64.(y), count, y_ref, offset, stride)
+end
+
+function PlotShaded(label_id, x::AbstractArray{T}, y1::AbstractArray{T}, y2::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotShaded(label_id, Float64.(x), Float64.(y1), Float64.(y2), count, offset, stride)
+end
 
 function PlotShaded(x::AbstractArray{T,1}, y1::AbstractArray{T,1}, y2::AbstractArray{T,1};
                                label_id::String = "", count::Integer = min(length(x), length(y2),
@@ -11,7 +33,7 @@ end
 
 function PlotShaded(x::AbstractArray{T1}, y1::AbstractArray{T2}, y2::AbstractArray{T3};
                     kwargs...) where {T1<:Real, T2<:Real, T3<:Real}
-    LibCImPlot.PlotShaded(promote(x,y1,y2)...; kwargs...)
+    PlotShaded(promote(x,y1,y2)...; kwargs...)
 end
 
 function PlotShaded(x::AbstractArray{T}, y::AbstractArray{T}, y_ref::T;
@@ -63,13 +85,13 @@ end
 
 function PlotShaded(x::OrdinalRange, y1::AbstractArray{T1}, y2::AbstractArray{T2};
                     kwargs...) where {T1<:Real, T2<:Real}
-    LibCImPlot.PlotShaded(x,promote(y1,y2)...; kwargs...) # label_id first?
+    PlotShaded(x, promote(y1,y2)...; kwargs...)
 end
 
 function PlotShaded(x::OrdinalRange, y::AbstractArray{T1}, y_ref::T2;
                     kwargs...) where {T1<:Real, T2<:Real}
     y_ref = eltype(y)(y_ref)
-    LibCImPlot.PlotShaded(x, y, y_ref; kwargs...) # label_id first?
+    PlotShaded(x, y, y_ref; kwargs...)
 end
 
 # xfield, yfield should be propertynames of eltype(structvec)

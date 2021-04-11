@@ -8,6 +8,14 @@ function PlotLine(label_id, x::AbstractArray{T}, y::AbstractArray{T}, count::Int
     LibCImPlot.PlotLine(label_id, Float64.(x), Float64.(y), count, offset, stride)
 end
 
+function PlotLine(label_id, x::AbstractArray{T}, count::Integer, xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+    LibCImPlot.PlotLine(label_id, x, count, xscale, x0, offset, stride)
+end
+
+function PlotLine(label_id, x::AbstractArray{T}, count::Integer, xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+    LibCImPlot.PlotLine(label_id, Float64.(x), count, xscale, x0, offset, stride)
+end
+
 function PlotLine(x::AbstractArray{T}, y::AbstractArray{T};
                   count::Integer = min(length(x), length(y)), offset::Integer = 0,
                   stride::Integer = 1, label_id::String = "") where {T<:ImPlotData}
