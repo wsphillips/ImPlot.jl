@@ -70,7 +70,7 @@ function PlotScatter(
     y_ptr = (pointer(structvec, 1) + y_offset) |> Ptr{Ty} 
     p = pointer(structvec, 1)
     
-    if !ismutable(T)
+    if !T.mutable
         # this is somewhat illegal and is used only to pass a pointer through AbstractArray argument into ccall
         x = unsafe_wrap(Vector{Tx}, x_ptr, size(structvec); own = false)
         y = unsafe_wrap(Vector{Ty}, y_ptr, size(structvec); own = false)
