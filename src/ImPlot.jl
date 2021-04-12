@@ -10,7 +10,7 @@ end
 include("libcimplot.jl")
 
 using .LibCImPlot
-import .LibCImPlot: BeginPlot
+import .LibCImPlot: BeginPlot, IMPLOT_AUTO, IMPLOT_AUTO_COL
 
 const ImPlotData = Union{Float32, Float64, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64}
 const IMPLOT_ENUMS = [ImPlotFlags_, ImPlotAxisFlags_, ImPlotCol_, ImPlotStyleVar_, ImPlotMarker_,

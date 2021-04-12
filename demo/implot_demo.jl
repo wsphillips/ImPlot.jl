@@ -28,8 +28,6 @@ import ImPlot: # do we need to import this separately?
     ImPlotLimits
 
 import ImPlot.LibCImPlot: # do we need to import this separately?
-    ImPlotMarker_Circle,
-    ImPlotMarker_Square,
     ShowUserGuide,
     ShowMetricsWindow,
     ShowStyleSelector,
@@ -37,12 +35,6 @@ import ImPlot.LibCImPlot: # do we need to import this separately?
     SetNextMarkerStyle,
     IMPLOT_AUTO,
     IMPLOT_AUTO_COL,
-    ImPlotStyleVar_FillAlpha,
-    ImPlotLocation_West,
-    ImPlotLocation_South,
-    ImPlotOrientation_Horizontal,
-    ImPlotOrientation_Vertical,
-    ImPlotAxisFlags_Invert,
     ImPlotFlags,
     #! GetStyle not exported to ImPlot
     ImS8
