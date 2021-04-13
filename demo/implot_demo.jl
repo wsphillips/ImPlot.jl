@@ -1079,7 +1079,7 @@ function ShowDemoWindow()
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Linked Axes")
         @cstatic(
-            xmin::Cdouble = 0., xmax = 1., ymin = 0., ymax = 1.,
+            xmin = Ref(0.0), xmax = Ref(1.0), ymin = Ref(0.0), ymax = Ref(1.0),
             linkx = true, linky = true,
         begin
             data = [0, 1]
@@ -1087,15 +1087,14 @@ function ShowDemoWindow()
             CImGui.SameLine()
             @c CImGui.Checkbox("Link Y", &linky)
 
-            #! ternary operators not working with @c macro??
-            # @c( ImPlot.LinkNextPlotLimits(linkx ? (&xmin) : C_NULL, linkx ? (&xmax) : C_NULL, linky ? (&ymin) : C_NULL, linky ? (&ymax) : C_NULL, C_NULL, C_NULL, C_NULL, C_NULL)) #! no defaults for last 4 args
-            @c ImPlot.LinkNextPlotLimits(&xmin, &xmax, &ymin, &ymax, C_NULL, C_NULL, C_NULL, C_NULL)
+            #! @c macro violates requirement for LinkNextPlotLimits: "The pointer data must remain valid until the matching call to EndPlot."
+            # so we just use Refs for plot limits
+            ImPlot.LinkNextPlotLimits(linkx ? xmin : C_NULL, linkx ? xmax : C_NULL, linky ? ymin : C_NULL, linky ? ymax : C_NULL, C_NULL, C_NULL, C_NULL, C_NULL) #! no defaults for last 4 args
             if ImPlot.BeginPlot("##Plot A")
                 ImPlot.PlotLine(data, label_id = "Line")
                 ImPlot.EndPlot()
             end
-            #@c( ImPlot.LinkNextPlotLimits(linkx ? (&xmin) : C_NULL, linkx ? (&xmax) : C_NULL, linky ? (&ymin) : C_NULL, linky ? (&ymax) : C_NULL, C_NULL, C_NULL, C_NULL, C_NULL)) #! no defaults for last 4 args
-            @c ImPlot.LinkNextPlotLimits(&xmin, &xmax, &ymin, &ymax, C_NULL, C_NULL, C_NULL, C_NULL)
+            ImPlot.LinkNextPlotLimits(linkx ? xmin : C_NULL, linkx ? xmax : C_NULL, linky ? ymin : C_NULL, linky ? ymax : C_NULL, C_NULL, C_NULL, C_NULL, C_NULL) #! no defaults for last 4 args
             if ImPlot.BeginPlot("##Plot B")
                 ImPlot.PlotLine(data, label_id = "Line")
                 ImPlot.EndPlot()
