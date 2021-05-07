@@ -15,7 +15,8 @@ import CImGui:  # do we need to import this separately?
     ImGuiCond_FirstUseEver,
     ImGuiCond_Once,
     ImGuiWindowFlags_MenuBar,
-    ImGuiBackendFlags_RendererHasVtxOffset
+    ImGuiBackendFlags_RendererHasVtxOffset,
+    ImGuiDragDropFlags_None
 
 import CImGui.LibCImGui:  # do we need to import this separately?
     ImDrawIdx
@@ -37,7 +38,8 @@ import ImPlot.LibCImPlot: # do we need to import this separately?
     IMPLOT_AUTO_COL,
     ImPlotFlags,
     #! GetStyle not exported to ImPlot
-    ImS8
+    ImS8,
+    IsPlotYAxisHovered
 
 using Random
 using Setfield
@@ -59,6 +61,9 @@ function SetNextLineStyle_fix(col = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO)
         (CImGui.ImVec4, Cfloat), col, weight)
 end
 # ======================
+
+# TODO: add newer CImGui version with Tables included
+# const IMGUI_HAS_TABLE = true 
 
 # Encapsulates examples for customizing ImPlot.
 #!!! in Julia we cannot reproduce custom getters
@@ -123,25 +128,25 @@ end
 #                        0.5f + (a + b*Th / (2.0f * (float)3.14))*sin(Th))
 # end
 
-# # Example for Tables section.
-# function Sparkline(id::String, values::Vector{Float32}, count::Int, min_v::Float32, max_v::Float32, offset::Int, col::ImVec4, size::ImVec4)
-#     ImPlot.PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0,0))
-#     ImPlot.SetNextPlotLimits(0, count - 1, min_v, max_v, ImGuiCond_Always)
-#     if ImPlot.BeginPlot(id, C_NULL, C_NULL, size;
-#         flags = ImPlotFlags_CanvasOnly|ImPlotFlags_NoChild,
-#         x_flags = ImPlotAxisFlags_NoDecorations,
-#         y_flags = ImPlotAxisFlags_NoDecorations
-#     )
-#         ImPlot.PushStyleColor(ImPlotCol_Line, col)
-#         ImPlot.PlotLine(id, values, count, 1, 0, offset)
-#         ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f0)
-#         ImPlot.PlotShaded(id, values, count, 0, 1, 0, offset)
-#         ImPlot.PopStyleVar()
-#         ImPlot.PopStyleColor()
-#         ImPlot.EndPlot()
-#     end
-#     ImPlot.PopStyleVar()
-# end
+# Example for Tables section.
+function Sparkline(id::String, values::Vector{Float32}, count::Int, min_v::Float32, max_v::Float32, offset::Int, col#=::ImVec4=#, size#=::ImVec4=#) # ImVec4 not defined, which is strange...
+    ImPlot.PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0,0))
+    ImPlot.SetNextPlotLimits(0, count - 1, min_v, max_v, ImGuiCond_Always)
+    if ImPlot.BeginPlot(id, C_NULL, C_NULL, size;
+        flags = ImPlotFlags_CanvasOnly|ImPlotFlags_NoChild,
+        x_flags = ImPlotAxisFlags_NoDecorations,
+        y_flags = ImPlotAxisFlags_NoDecorations
+    )
+        ImPlot.PushStyleColor(ImPlotCol_Line, col)
+        ImPlot.PlotLine(id, values, count, 1, 0, offset)
+        ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f0)
+        ImPlot.PlotShaded(id, values, count, 0, 1, 0, offset)
+        ImPlot.PopStyleVar()
+        ImPlot.PopStyleColor()
+        ImPlot.EndPlot()
+    end
+    ImPlot.PopStyleVar()
+end
 
 # #! find Julia built-in alternative
 # function BinarySearch(arr::Vector{T}, l::Int, r::Int, x::T) where T
@@ -296,8 +301,7 @@ mutable struct ScrollingBuffer
     maxsize::Int
     offset::Int
     data::Vector{ImVec2}
-    function ScrollingBuffer()
-        maxsize = 2000
+    function ScrollingBuffer(maxsize = 2000)
         data = ImVec2[] # CircularBuffer{ImVec2}(maxsize)
         sizehint!(data, maxsize)
         new(maxsize, 0, data)
@@ -1335,281 +1339,333 @@ function ShowDemoWindow()
 #             end
 #             ImPlot.EndPlot()
 #         end
-#     end
+#     end 
 #     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Drag and Drop")) 
-#         K_CHANNELS = 9
-#         Random.seed!(10000000 * DEMO_TIME)
-#         @cstatic ( begin end) paused = false
-#         @cstatic ( begin end) init = true
-#         @cstatic ( begin end) data = ScrollingBuffer(K_CHANNELS) # ???
-#         @cstatic ( begin end) show = falses[K_CHANNELS]
-#         @cstatic ( begin end) yAxis = zeros(Int, K_CHANNELS)
-#         if init) 
-#             for i = 1:K_CHANNELS
-#                 show[i] = false
-# 				yAxis[i] = 0
-#             end
-#             init = false
-#         end
-#         CImGui.BulletText("Drag data items from the left column onto the plot or onto a specific y-axis.")
-#         CImGui.BulletText("Redrag data items from the legend onto other y-axes.")
-#         CImGui.BeginGroup()
-#         if CImGui.Button("Clear", ImVec2(100, 0))) 
-#             for i = 1:K_CHANNELS
-#                 show[i] = false
-#                 data[i].Data.shrink(0)
-#                 data[i].Offset = 0
-#             end
-#         end
-#         if CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0)))
-#             paused = !paused
-#         for i = 1:K_CHANNELS
-#             char label[16]
-#             sprintf(label, show[i] ? "data_%d (Y%d)" : "data_%d", i, yAxis[i]+1)
-#             CImGui.Selectable(label, false, 0, ImVec2(100, 0))
-#             if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
-#                 CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
-#                 CImGui.TextUnformatted(label)
-#                 CImGui.EndDragDropSource()
-#             end
-#         end
-#         CImGui.EndGroup()
-#         CImGui.SameLine()
-#         Random.seed!(10000000 * DEMO_TIME)
-#         @cstatic ( begin end) t = Float32(0)
-#         if !paused) 
-#             t += CImGui.GetIO().DeltaTime
-#             for i = 1:K_CHANNELS
-#                 if show[i])
-#                     data[i].AddPoint(t, (i+1)*0.1 + rand(-0.01 : 0.000001 : 0.01))
-#             end
-#         end
-#         ImPlot.SetNextPlotLimitsX((Float64)t - 10, t, paused ? ImGuiCond_Once : ImGuiCond_Always)
-#         if ImPlot.BeginPlot("##DND", C_NULL, C_NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3, ImPlotAxisFlags_NoTickLabels)) 
-#             for i = 1:K_CHANNELS
-#                 if show[i] && data[i].Data.size() > 0) 
-#                     char label[K_CHANNELS]
-#                     sprintf(label, "data_%d", i)
-# 					ImPlot.SetPlotYAxis(yAxis[i])
-#                     ImPlot.PlotLine(label, &data[i].Data[0].x, &data[i].Data[0].y, data[i].Data.size(), data[i].Offset, 2 * sizeof(Float32))
-#                     # allow legend labels to be dragged and dropped
-#                     if ImPlot.BeginLegendDragDropSource(label)) 
-#                         CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
-#                         CImGui.TextUnformatted(label)
-#                         ImPlot.EndLegendDragDropSource()
-#                     end
-#                 end
-#             end
-#             # make our plot a drag and drop target
-# 			if CImGui.BeginDragDropTarget()) 
-# 				if const ImGuiPayload* payload = CImGui.AcceptDragDropPayload("DND_PLOT")) 
-# 					Int i = *(Int*)payload->Data
-# 					show[i] = true
-#                     yAxis[i] = 0
-#                     # set specific y-axis if hovered
-# 					for y = 0:2 #? 1:3 
-# 						if ImPlot.IsPlotYAxisHovered(y))
-# 							yAxis[i] = y
-# 					end
-# 				end
-# 				CImGui.EndDragDropTarget()
-# 			end
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Digital and Analog Signals")) 
-#         @cstatic ( begin end) paused = false
-#         #define K_PLOT_DIGITAL_CH_COUNT 4
-#         #define K_PLOT_ANALOG_CH_COUNT  4
-#         @cstatic ( begin end) ScrollingBuffer dataDigital[K_PLOT_DIGITAL_CH_COUNT]
-#         @cstatic ( begin end) ScrollingBuffer dataAnalog[K_PLOT_ANALOG_CH_COUNT]
-#         @cstatic ( begin end) showDigital[K_PLOT_DIGITAL_CH_COUNT]
-#         @cstatic ( begin end) showAnalog[K_PLOT_ANALOG_CH_COUNT]
+    if CImGui.CollapsingHeader("Drag and Drop") #! it's completely different in later ImPlot versions
+        Random.seed!(trunc(Int, 10000000 * DEMO_TIME))
+        @cstatic(
+            init = true,
+            K_CHANNELS = 9,
+            paused = false,
+            data = ScrollingBuffer[],
+            show = nothing,
+            yAxis = nothing,
+            t = Float32(0),
+        begin 
+            if init #! if inside @cstatic, then LoadError: UndefVarError: K_CHANNELS not defined
+                init = false
+                show = falses(K_CHANNELS)
+                yAxis = zeros(Int, K_CHANNELS)
+                for i = 1:K_CHANNELS
+                    push!(data, ScrollingBuffer()) #? does Julia have simpler syntax to initialize an array of mutable pobjects?
+                end
+            end
+            CImGui.BulletText("Drag data items from the left column onto the plot or onto a specific y-axis.")
+            CImGui.BulletText("Redrag data items from the legend onto other y-axes.")
+            CImGui.BeginGroup()
+            if CImGui.Button("Clear", ImVec2(100, 0))
+                for i = 1:K_CHANNELS
+                    show[i] = false
+                    Erase(data[i])
+                    #empty!(.data)
+                    #data[i].Offset = 0
+                end
+            end
+            if CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0))
+                paused = !paused
+            end
+            for i = 1:K_CHANNELS
+                label = show[i] ? "data_$i (Y$(yAxis[i]))" : "data_$i" # sprintf(label, show[i] ? "data_%d (Y%d)" : "data_%d", i, yAxis[i]+1)
+                CImGui.Selectable(label, false, 0, ImVec2(100, 0))
+                if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)
+                    @c CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
+                    CImGui.TextUnformatted(label)
+                    CImGui.EndDragDropSource()
+                end
+            end
+            CImGui.EndGroup()
+            CImGui.SameLine()
+            Random.seed!(trunc(Int, 10000000 * DEMO_TIME))
 
-#         CImGui.BulletText("You can plot digital and analog signals on the same plot.")
-#         CImGui.BulletText("Digital signals do not respond to Y drag and zoom, so that")
-#         CImGui.Indent()
-#         CImGui.Text("you can drag analog signals over the rising/falling digital edge.")
-#         CImGui.Unindent()
-#         CImGui.BeginGroup()
-#         if CImGui.Button("Clear", ImVec2(100, 0))) 
-#             for i = 1:K_PLOT_DIGITAL_CH_COUNT
-#                 showDigital[i] = false
-#             for i = 1:K_PLOT_ANALOG_CH_COUNT
-#                 showAnalog[i] = false
-#         end
-#         if CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0)))
-#             paused = !paused
-#         for i = 1:K_PLOT_DIGITAL_CH_COUNT
-#             char label[32]
-#             sprintf(label, "digital_%d", i)
-#             CImGui.Checkbox(label, &showDigital[i])
-#             if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
-#                 CImGui.SetDragDropPayload("DND_DIGITAL_PLOT", &i, sizeof(Int))
-#                 CImGui.TextUnformatted(label)
-#                 CImGui.EndDragDropSource()
-#             end
-#         end
-#         for i = 1:K_PLOT_ANALOG_CH_COUNT
-#             char label[32]
-#             sprintf(label, "analog_%d", i)
-#             CImGui.Checkbox(label, &showAnalog[i])
-#             if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)) 
-#                 CImGui.SetDragDropPayload("DND_ANALOG_PLOT", &i, sizeof(Int))
-#                 CImGui.TextUnformatted(label)
-#                 CImGui.EndDragDropSource()
-#             end
-#         end
-#         CImGui.EndGroup()
-#         CImGui.SameLine()
-#         @cstatic ( begin end) t = Float32(0)
-#         if !paused) 
-#             t += CImGui.GetIO().DeltaTime
-#             #digital signal values
-#             i = 0
-#             if showDigital[i])
-#                 dataDigital[i].AddPoint(t, sinf(2*t) > 0.45)
-#             end
-#             i += 1
-#             if showDigital[i])
-#                 dataDigital[i].AddPoint(t, sinf(2*t) < 0.45)
-#             end
-#             i += 1
-#             if showDigital[i])
-#                 dataDigital[i].AddPoint(t, fmodf(t,5.0))
-#             end
-#             i += 1
-#             if showDigital[i])
-#                 dataDigital[i].AddPoint(t, sinf(2*t) < 0.17)
-#             end
-#             #Analog signal values
-#             i = 0
-#             if showAnalog[i])
-#                 dataAnalog[i].AddPoint(t, sinf(2*t))
-#             end
-#             i += 1
-#             if showAnalog[i])
-#                 dataAnalog[i].AddPoint(t, cosf(2*t))
-#             end
-#             i += 1
-#             if showAnalog[i])
-#                 dataAnalog[i].AddPoint(t, sinf(2*t) * cosf(2*t))
-#             end
-#             i += 1
-#             if showAnalog[i])
-#                 dataAnalog[i].AddPoint(t, sinf(2*t) - cosf(2*t))
-#             end
-#         end
-#         ImPlot.SetNextPlotLimitsY(-1, 1)
-#         ImPlot.SetNextPlotLimitsX(t - 10.0, t, paused ? ImGuiCond_Once : ImGuiCond_Always)
-#         if ImPlot.BeginPlot("##Digital")) 
-#             for i = 1:K_PLOT_DIGITAL_CH_COUNT
-#                 if showDigital[i] && dataDigital[i].Data.size() > 0) 
-#                     char label[32]
-#                     sprintf(label, "digital_%d", i)
-#                     ImPlot.PlotDigital(label, &dataDigital[i].Data[0].x, &dataDigital[i].Data[0].y, dataDigital[i].Data.size(), dataDigital[i].Offset, 2 * sizeof(Float32))
-#                 end
-#             end
-#             for i = 1:K_PLOT_ANALOG_CH_COUNT
-#                 if showAnalog[i]) 
-#                     char label[32]
-#                     sprintf(label, "analog_%d", i)
-#                     if dataAnalog[i].Data.size() > 0)
-#                         ImPlot.PlotLine(label, &dataAnalog[i].Data[0].x, &dataAnalog[i].Data[0].y, dataAnalog[i].Data.size(), dataAnalog[i].Offset, 2 * sizeof(Float32))
-#                 end
-#             end
-#             ImPlot.EndPlot()
-#         end
-#         if CImGui.BeginDragDropTarget()) 
-#            #=const ImGuiPayload*=# payload = CImGui.AcceptDragDropPayload("DND_DIGITAL_PLOT")
-#             if payload) 
-#                 i = payload.Data #? int i = *(int*)payload->Data
-#                 showDigital[i] = true
+            if !paused
+                t += CImGui.GetIO().DeltaTime
+                for i = 1:K_CHANNELS
+                    if show[i]
+                        AddPoint(data[i], t, (i+1)*0.1 + rand(-0.01 : 0.000001 : 0.01))
+                    end
+                end
+            end
 
-#             else
-            
-#                 payload = CImGui.AcceptDragDropPayload("DND_ANALOG_PLOT")
-#                 if payload) 
-#                     i = payload.Data #int i = *(int*)payload->Data
-#                     showAnalog[i] = true
-#                 end
-#             end
-#             CImGui.EndDragDropTarget()
-#         end
-#     end
-#     if CImGui.CollapsingHeader("Tables")) 
-# #ifdef IMGUI_HAS_TABLE
-#         @cstatic ( begin end) ImGuiTableFlags flags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_RowBg
-#         @cstatic ( begin end) anim = true
-#         @cstatic ( begin end) offset = 0
-#         CImGui.BulletText("Plots can be used inside of ImGui tables.")
-#         CImGui.Checkbox("Animate",&anim)
-#         if anim)
-#             offset = (offset + 1) % 100
-#         if CImGui.BeginTable("##table", 3, flags, ImVec2(-1,0))) 
-#             CImGui.TableSetupColumn("Electrode", ImGuiTableColumnFlags_WidthFixed, 75.0)
-#             CImGui.TableSetupColumn("Voltage", ImGuiTableColumnFlags_WidthFixed, 75.0)
-#             CImGui.TableSetupColumn("EMG Signal")
-#             CImGui.TableHeadersRow()
-#             ImPlot.PushColormap(ImPlotColormap_Cool)
-#             for row = 0:9  #? 1:10
-#                 CImGui.TableNextRow()
-#                 @cstatic ( begin end) data = zeros(Float32, 100)
-#                 Random.seed!(row)
-#                 for i = 1:100
-#                     data[i] = rand(0.0 : 0.0001 : 10.0)
-#                 end
-#                 CImGui.TableSetColumnIndex(0)
-#                 CImGui.Text("EMG %d", row)
-#                 CImGui.TableSetColumnIndex(1)
-#                 CImGui.Text("%.3f V", data[offset])
-#                 CImGui.TableSetColumnIndex(2)
-#                 CImGui.PushID(row)
-#                 MyImPlot.Sparkline("##spark",data,100,0,11.0,offset,ImPlot.GetColormapColor(row),ImVec2(-1, 35))
-#                 CImGui.PopID()
-#             end
-#             ImPlot.PopColormap()
-#             CImGui.EndTable()
-#         end
-# #else
-#     CImGui.BulletText("You need to merge the ImGui 'tables' branch for this section.")
-# #endif
-#     end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Offset and Stride")) 
-#         @cstatic ( begin end) k_circles    = 11
-#         @cstatic ( begin end) k_points_per = 50
-#         @cstatic ( begin end) k_size       = 2 * k_points_per * k_circles
-#         @cstatic ( begin end) interleaved_data = zeros(Float64, k_size)
-#         for p = 0:k_points_per-1 #? 1:k_points_per
-#             for c = 0:k_circles-1  #? 1:k_circles
-#                 r = c / (k_circles - 1) * 0.2 + 0.2
-#                 interleaved_data[1 + p*2*k_circles + 2*c + 0] = 0.5 + r * cos(p/k_points_per * 6.28)
-#                 interleaved_data[1 + p*2*k_circles + 2*c + 1] = 0.5 + r * sin(p/k_points_per * 6.28)
-#             end
-#         end
-#         @cstatic ( begin end) offset = 0
-#         CImGui.BulletText("Offsetting is useful for realtime plots (see above) and circular buffers.")
-#         CImGui.BulletText("Striding is useful for interleaved data (e.g. audio) or plotting structs.")
-#         CImGui.BulletText("Here, all circle data is stored in a single interleaved buffer:")
-#         CImGui.BulletText("[c0.x0 c0.y0 ... cn.x0 cn.y0 c0.x1 c0.y1 ... cn.x1 cn.y1 ... cn.xm cn.ym]")
-#         CImGui.BulletText("The offset value indicates which circle point index is considered the first.")
-#         CImGui.BulletText("Offsets can be negative and/or larger than the actual data count.")
-#         CImGui.SliderInt("Offset", &offset, -2*k_points_per, 2*k_points_per)
-#         if ImPlot.BeginPlot("##strideoffset",0,0,ImVec2(-1,0), ImPlotFlags_Equal)) 
-#             ImPlot.PushColormap(ImPlotColormap_Jet)
-#             char buff[16]
-#             for c = 0:k_circles-1 #? 1:k_circles
-#                 sprintf(buff, "Circle %d", c)
-#                 ImPlot.PlotLine(buff, &interleaved_data[c*2 + 0], &interleaved_data[c*2 + 1], k_points_per, offset, 2*k_circles*sizeof(Float64))
-#             end
-#             ImPlot.EndPlot()
-#             ImPlot.PopColormap()
-#         end
-#         # offset++ uncomment for animation!
-#     end
+            ImPlot.SetNextPlotLimitsX(t - 10, t, paused ? ImGuiCond_Once : ImGuiCond_Always)
+            if ImPlot.BeginPlot("##DND", C_NULL, C_NULL, ImVec2(-1,0); flags = ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3, x_flags = ImPlotAxisFlags_NoTickLabels)
+                for i = 1:K_CHANNELS
+                    if show[i] && length(data[i].data) > 0
+                        label = "data_$i"
+                        ImPlot.SetPlotYAxis(yAxis[i])
+                        ImPlot.PlotLine(data[i].data, :x, :y, offset = data[i].offset)
+                        
+                        # allow legend labels to be dragged and dropped
+                        if ImPlot.BeginLegendDragDropSource(label, ImGuiDragDropFlags_None) #! no dafults
+                            @c CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
+                            CImGui.TextUnformatted(label)
+                            ImPlot.EndLegendDragDropSource()
+                        end
+                    end
+                end
+                # make our plot a drag and drop target
+                if CImGui.BeginDragDropTarget()
+                    payload = CImGui.AcceptDragDropPayload("DND_PLOT")
+                    if payload != C_NULL
+                        ptr = CImGui.Get(payload, :Data)
+                        i = unsafe_load(Ptr{Cint}(ptr))
+                        show[i] = true
+                        yAxis[i] = 0
+                        # set specific y-axis if hovered
+                        for y = 0:2 #? 1:3 
+                            if IsPlotYAxisHovered(y)
+                                yAxis[i] = y
+                            end
+                        end
+                    end
+                    CImGui.EndDragDropTarget()
+                end
+                ImPlot.EndPlot()
+            end
+        end) # @csatic
+    end
+    #-------------------------------------------------------------------------
+    if CImGui.CollapsingHeader("Digital and Analog Signals")
+        @cstatic(
+            init = true,
+            K_PLOT_DIGITAL_CH_COUNT = 4,
+            K_PLOT_ANALOG_CH_COUNT = 4,
+            paused = false,
+            dataDigital = ScrollingBuffer[], #ScrollingBuffer dataDigital[K_PLOT_DIGITAL_CH_COUNT],
+            dataAnalog = ScrollingBuffer[], #ScrollingBuffer dataAnalog[K_PLOT_ANALOG_CH_COUNT],
+            showDigital = nothing, #showDigital[K_PLOT_DIGITAL_CH_COUNT],
+            showAnalog = nothing, #showAnalog[K_PLOT_ANALOG_CH_COUNT],
+
+            t = Float32(0),
+        begin 
+            if init #! if inside @cstatic, then LoadError: UndefVarError: K_CHANNELS not defined
+                init = false
+                showDigital = falses(K_PLOT_DIGITAL_CH_COUNT)
+                for i = 1:K_PLOT_DIGITAL_CH_COUNT
+                    push!(dataDigital, ScrollingBuffer()) #? does Julia have simpler syntax to initialize an array of mutable pobjects?
+                end
+                showAnalog = falses(K_PLOT_ANALOG_CH_COUNT)
+                for i = 1:K_PLOT_ANALOG_CH_COUNT
+                    push!(dataAnalog, ScrollingBuffer()) #? does Julia have simpler syntax to initialize an array of mutable pobjects?
+                end
+            end
+
+            CImGui.BulletText("You can plot digital and analog signals on the same plot.")
+            CImGui.BulletText("Digital signals do not respond to Y drag and zoom, so that")
+            CImGui.Indent()
+            CImGui.Text("you can drag analog signals over the rising/falling digital edge.")
+            CImGui.Unindent()
+            CImGui.BeginGroup()
+            if CImGui.Button("Clear", ImVec2(100, 0))
+                for i = 1:K_PLOT_DIGITAL_CH_COUNT
+                    showDigital[i] = false
+                end
+                for i = 1:K_PLOT_ANALOG_CH_COUNT
+                    showAnalog[i] = false
+                end
+            end
+            if CImGui.Button(paused ? "Resume" : "Pause", ImVec2(100,0))
+                paused = !paused
+            end
+            for i = 1:K_PLOT_DIGITAL_CH_COUNT
+                label = "digital_$i"
+                flag = showDigital[i] #! cannot use @c on bitvector element, so make it manually
+                if @c CImGui.Checkbox(label, &flag)
+                    showDigital[i] = flag
+                end
+                if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)
+                    @c CImGui.SetDragDropPayload("DND_DIGITAL_PLOT", &i, sizeof(Int))
+                    CImGui.TextUnformatted(label)
+                    CImGui.EndDragDropSource()
+                end
+            end
+            for i = 1:K_PLOT_ANALOG_CH_COUNT
+                label = "analog_$i"
+                flag = showAnalog[i] #! cannot use @c on bitvector element, so make it manually
+                if @c CImGui.Checkbox(label, &flag)
+                    showAnalog[i] = flag
+                end
+                if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)
+                    @c CImGui.SetDragDropPayload("DND_ANALOG_PLOT", &i, sizeof(Int))
+                    CImGui.TextUnformatted(label)
+                    CImGui.EndDragDropSource()
+                end
+            end
+            CImGui.EndGroup()
+            CImGui.SameLine()
+
+            if !paused
+                t += CImGui.GetIO().DeltaTime
+                #digital signal values
+                i = 1 # 1-based indexing in Julia
+                if showDigital[i]
+                    AddPoint(dataDigital[i], t, sin(2*t) > 0.45)
+                end
+                i += 1
+                if showDigital[i]
+                    AddPoint(dataDigital[i], t, sin(2*t) < 0.45)
+                end
+                i += 1
+                if showDigital[i]
+                    AddPoint(dataDigital[i], t, mod(t,5.0))
+                end
+                i += 1
+                if showDigital[i]
+                    AddPoint(dataDigital[i], t, sin(2*t) < 0.17)
+                end
+                #Analog signal values
+                i = 1 # 1-based indexing in Julia
+                if showAnalog[i]
+                    AddPoint(dataAnalog[i], t, sin(2*t))
+                end
+                i += 1
+                if showAnalog[i]
+                    AddPoint(dataAnalog[i], t, cos(2*t))
+                end
+                i += 1
+                if showAnalog[i]
+                    AddPoint(dataAnalog[i], t, sin(2*t) * cos(2*t))
+                end
+                i += 1
+                if showAnalog[i]
+                    AddPoint(dataAnalog[i], t, sin(2*t) - cos(2*t))
+                end
+            end
+            ImPlot.SetNextPlotLimitsY(-1, 1, ImGuiCond_Once, ImPlotYAxis_1) #! no defaults for last 2 args
+            ImPlot.SetNextPlotLimitsX(t - 10.0, t, paused ? ImGuiCond_Once : ImGuiCond_Always)
+            if ImPlot.BeginPlot("##Digital")
+                for i = 1:K_PLOT_DIGITAL_CH_COUNT
+                    if showDigital[i] && length(dataDigital[i].data) > 0
+                        label = "digital_$i"
+                        ImPlot.PlotDigital(dataDigital[i].data, :x, :y, offset = dataDigital[i].offset, label_id = label)
+                    end
+                end
+                for i = 1:K_PLOT_ANALOG_CH_COUNT
+                    if showAnalog[i]
+                        label = "analog_$i"
+                        if length(dataAnalog[i].data) > 0
+                            ImPlot.PlotLine(dataAnalog[i].data, :x, :y, offset = dataAnalog[i].offset, label_id = label)
+                        end
+                    end
+                end
+                ImPlot.EndPlot()
+            end
+            if CImGui.BeginDragDropTarget()
+                payload = CImGui.AcceptDragDropPayload("DND_DIGITAL_PLOT")
+                if payload != C_NULL
+                    ptr = CImGui.Get(payload, :Data)
+                    i = unsafe_load(Ptr{Cint}(ptr))
+                    showDigital[i] = true
+                else
+                    payload = CImGui.AcceptDragDropPayload("DND_ANALOG_PLOT")
+                    if payload != C_NULL
+                        ptr = CImGui.Get(payload, :Data)
+                        i = unsafe_load(Ptr{Cint}(ptr))
+                        showAnalog[i] = true
+                    end
+                end
+                CImGui.EndDragDropTarget()
+            end
+        end) 
+    end
+    #-------------------------------------------------------------------------
+    
+    # TODO: add newer CImGui version with Tables included
+    if CImGui.CollapsingHeader("Tables")
+        @static if @isdefined(IMGUI_HAS_TABLE) # #ifdef(IMGUI_HAS_TABLE)
+            @cstatic( 
+                flags = ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_RowBg,
+                anim = true,
+                offset = 0,
+                data = zeros(Float32, 100),
+            begin 
+                CImGui.BulletText("Plots can be used inside of ImGui tables.")
+                @c CImGui.Checkbox("Animate",&anim)
+                if anim
+                    offset = (offset + 1) % 100
+                end
+                if CImGui.BeginTable("##table", 3, flags, ImVec2(-1,0))
+                    CImGui.TableSetupColumn("Electrode", ImGuiTableColumnFlags_WidthFixed, 75.0)
+                    CImGui.TableSetupColumn("Voltage", ImGuiTableColumnFlags_WidthFixed, 75.0)
+                    CImGui.TableSetupColumn("EMG Signal")
+                    CImGui.TableHeadersRow()
+                    ImPlot.PushColormap(ImPlotColormap_Cool)
+                    for row = 0:9  #? 1:10
+                        CImGui.TableNextRow()
+                        Random.seed!(row)
+                        for i = 1:100
+                            data[i] = rand(0.0 : 0.0001 : 10.0)
+                        end
+                        CImGui.TableSetColumnIndex(0)
+                        CImGui.Text("EMG %d", row)
+                        CImGui.TableSetColumnIndex(1)
+                        CImGui.Text("%.3f V", data[offset])
+                        CImGui.TableSetColumnIndex(2)
+                        CImGui.PushID(row)
+                        MyImPlot.Sparkline("##spark",data,100,0,11.0,offset,ImPlot.GetColormapColor(row),ImVec2(-1, 35))
+                        CImGui.PopID()
+                    end
+                    ImPlot.PopColormap()
+                    CImGui.EndTable()
+                end
+            end)
+        else
+            CImGui.BulletText("You need to merge the ImGui 'tables' branch for this section.")
+        end
+    end
+
+    #-------------------------------------------------------------------------
+    # if CImGui.CollapsingHeader("Offset and Stride")
+
+    #     @cstatic( 
+    #         init = true,
+    #         k_circles = 11,
+    #         k_points_per = 50,
+    #         k_size = nothing,
+    #         interleaved_data = nothing,
+    #         offset = 0,
+    #     begin 
+    #         if init
+    #             init = false
+    #             k_size = 2 * k_points_per * k_circles
+    #             interleaved_data = zeros(Float64, k_size)
+    #         end
+    #         for p = 0:k_points_per-1 #? 1:k_points_per
+    #             for c = 0:k_circles-1  #? 1:k_circles
+    #                 r = c / (k_circles - 1) * 0.2 + 0.2
+    #                 interleaved_data[1 + p*2*k_circles + 2*c + 0] = 0.5 + r * cos(p/k_points_per * 6.28)
+    #                 interleaved_data[1 + p*2*k_circles + 2*c + 1] = 0.5 + r * sin(p/k_points_per * 6.28)
+    #             end
+    #         end
+
+    #         CImGui.BulletText("Offsetting is useful for realtime plots (see above) and circular buffers.")
+    #         CImGui.BulletText("Striding is useful for interleaved data (e.g. audio) or plotting structs.")
+    #         CImGui.BulletText("Here, all circle data is stored in a single interleaved buffer:")
+    #         CImGui.BulletText("[c0.x0 c0.y0 ... cn.x0 cn.y0 c0.x1 c0.y1 ... cn.x1 cn.y1 ... cn.xm cn.ym]")
+    #         CImGui.BulletText("The offset value indicates which circle point index is considered the first.")
+    #         CImGui.BulletText("Offsets can be negative and/or larger than the actual data count.")
+    #         @c CImGui.SliderInt("Offset", &offset, -2*k_points_per, 2*k_points_per)
+    #         if ImPlot.BeginPlot("##strideoffset",0,0,ImVec2(-1,0), ImPlotFlags_Equal)
+    #             ImPlot.PushColormap(ImPlotColormap_Jet)
+    #             for c = 0:k_circles-1 #? 1:k_circles
+    #                 buff = "Circle $c"
+    #                 ImPlot.PlotLine(buff, &interleaved_data[c*2 + 0], &interleaved_data[c*2 + 1], k_points_per, offset, 2*k_circles*sizeof(Float64))
+    #             end
+    #             ImPlot.EndPlot()
+    #             ImPlot.PopColormap()
+    #         end
+    #         # offset++ uncomment for animation!
+    #     end) 
+    # end
 #     #-------------------------------------------------------------------------
 #     if CImGui.CollapsingHeader("Custom Data and Getters")) 
 #         CImGui.BulletText("You can plot custom structs using the stride feature.")
