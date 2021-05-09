@@ -21,3 +21,11 @@ function LerpColormap(t::Integer)
     LibCImPlot.LerpColormap(out, Cint(t))
     return out[]
 end
+
+function PushColormap(colormap)
+    LibCImPlot.PushColormapPlotColormap(colormap)
+end
+
+function PopColormap(count::Integer = 1)
+    LibCImPlot.PopColormap(count)
+end

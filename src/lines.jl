@@ -1,18 +1,18 @@
 # Line plots
 
-function PlotLine(label_id, x::AbstractArray{T}, y::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+function PlotLine(label_id, x::Union{AbstractArray{T},Ref{T}}, y::Union{AbstractArray{T},Ref{T}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
     LibCImPlot.PlotLine(label_id, x, y, count, offset, stride)
 end
 
-function PlotLine(label_id, x::AbstractArray{T}, y::AbstractArray{T}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+function PlotLine(label_id, x::Union{AbstractArray{T},Ref{T}}, y::Union{AbstractArray{T},Ref{T}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
     LibCImPlot.PlotLine(label_id, Float64.(x), Float64.(y), count, offset, stride)
 end
 
-function PlotLine(label_id, x::AbstractArray{T}, count::Integer, xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
+function PlotLine(label_id, x::Union{AbstractArray{T},Ref{T}}, count::Integer, xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0, stride::Integer = sizeof(T)) where {T<:ImPlotData}
     LibCImPlot.PlotLine(label_id, x, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, x::AbstractArray{T}, count::Integer, xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
+function PlotLine(label_id, x::Union{AbstractArray{T},Ref{T}}, count::Integer, xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0, stride::Integer = sizeof(Float64)) where {T<:Real}
     LibCImPlot.PlotLine(label_id, Float64.(x), count, xscale, x0, offset, stride)
 end
 

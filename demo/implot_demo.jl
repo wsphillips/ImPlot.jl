@@ -1624,48 +1624,50 @@ function ShowDemoWindow()
     end
 
     #-------------------------------------------------------------------------
-    # if CImGui.CollapsingHeader("Offset and Stride")
+if CImGui.CollapsingHeader("Offset and Stride")
 
-    #     @cstatic( 
-    #         init = true,
-    #         k_circles = 11,
-    #         k_points_per = 50,
-    #         k_size = nothing,
-    #         interleaved_data = nothing,
-    #         offset = 0,
-    #     begin 
-    #         if init
-    #             init = false
-    #             k_size = 2 * k_points_per * k_circles
-    #             interleaved_data = zeros(Float64, k_size)
-    #         end
-    #         for p = 0:k_points_per-1 #? 1:k_points_per
-    #             for c = 0:k_circles-1  #? 1:k_circles
-    #                 r = c / (k_circles - 1) * 0.2 + 0.2
-    #                 interleaved_data[1 + p*2*k_circles + 2*c + 0] = 0.5 + r * cos(p/k_points_per * 6.28)
-    #                 interleaved_data[1 + p*2*k_circles + 2*c + 1] = 0.5 + r * sin(p/k_points_per * 6.28)
-    #             end
-    #         end
+    @cstatic( 
+        init = true,
+        k_circles = 11,
+        k_points_per = 50,
+        k_size = 0,
+        interleaved_data = Vector{Float64}(),
+        offset = Int32(0),
+    begin 
+        if init
+            init = false
+            k_size = 2 * k_points_per * k_circles
+            interleaved_data = zeros(Float64, k_size)
+        end
 
-    #         CImGui.BulletText("Offsetting is useful for realtime plots (see above) and circular buffers.")
-    #         CImGui.BulletText("Striding is useful for interleaved data (e.g. audio) or plotting structs.")
-    #         CImGui.BulletText("Here, all circle data is stored in a single interleaved buffer:")
-    #         CImGui.BulletText("[c0.x0 c0.y0 ... cn.x0 cn.y0 c0.x1 c0.y1 ... cn.x1 cn.y1 ... cn.xm cn.ym]")
-    #         CImGui.BulletText("The offset value indicates which circle point index is considered the first.")
-    #         CImGui.BulletText("Offsets can be negative and/or larger than the actual data count.")
-    #         @c CImGui.SliderInt("Offset", &offset, -2*k_points_per, 2*k_points_per)
-    #         if ImPlot.BeginPlot("##strideoffset",0,0,ImVec2(-1,0), ImPlotFlags_Equal)
-    #             ImPlot.PushColormap(ImPlotColormap_Jet)
-    #             for c = 0:k_circles-1 #? 1:k_circles
-    #                 buff = "Circle $c"
-    #                 ImPlot.PlotLine(buff, &interleaved_data[c*2 + 0], &interleaved_data[c*2 + 1], k_points_per, offset, 2*k_circles*sizeof(Float64))
-    #             end
-    #             ImPlot.EndPlot()
-    #             ImPlot.PopColormap()
-    #         end
-    #         # offset++ uncomment for animation!
-    #     end) 
-    # end
+        for p = 0:k_points_per-1
+            for c = 0:k_circles-1
+                r = c / (k_circles - 1) * 0.2 + 0.2
+                interleaved_data[1 + p*2*k_circles + 2*c + 0] = 0.5 + r * cos(p/k_points_per * 6.28)
+                interleaved_data[1 + p*2*k_circles + 2*c + 1] = 0.5 + r * sin(p/k_points_per * 6.28)
+            end
+        end
+
+        CImGui.BulletText("Offsetting is useful for realtime plots (see above) and circular buffers.")
+        CImGui.BulletText("Striding is useful for interleaved data (e.g. audio) or plotting structs.")
+        CImGui.BulletText("Here, all circle data is stored in a single interleaved buffer:")
+        CImGui.BulletText("[c0.x0 c0.y0 ... cn.x0 cn.y0 c0.x1 c0.y1 ... cn.x1 cn.y1 ... cn.xm cn.ym]")
+        CImGui.BulletText("The offset value indicates which circle point index is considered the first.")
+        CImGui.BulletText("Offsets can be negative and/or larger than the actual data count.")
+
+        @c CImGui.SliderInt("Offset", &offset, -2*k_points_per, 2*k_points_per)
+        if ImPlot.BeginPlot("##strideoffset")
+            ImPlot.PushColormap(ImPlotColormap_Jet)
+            for c = 0:k_circles-1 #? 1:k_circles
+                buff = "Circle $c"
+                ImPlot.PlotLine(buff, Ref(interleaved_data, c*2 + 1), Ref(interleaved_data, c*2 + 2), k_points_per, offset, 2*k_circles*sizeof(Float64))
+            end
+            ImPlot.EndPlot()
+            ImPlot.PopColormap()
+        end
+        #offset += 1 # uncomment this line + comment out SliderInt for animation!
+    end) 
+end
 #     #-------------------------------------------------------------------------
 #     if CImGui.CollapsingHeader("Custom Data and Getters")) 
 #         CImGui.BulletText("You can plot custom structs using the stride feature.")
