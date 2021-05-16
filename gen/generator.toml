@@ -8,7 +8,7 @@ export_symbol_prefixes = ["ImPlotFlags_", "ImPlotAxisFlags_", "ImPlotCol_", "ImP
 prologue_file_path = "./prologue.jl"
 epilogue_file_path = "./epilogue.jl"
 
-printer_blacklist = ["CIMGUIPLOT_INCLUDED"]
+printer_blacklist = ["CIMGUIPLOT_INCLUDED", "CIMGUI_API", "CONST"]
 
 auto_mutability = true
 auto_mutability_blacklist = []

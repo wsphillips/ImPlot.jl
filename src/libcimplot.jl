@@ -4,6 +4,22 @@ using CEnum
 
 using CImPlot_jll
 
+using CImGui
+
+# import CImGui:
+#     # Vector primitives:
+#     ImVec2, ImVec4,
+#     # Enums
+#     ImGuiMouseButton, ImGuiKeyModFlags, ImGuiCond, ImGuiDragDropFlags,
+#     # Primitive type aliases; uncomment after CImGui update
+#     #=ImS8,=# ImU8, ImS16, ImU16, ImS32, ImU32, ImS64, ImU64,
+#     ImTextureID,
+#     ImDrawList,
+#     ImGuiContext
+
+# #Temporary patch; CImGui.jl v1.79.0 aliases ImS8 incorrectly
+# const ImS8 = Int8
+
 
 struct ImGuiPtrOrIndex
     Ptr::Ptr{Cvoid}
@@ -2839,10 +2855,6 @@ end
 # Skipping MacroDefinition: API __attribute__ ( ( __visibility__ ( "default" ) ) )
 
 # Skipping MacroDefinition: EXTERN extern
-
-const CIMGUI_API = EXTERN(API)
-
-const CONST = $(Expr(:incomplete, "incomplete: premature end of input"))
 
 export ImPlotPoint, ImPlotRange, ImPlotLimits, ImPlotStyle, ImPlotInputMap, ImPlotContext
 export CreateContext, DestroyContext, GetCurrentContext, SetCurrentContext, SetImGuiContext
