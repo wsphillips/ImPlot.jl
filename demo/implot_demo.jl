@@ -33,7 +33,6 @@ import ImPlot.LibCImPlot: # do we need to import this separately?
     ShowMetricsWindow,
     ShowStyleSelector,
     ShowColormapSelector,
-    SetNextMarkerStyle,
     IMPLOT_AUTO,
     IMPLOT_AUTO_COL,
     ImPlotFlags,
@@ -50,17 +49,6 @@ using Dates
 # then add them to export from ImPlot
 
 #import DataStructures: CircularBuffer
-
-# ==== fixes in api (should be fixed after auto-generation...) ====
-function SetNextMarkerStyle_fix(marker = IMPLOT_AUTO, size = IMPLOT_AUTO, fill = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO, outline = IMPLOT_AUTO_COL)
-    ccall((:ImPlot_SetNextMarkerStyle, ImPlot.LibCImPlot.libcimplot), Cvoid, 
-        (ImPlot.LibCImPlot.ImPlotMarker, Cfloat, CImGui.ImVec4, Cfloat, CImGui.ImVec4), marker, size, fill, weight, outline)
-end
-function SetNextLineStyle_fix(col = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO)
-    ccall((:ImPlot_SetNextLineStyle, ImPlot.LibCImPlot.libcimplot), Cvoid, 
-        (CImGui.ImVec4, Cfloat), col, weight)
-end
-# ======================
 
 # TODO: add newer CImGui version with Tables included
 # const IMGUI_HAS_TABLE = true 
@@ -363,6 +351,8 @@ module Huge
 
 end
 
+const BEZIER_P = ImPlotPoint[ImPlotPoint(.05,.05), ImPlotPoint(0.2,0.4),  ImPlotPoint(0.8,0.6),  ImPlotPoint(.95,.95)]
+
 # ======================
 
 function ShowDemoWindow()
@@ -487,7 +477,7 @@ function ShowDemoWindow()
             CImGui.BulletText("Anti-aliasing can be enabled from the plot's context menu (see Help).")
             if ImPlot.BeginPlot("Line Plot", "x", "f(x)")
                 ImPlot.PlotLine(xs1, ys1, label_id = "sin(x)")
-                SetNextMarkerStyle_fix(ImPlotMarker_Circle) #! error in api #? ImPlot.LibCImPlot #? no default values
+                ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle) #! error in api #? ImPlot.LibCImPlot #? no default values
                 ImPlot.PlotLine(xs2, ys2, label_id = "x^2")
                 ImPlot.EndPlot()
             end
@@ -591,7 +581,7 @@ function ShowDemoWindow()
             if ImPlot.BeginPlot("Scatter Plot", "", "")
                 ImPlot.PlotScatter(xs1, ys1, label_id = "Data 1")
                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
-                SetNextMarkerStyle_fix(ImPlotMarker_Square, 6, ImVec4(0,1,0,0.5), IMPLOT_AUTO, ImVec4(0,1,0,1))
+                ImPlot.SetNextMarkerStyle(ImPlotMarker_Square, 6, ImVec4(0,1,0,0.5), IMPLOT_AUTO, ImVec4(0,1,0,1))
                 ImPlot.PlotScatter(xs2, ys2, label_id = "Data 2")
                 ImPlot.PopStyleVar(1)
                 ImPlot.EndPlot()
@@ -607,7 +597,7 @@ function ShowDemoWindow()
             end
             if ImPlot.BeginPlot("Stairstep Plot", "x", "f(x)")
                 ImPlot.PlotStairs(ys1, xscale = 0.01, label_id = "Signal 1")
-                SetNextMarkerStyle_fix(ImPlotMarker_Square, 2.0)
+                ImPlot.SetNextMarkerStyle(ImPlotMarker_Square, 2.0)
                 ImPlot.PlotStairs(ys2, xscale = 0.01, label_id = "Signal 2")
                 ImPlot.EndPlot()
             end
@@ -673,7 +663,7 @@ function ShowDemoWindow()
 
 #             ImPlot.SetNextErrorBarStyle(ImPlot.GetColormapColor(1), 0)
              ImPlot.PlotErrorBars(xs, lin1, err1, err2, count = 5, label_id = "Line")
-#             ImPlot.SetNextMarkerStyle_fix(ImPlotMarker_Circle)
+             ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
              ImPlot.PlotLine(xs, lin1, count = 5, label_id = "Line")
 
 #             ImPlot.PushStyleColor(ImPlotCol_ErrorBar, ImPlot.GetColormapColor(2))
@@ -698,8 +688,8 @@ function ShowDemoWindow()
 
              ImPlot.PlotStems(xs, ys1, count = 51, label_id = "Stems 1")
 
-#             ImPlot.SetNextLineStyle(ImVec4(1,0.5,0,0.75))
-#             ImPlot.SetNextMarkerStyle(ImPlotMarker_Square,5,ImVec4(1,0.5,0,0.25))
+             ImPlot.SetNextLineStyle(ImVec4(1,0.5,0,0.75))
+             ImPlot.SetNextMarkerStyle(ImPlotMarker_Square,5,ImVec4(1,0.5,0,0.25))
              ImPlot.PlotStems(xs, ys2, count = 51, label_id = "Stems 2")
 
              ImPlot.EndPlot()
@@ -734,7 +724,7 @@ function ShowDemoWindow()
                 end
 
                 CImGui.SameLine()
-#                ImPlot.PushColormap(ImPlotColormap_Pastel) # TODO: add more enum exports to libcimplot.jl
+                ImPlot.PushColormap(ImPlotColormap_Pastel)
                 ImPlot.SetNextPlotLimits(0,1,0,1,ImGuiCond_Always)
                 if ImPlot.BeginPlot("##Pie2", C_NULL, C_NULL, ImVec2(250,250),
                     flags = ImPlotFlags_Equal | ImPlotFlags_NoMousePos,
@@ -745,7 +735,7 @@ function ShowDemoWindow()
                                         label_fmt = "%.0f", angle0 = 180, label_ids = labels2)
                     ImPlot.EndPlot()
                 end
-#                ImPlot.PopColormap()
+                ImPlot.PopColormap()
             end) # cstatic
      end
      #-------------------------------------------------------------------------
@@ -916,7 +906,7 @@ function ShowDemoWindow()
                 # filled markers
                 for m = 1:ImPlotMarker_COUNT 
                     CImGui.PushID(m-1)
-                    SetNextMarkerStyle_fix(m-1, mk_size, IMPLOT_AUTO_COL, mk_weight)
+                    ImPlot.SetNextMarkerStyle(m-1, mk_size, IMPLOT_AUTO_COL, mk_weight)
                     ImPlot.PlotLine(xs, ys; label_id = "##Filled")
                     CImGui.PopID()
                     ys[1]-=1; ys[2]-=1
@@ -925,7 +915,7 @@ function ShowDemoWindow()
                 # open markers
                 for m = 1:ImPlotMarker_COUNT 
                     CImGui.PushID(m-1) #! we should be aware of 0-based indices when passing into ccall
-                    SetNextMarkerStyle_fix(m-1, mk_size, ImVec4(0,0,0,0), mk_weight)
+                    ImPlot.SetNextMarkerStyle(m-1, mk_size, ImVec4(0,0,0,0), mk_weight)
                     ImPlot.PlotLine(xs, ys; label_id = "##Open")
                     CImGui.PopID()
                     ys[1]-=1; ys[2]-=1
@@ -1147,6 +1137,8 @@ function ShowDemoWindow()
                 if ImPlot.IsPlotQueried() && length(data) > 0
                     range2 = ImPlot.GetPlotQuery()
                     cnt = 0
+                    # FIXME: This doesn't work because of now immutable ImPlotPoint -- use
+                    # SetField instead ? 
                     avg = ImPlotPoint(0,0)
                     for i = 1:length(data)
                         if ImPlot.Contains(range2, data[i].x, data[i].y)
@@ -1158,7 +1150,7 @@ function ShowDemoWindow()
                     if cnt > 0
                         avg.x = avg.x / cnt
                         avg.y = avg.y / cnt
-                        SetNextMarkerStyle_fix(ImPlotMarker_Square)
+                        ImPlot.SetNextMarkerStyle(ImPlotMarker_Square)
                         ImPlot.PlotScatter([avg.x], [avg.y], label_id = "Average")
                     end
                 end
@@ -1262,85 +1254,155 @@ function ShowDemoWindow()
             end
         end)
     end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Drag Lines and Points")) 
-#         CImGui.BulletText("Click and drag the horizontal and vertical lines.")
-#         @cstatic ( begin end) x1 = 0.2
-#         @cstatic ( begin end) x2 = 0.8
-#         @cstatic ( begin end) y1 = 0.25
-#         @cstatic ( begin end) y2 = 0.75
-#         @cstatic ( begin end) f = 0.1
-#         @cstatic ( begin end) show_labels = true
-#         CImGui.Checkbox("Show Labels##1",&show_labels)
-#         if ImPlot.BeginPlot("##guides",0,0,ImVec2(-1,0),ImPlotFlags_YAxis2)) 
-#             ImPlot.DragLineX("x1",&x1,show_labels)
-#             ImPlot.DragLineX("x2",&x2,show_labels)
-#             ImPlot.DragLineY("y1",&y1,show_labels)
-#             ImPlot.DragLineY("y2",&y2,show_labels)
-#             xs = zeros(Float64, 1000)
-#             ys = zeros(Float64, 1000)
-#             for i = 1:1000
-#                 xs[i] = (x2+x1)/2+abs(x2-x1)*(i/1000.0 - 0.5)
-#                 ys[i] = (y1+y2)/2+abs(y2-y1)/2*sin(f*i/10)
-#             end
-#             ImPlot.PlotLine("Interactive Data", xs, ys, 1000)
-#             ImPlot.SetPlotYAxis(ImPlotYAxis_2)
-#             ImPlot.DragLineY("f",&f,show_labels,ImVec4(1,0.5,1,1))
-#             ImPlot.EndPlot()
-#         end
-#         CImGui.BulletText("Click and drag any point.")
-#         CImGui.Checkbox("Show Labels##2",&show_labels)
-#         flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks
-#         if ImPlot.BeginPlot("##Bezier",0,0,ImVec2(-1,0),ImPlotFlags_CanvasOnly,flags,flags)) 
-#             @cstatic ( begin end) ImPlotPoint P[] = ImPlotPoint(.05,.05), ImPlotPoint(0.2,0.4),  ImPlotPoint(0.8,0.6),  ImPlotPoint(.95,.95)end
-#             @cstatic ( begin end) ImPlotPoint B[100]
-#             for i = 1:100
-#                 t  = i / 99.0
-#                 u  = 1 - t
-#                 w1 = u*u*u
-#                 w2 = 3*u*u*t
-#                 w3 = 3*u*t*t
-#                 w4 = t*t*t
-#                 B[i] = ImPlotPoint(w1*P[0].x + w2*P[1].x + w3*P[2].x + w4*P[3].x, w1*P[0].y + w2*P[1].y + w3*P[2].y + w4*P[3].y)
-#             end
-#             ImPlot.SetNextLineStyle(ImVec4(0,0.9,0,1), 2)
-#             ImPlot.PlotLine("##bez",&B[0].x, &B[0].y, 100, 0, sizeof(ImPlotPoint))
-#             ImPlot.SetNextLineStyle(ImVec4(1,0.5,1,1))
-#             ImPlot.PlotLine("##h1",&P[0].x, &P[0].y, 2, 0, sizeof(ImPlotPoint))
-#             ImPlot.SetNextLineStyle(ImVec4(0,0.5,1,1))
-#             ImPlot.PlotLine("##h2",&P[2].x, &P[2].y, 2, 0, sizeof(ImPlotPoint))
-#             ImPlot.DragPoint("P0",&P[0].x,&P[0].y, show_labels, ImVec4(0,0.9,0,1))
-#             ImPlot.DragPoint("P1",&P[1].x,&P[1].y, show_labels, ImVec4(1,0.5,1,1))
-#             ImPlot.DragPoint("P2",&P[2].x,&P[2].y, show_labels, ImVec4(0,0.5,1,1))
-#             ImPlot.DragPoint("P3",&P[3].x,&P[3].y, show_labels, ImVec4(0,0.9,0,1))
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     if CImGui.CollapsingHeader("Annotations")) 
-#         @cstatic ( begin end) clamp = false
-#         CImGui.Checkbox("Clamp",&clamp)
-#         ImPlot.SetNextPlotLimits(0,2,0,1)
-#         if ImPlot.BeginPlot("##Annotations")) 
+#-------------------------------------------------------------------------
+     if CImGui.CollapsingHeader("Drag Lines and Points") 
+         CImGui.BulletText("Click and drag the horizontal and vertical lines.")
+         @cstatic(x1 = 0.2,
+                  x2 = 0.8,
+                  y1 = 0.25,
+                  y2 = 0.75,
+                  f = 0.1,
+                  show_labels = true,
+                  clamp = false,
 
-#             @cstatic ( begin end) p = Float32[0.25, 0.25, 0.75, 0.75, 0.25]
-#             ImPlot.PlotScatter("##Points",&p[0],&p[1],4)
-#             ImVec4 col = GetLastItemColor()
-#             clamp ? ImPlot.AnnotateClamped(0.25,0.25,ImVec2(-15,15),col,"BL") : ImPlot.Annotate(0.25,0.25,ImVec2(-15,15),col,"BL")
-#             clamp ? ImPlot.AnnotateClamped(0.75,0.25,ImVec2(15,15),col,"BR") : ImPlot.Annotate(0.75,0.25,ImVec2(15,15),col,"BR")
-#             clamp ? ImPlot.AnnotateClamped(0.75,0.75,ImVec2(15,-15),col,"TR") : ImPlot.Annotate(0.75,0.75,ImVec2(15,-15),col,"TR")
-#             clamp ? ImPlot.AnnotateClamped(0.25,0.75,ImVec2(-15,-15),col,"TL") : ImPlot.Annotate(0.25,0.75,ImVec2(-15,-15),col,"TL")
-#             clamp ? ImPlot.AnnotateClamped(0.5,0.5,ImVec2(0,0),col,"Center") : ImPlot.Annotate(0.5,0.5,ImVec2(0,0),col,"Center")
+                  B = Vector{ImPlotPoint}(undef, 100),
+                  begin
 
-#             bx = Float32[1.2, 1.5, 1.8]
-#             by = Float32[0.25, 0.5, 0.75]
-#             ImPlot.PlotBars("##Bars",bx,by,3,0.2)
-#             for i = 1:3
-#                 ImPlot.Annotate(bx[i],by[i],ImVec2(0,-5),"B[%d]=%.2f",i,by[i])
-#             end
-#             ImPlot.EndPlot()
-#         end
-#     end 
-#     #-------------------------------------------------------------------------
+         
+         @c CImGui.Checkbox("Show Labels##1", &show_labels)
+
+         if ImPlot.BeginPlot("##guides", flags = ImPlotFlags_YAxis2)
+
+             @c ImPlot.DragLineX("x1", &x1, show_labels)
+             @c ImPlot.DragLineX("x2", &x2, show_labels)
+             @c ImPlot.DragLineY("y1", &y1, show_labels)
+             @c ImPlot.DragLineY("y2", &y2, show_labels)
+
+             xs = Vector{Float64}(undef, 1000)
+             ys = Vector{Float64}(undef, 1000)
+
+             for i = 1:1000
+                 xs[i] = (x2 + x1)/2 + abs(x2 - x1) * (i/1000.0 - 0.5)
+                 ys[i] = (y1 + y2)/2 + abs(y2 - y1)/2 * sin(f * i/10)
+             end
+
+             ImPlot.PlotLine("Interactive Data", xs, ys, 1000)
+             ImPlot.SetPlotYAxis(ImPlotYAxis_2)
+             @c ImPlot.DragLineY("f", &f, show_labels, ImVec4(1,0.5,1,1))
+             ImPlot.EndPlot()
+         end
+
+         CImGui.BulletText("Click and drag any point.")
+         @c CImGui.Checkbox("Show Labels##2", &show_labels)
+         flags = ImPlotAxisFlags_NoTickLabels | ImPlotAxisFlags_NoTickMarks
+         
+         if ImPlot.BeginPlot("##Bezier", flags = ImPlotFlags_CanvasOnly, x_flags = flags, y_flags = flags) 
+
+             for i = 1:100
+                 t  = (i - 1) / 99.0
+                 u  = 1. - t
+                 w1 = u*u*u
+                 w2 = 3*u*u*t
+                 w3 = 3*u*t*t
+                 w4 = t*t*t
+                 B[i] = ImPlotPoint(w1*BEZIER_P[1].x + w2*BEZIER_P[2].x + w3*BEZIER_P[3].x + w4*BEZIER_P[4].x,
+                                    w1*BEZIER_P[1].y + w2*BEZIER_P[2].y + w3*BEZIER_P[3].y + w4*BEZIER_P[4].y)
+             end
+             yoff = fieldoffset(ImPlotPoint, 2)
+
+             ImPlot.SetNextLineStyle(ImVec4(0,0.9,0,1), 2)
+
+             ImPlot.PlotLine("##bez", Ptr{Float64}(pointer(B)), Ptr{Float64}(pointer(B) + yoff), 100, 0, sizeof(ImPlotPoint))
+
+             ImPlot.SetNextLineStyle(ImVec4(1,0.5,1,1))
+             ImPlot.PlotLine("##h1", Ptr{Float64}(pointer(BEZIER_P)), Ptr{Float64}(pointer(BEZIER_P) + yoff), 2, 0, sizeof(ImPlotPoint))
+
+             ImPlot.SetNextLineStyle(ImVec4(0,0.5,1,1))
+             ImPlot.PlotLine("##h2", Ptr{Float64}(pointer(BEZIER_P,3)), Ptr{Float64}(pointer(BEZIER_P,3) + yoff), 2, 0, sizeof(ImPlotPoint))
+
+             ImPlot.DragPoint("P0", Ptr{Float64}(pointer(BEZIER_P)), Ptr{Float64}(pointer(BEZIER_P) + yoff), show_labels, ImVec4(0,0.9,0,1))
+
+             ImPlot.DragPoint("P1", Ptr{Float64}(pointer(BEZIER_P, 2)), Ptr{Float64}(pointer(BEZIER_P,2) + yoff), show_labels, ImVec4(1,0.5,1,1))
+
+             ImPlot.DragPoint("P2", Ptr{Float64}(pointer(BEZIER_P,3)), Ptr{Float64}(pointer(BEZIER_P,3) + yoff), show_labels, ImVec4(0,0.5,1,1))
+
+             ImPlot.DragPoint("P3", Ptr{Float64}(pointer(BEZIER_P,4)), Ptr{Float64}(pointer(BEZIER_P,4) + yoff), show_labels, ImVec4(0,0.9,0,1))
+
+             ImPlot.EndPlot()
+         end 
+     end) # cstatic
+     end
+#= We need to make vararg wrappers for Annotate functions for this to work (not
+# automatically wrapped by Clang.jl but possible to use!
+
+             ImPlot.PlotLine("##bez",
+                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(B[1])),
+                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(B[1]) + yoff), 100, 0, sizeof(ImPlotPoint)*2)
+
+             ImPlot.SetNextLineStyle(ImVec4(1,0.5,1,1))
+             ImPlot.PlotLine("##h1",
+                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1])),
+                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1]) + yoff), 2, 0, sizeof(ImPlotPoint)*2)
+
+             ImPlot.SetNextLineStyle(ImVec4(0,0.5,1,1))
+             ImPlot.PlotLine("##h2",
+                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3])),
+                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3]) + yoff), 2, 0, sizeof(ImPlotPoint)*2)
+
+             ImPlot.DragPoint("P0", 
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1])),  
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1]) + yoff), show_labels, ImVec4(0,0.9,0,1))
+
+             ImPlot.DragPoint("P1",
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[2])),
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[2]) + yoff), show_labels, ImVec4(1,0.5,1,1))
+
+             ImPlot.DragPoint("P2",
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3])),
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3]) + yoff), show_labels, ImVec4(0,0.5,1,1))
+
+             ImPlot.DragPoint("P3",
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[4])),
+                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[4]) + yoff), show_labels, ImVec4(0,0.9,0,1))
+
+
+     if CImGui.CollapsingHeader("Annotations")
+         @cstatic(
+                  p = Float32[0.25, 0.25, 0.75, 0.75, 0.25],
+                  clamp = false,
+                  begin
+
+         CImGui.Checkbox("Clamp",&clamp)
+         ImPlot.SetNextPlotLimits(0,2,0,1)
+
+         if ImPlot.BeginPlot("##Annotations")
+
+             ImPlot.PlotScatter("##Points", &p[1], &p[2], 4)
+
+             ImVec4 col = GetLastItemColor()
+
+             clamp ? ImPlot.AnnotateClamped(0.25,0.25,ImVec2(-15,15),col,"BL") : ImPlot.Annotate(0.25,0.25,ImVec2(-15,15),col,"BL")
+             clamp ? ImPlot.AnnotateClamped(0.75,0.25,ImVec2(15,15),col,"BR") : ImPlot.Annotate(0.75,0.25,ImVec2(15,15),col,"BR")
+             clamp ? ImPlot.AnnotateClamped(0.75,0.75,ImVec2(15,-15),col,"TR") : ImPlot.Annotate(0.75,0.75,ImVec2(15,-15),col,"TR")
+             clamp ? ImPlot.AnnotateClamped(0.25,0.75,ImVec2(-15,-15),col,"TL") : ImPlot.Annotate(0.25,0.75,ImVec2(-15,-15),col,"TL")
+             clamp ? ImPlot.AnnotateClamped(0.5,0.5,ImVec2(0,0),col,"Center") : ImPlot.Annotate(0.5,0.5,ImVec2(0,0),col,"Center")
+
+             bx = Float32[1.2, 1.5, 1.8]
+             by = Float32[0.25, 0.5, 0.75]
+
+             ImPlot.PlotBars("##Bars",bx,by,3,0.2)
+
+             for i = 1:3
+                 ImPlot.Annotate(bx[i],by[i],ImVec2(0,-5),"B[%d]=%.2f",i,by[i])
+             end
+
+             ImPlot.EndPlot()
+         end
+     end)
+     end
+=#
+
+     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Drag and Drop") #! it's completely different in later ImPlot versions
         Random.seed!(trunc(Int, 10000000 * DEMO_TIME))
         @cstatic(

@@ -135,3 +135,21 @@ end
 function Contains(limits::LibCImPlot.ImPlotLimits, p::LibCImPlot.ImPlotPoint)
     return Contains(limits.X, p.x) && Contains(limits.Y, p.y)
 end
+
+function DragLineX(id::String, x_value, show_label::Bool = true, col::ImVec4 = IMPLOT_AUTO_COL, thickness::Real = 1)
+    LibCImPlot.DragLineX(id, x_value, show_label, col, thickness)
+end
+
+function DragLineY(id::String, y_value, show_label::Bool = true, col::ImVec4 = IMPLOT_AUTO_COL, thickness::Real = 1)
+    LibCImPlot.DragLineY(id, y_value, show_label, col, thickness)
+end
+
+function DragPoint(id::String, x, y, show_label::Bool = true, col::ImVec4 = IMPLOT_AUTO_COL, radius::Real = 4)
+    LibCImPlot.DragPoint(id, x, y, show_label, col, radius)
+end
+
+SetNextLineStyle(col = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO)  = LibCImPlot.SetNextLineStyle(col,weight)
+SetNextFillStyle(col = IMPLOT_AUTO_COL, alpha_mod = IMPLOT_AUTO) = LibCImPlot.SetNextFillStyle(col, alpha_mod)
+SetNextMarkerStyle(marker = IMPLOT_AUTO, size = IMPLOT_AUTO, fill = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO, outline = IMPLOT_AUTO_COL) = LibCImPlot.SetNextMarkerStyle(marker, size, fill, weight, outline)
+SetNExtErrorBarStyle(col = IMPLOT_AUTO_COL, size = IMPLOT_AUTO, weight = IMPLOT_AUTO) = LibCImPlot.SetErrorBarStyle(col, size, weight)
+
