@@ -22,6 +22,7 @@ const ImS8 = Int8
 
 const IMPLOT_AUTO = Cint(-1)
 const IMPLOT_AUTO_COL = ImVec4(0,0,0,-1)
+export IMPLOT_AUTO, IMPLOT_AUTO_COL
 
 
 mutable struct ImPlotInputMap
@@ -1569,13 +1570,13 @@ export ImPlotPoint, ImPlotRange, ImPlotLimits, ImPlotStyle, ImPlotInputMap, ImPl
 export CreateContext, DestroyContext, GetCurrentContext, SetCurrentContext, SetImGuiContext
 export EndPlot
 export SetNextPlotLimits, SetNextPlotLimitsX, SetNextPlotLimitsY, LinkNextPlotLimits, FitNextPlotAxes
-export SetPlotYAxis, HideNextItem, IsPlotHovered, IsPlotXAxisHovered, IsPlotYAxisHoevered, IsPlotQueried
+export SetPlotYAxis, HideNextItem, IsPlotHovered, IsPlotXAxisHovered, IsPlotYAxisHovered, IsPlotQueried
 export SetLegendLocation, SetMousePosLocation, IsLegendEntryHovered
 export BeginLegendDragDropSource, EndLegendDragDropSource, BeginLegendPopup, EndLegendPopup
-export PopStyleColor, PopStyleVar
+export GetStyle
 export GetStyleColorName, GetMarkerName, PopColormap, GetColormapSize, ShowColormapScale
 export GetColormapName, PushPlotClipRect, PopPlotClipRect
-export ShowStyleSelector, ShowColormapSelector, ShowUserGuide, ShowDemoWindow
+export ShowStyleSelector, ShowColormapSelector, ShowUserGuide, ShowDemoWindow, ShowMetricsWindow
 
 
 # exports

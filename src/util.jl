@@ -4,8 +4,6 @@ import .LibCImPlot:
     GetPlotLimits,
     GetPlotQuery,
     GetLastItemColor,
-    GetColormapColor,
-    LerpColormap,
     NextColormapColor
     
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
@@ -64,13 +62,13 @@ LibCImPlot.SetLegendLocation(location) = LibCImPlot.SetLegendLocation(location, 
 LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax) = LibCImPlot.SetNextPlotLimits(xmin, xmax, ymin, ymax, ImGuiCond_Once)
 
 function PixelsToPlot(pix::ImVec2, y_axis = IMPLOT_AUTO)
-    out = Ref(LibCImPlot.ImPlotPoint(0,0))
+    out = Ref(ImPlotPoint())
     LibCImPlot.PixelsToPlotVec2(out, pix, y_axis)
     return out[]
 end
 
 function PixelsToPlot(x::Real, y::Real, y_axis = IMPLOT_AUTO)
-    out = Ref(LibCImPlot.ImPlotPoint(0,0))
+    out = Ref(ImPlotPoint())
     LibCImPlot.PixelsToPlotFloat(out, x, y, y_axis)
     return out[]
 end
@@ -86,21 +84,19 @@ function PlotToPixels(x::Real, y::Real, y_axis = IMPLOT_AUTO)
 end
 
 function LibCImPlot.GetPlotMousePos(y_axis = IMPLOT_AUTO)
-    out = Ref(LibCImPlot.ImPlotPoint(0, 0))
+    out = Ref(ImPlotPoint())
     LibCImPlot.GetPlotMousePos(out, y_axis)
     return out[]
 end
 
 function LibCImPlot.GetPlotLimits(y_axis = IMPLOT_AUTO)
-    r = LibCImPlot.ImPlotRange(0,0)
-    out = Ref(LibCImPlot.ImPlotLimits(r, r))
+    out = Ref(ImPlotLimits())
     LibCImPlot.GetPlotLimits(out, y_axis)
     return out[]
 end
 
 function LibCImPlot.GetPlotQuery(y_axis = IMPLOT_AUTO)
-    r = LibCImPlot.ImPlotRange(0,0)
-    out = Ref(LibCImPlot.ImPlotLimits(r, r))
+    out = Ref(ImPlotLimits())
     LibCImPlot.GetPlotQuery(out, y_axis)
     return out[]
 end
@@ -151,5 +147,5 @@ end
 SetNextLineStyle(col = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO)  = LibCImPlot.SetNextLineStyle(col,weight)
 SetNextFillStyle(col = IMPLOT_AUTO_COL, alpha_mod = IMPLOT_AUTO) = LibCImPlot.SetNextFillStyle(col, alpha_mod)
 SetNextMarkerStyle(marker = IMPLOT_AUTO, size = IMPLOT_AUTO, fill = IMPLOT_AUTO_COL, weight = IMPLOT_AUTO, outline = IMPLOT_AUTO_COL) = LibCImPlot.SetNextMarkerStyle(marker, size, fill, weight, outline)
-SetNExtErrorBarStyle(col = IMPLOT_AUTO_COL, size = IMPLOT_AUTO, weight = IMPLOT_AUTO) = LibCImPlot.SetErrorBarStyle(col, size, weight)
+SetNextErrorBarStyle(col = IMPLOT_AUTO_COL, size = IMPLOT_AUTO, weight = IMPLOT_AUTO) = LibCImPlot.SetNextErrorBarStyle(col, size, weight)
 

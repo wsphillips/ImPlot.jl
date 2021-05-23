@@ -7,11 +7,11 @@ using CImGui
 using CImGui.CSyntax
 using CImGui.CSyntax.CStatic
 
-import CImGui:  # do we need to import this separately?
-    ImVec2, # I don't get all of this Im*, ImGui_* and so on - instead of a consistent namespace CImGui.* (or Im::*)
+import CImGui:
+    ImVec2,
     ImVec4,
     ImGuiCond_Always,
-    ImGuiCond_Appearing, # CImGui.Cond_Appearing would be cleaner, but probably too excessive to replace all...
+    ImGuiCond_Appearing,
     ImGuiCond_FirstUseEver,
     ImGuiCond_Once,
     ImGuiWindowFlags_MenuBar,
@@ -23,38 +23,16 @@ import CImGui.LibCImGui:  # do we need to import this separately?
 
 using ImPlot
 
-import ImPlot: # do we need to import this separately?
-    ImPlotPoint,
-    ImPlotRange,
-    ImPlotLimits
-
-import ImPlot.LibCImPlot: # do we need to import this separately?
-    ShowUserGuide,
-    ShowMetricsWindow,
-    ShowStyleSelector,
-    ShowColormapSelector,
-    IMPLOT_AUTO,
-    IMPLOT_AUTO_COL,
-    ImPlotFlags,
-    #! GetStyle not exported to ImPlot
-    ImS8,
-    IsPlotYAxisHovered
-
 using Random
 using Setfield
 using Dates
 
-#! TODO: 
-# check all `ImPlot.LibCImPlot. below and move them into import statement,
-# then add them to export from ImPlot
-
 #import DataStructures: CircularBuffer
 
-# TODO: add newer CImGui version with Tables included
+# TODO: Check for Tables support in CImGui
 # const IMGUI_HAS_TABLE = true 
 
 # Encapsulates examples for customizing ImPlot.
-#!!! in Julia we cannot reproduce custom getters
 module MyImPlot
 
 # Example for Custom Data and Getters section.
@@ -93,28 +71,28 @@ function _SawWave(wd::WaveData, len::Int)
     return xs, ys
 end
 
-# function SineWave(void* data, int idx)
-#     WaveData* wd = (WaveData*)data
-#     double x = idx * wd.x
-#     return ImPlotPoint(x, wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x))
-# end
+function SineWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+    wd = unsafe_load(Ptr{WaveData}(data))
+    x = idx * wd.x
+    return ImPlotPoint(x, wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x))
+end
 
-# function SawWave(void* wave_data, int idx)
-#     WaveData* wd = (WaveData*)data
-#     double x = idx * wd.x
-#     return ImPlotPoint(x, wd.offset + wd.amp * (-2 / 3.14 * atan(cos(3.14 * wd.freq * x) / sin(3.14 * wd.freq * x))))
-# end
+function SawWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+    wd = unsafe_load(Ptr{WaveData}(data))
+    x = idx * wd.x
+    return ImPlotPoint(x, wd.offset + wd.amp * (-2 / 3.14 * atan(cos(3.14 * wd.freq * x) / sin(3.14 * wd.freq * x))))
+end
 
-# function Spiral(void*, int idx)
-#     float r = 0.9f0            # outer radius
-#     float a = 0               # inner radius
-#     float b = 0.05f0           # increment per rev
-#     float n = (r - a) / b     # number  of revolutions
-#     double th = 2 * n * 3.14  # angle
-#     float Th = float(th * idx / (1000 - 1))
-#     return ImPlotPoint(0.5f+(a + b*Th / (2.0f * (float) 3.14))*cos(Th),
-#                        0.5f + (a + b*Th / (2.0f * (float)3.14))*sin(Th))
-# end
+function Spiral(::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+    r = 0.9            # outer radius
+    a = 0               # inner radius
+    b = 0.05           # increment per rev
+    n = (r - a) / b     # number  of revolutions
+    th = 2 * n * 3.14  # angle
+    Th = th * idx / (1000 - 1)
+    return ImPlotPoint(0.5 + (a + b * Th / (2.0 * 3.14)) * cos(Th),
+                       0.5 + (a + b * Th / (2.0 * 3.14)) * sin(Th))
+end
 
 # Example for Tables section.
 function Sparkline(id::String, values::Vector{Float32}, count::Int, min_v::Float32, max_v::Float32, offset::Int, col#=::ImVec4=#, size#=::ImVec4=#) # ImVec4 not defined, which is strange...
@@ -351,7 +329,6 @@ module Huge
 
 end
 
-const BEZIER_P = ImPlotPoint[ImPlotPoint(.05,.05), ImPlotPoint(0.2,0.4),  ImPlotPoint(0.8,0.6),  ImPlotPoint(.95,.95)]
 
 # ======================
 
@@ -371,7 +348,7 @@ function ShowDemoWindow()
             @c CImGui.ShowMetricsWindow(&show_imgui_metrics)
         end
         if show_implot_metrics
-            @c ShowMetricsWindow(&show_implot_metrics) #? ImPlot.LibCImPlot.
+            @c ImPlot.ShowMetricsWindow(&show_implot_metrics)
         end
         if show_imgui_style_editor
             @c CImGui.Begin("Style Editor (CImGui)", &show_imgui_style_editor)
@@ -409,7 +386,7 @@ function ShowDemoWindow()
     end) # @cstatic
     
     #-------------------------------------------------------------------------
-    CImGui.Text("ImPlot says hello - but what version?") #! IMPLOT_VERSION)
+    CImGui.Text("ImPlot says hello - v0.8")
     CImGui.Spacing()
 
     if CImGui.CollapsingHeader("Help")
@@ -421,10 +398,10 @@ function ShowDemoWindow()
         CImGui.BulletText("See the ShowDemoWindow() code in implot_demo.cpp. <- you are here!")
         CImGui.BulletText("By default, anti-aliased lines are turned OFF.")
         CImGui.Indent()
-            CImGui.BulletText("Software AA can be enabled globally with ImPlotStyle.AntiAliasedLines.")
-            CImGui.BulletText("Software AA can be enabled per plot with ImPlotFlags_AntiAliased.")
-            CImGui.BulletText("AA for plots can be toggled from the plot's context menu.")
-            CImGui.BulletText("If permitable, you are better off using hardware AA (e.g. MSAA).")
+        CImGui.BulletText("Software AA can be enabled globally with ImPlotStyle.AntiAliasedLines.")
+        CImGui.BulletText("Software AA can be enabled per plot with ImPlotFlags_AntiAliased.")
+        CImGui.BulletText("AA for plots can be toggled from the plot's context menu.")
+        CImGui.BulletText("If permitable, you are better off using hardware AA (e.g. MSAA).")
         CImGui.Unindent()
         CImGui.BulletText("If you see visual artifacts, do one of the following:")
         CImGui.Indent()
@@ -436,22 +413,17 @@ function ShowDemoWindow()
         CImGui.BulletText(@sprintf("ImGuiBackendFlags_RendererHasVtxOffset: %s", (CImGui.GetIO().BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset > 0) ? "True" : "False"))
         CImGui.Unindent()
         CImGui.Unindent()
-#ifdef IMPLOT_DEMO_USE_DOUBLE -- Maybe just use Sys.WORD_SIZE? Since that's default precision in Julia per system.
-        CImGui.BulletText("The demo data precision is: Float64")
-#else
-#        CImGui.BulletText("The demo data precision is: Float32") #?
-#endif
-
+        CImGui.BulletText("The demo data precision is: Float$(Sys.WORD_SIZE)")
         CImGui.Separator()
         CImGui.Text("USER GUIDE:")
-        ShowUserGuide()
+        ImPlot.ShowUserGuide()
     end
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Configuration")
         CImGui.ShowFontSelector("Font")
         CImGui.ShowStyleSelector("CImGui Style")
-        ShowStyleSelector("ImPlot Style") #? ImPlot.LibCImPlot
-        ShowColormapSelector("ImPlot Colormap") #? ImPlot.LibCImPlot
+        ImPlot.ShowStyleSelector("ImPlot Style")
+        ImPlot.ShowColormapSelector("ImPlot Colormap")
         indent = CImGui.CalcItemWidth() - CImGui.GetFrameHeight()
         CImGui.Indent(CImGui.CalcItemWidth() - CImGui.GetFrameHeight())
         #! CImGui.Checkbox("Anti-Aliased Lines", &ImPlot.GetStyle().AntiAliasedLines)
@@ -461,23 +433,23 @@ function ShowDemoWindow()
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Line Plots")
         @cstatic(
-            xs1 = zeros(Float32, 1001),
-            ys1 = zeros(Float32, 1001),
-            xs2 = zeros(Float32, 11),
-            ys2 = zeros(Float32, 11),
+            xs1 = zeros(Float32, 1000),
+            ys1 = zeros(Float32, 1000),
+            xs2 = zeros(Float32, 10),
+            ys2 = zeros(Float32, 10),
         begin
-            for i = 1:1001 #! not 0-based 
-                xs1[i] = i * 0.001
+            for i = 1:1000
+                xs1[i] = (i - 1) * 0.001
                 ys1[i] = 0.5 + 0.5 * sin(50 * (xs1[i] + DEMO_TIME / 10))
             end
-            for i = 1:11 #! not 0-based 
-                xs2[i] = i * 0.1
+            for i = 1:10
+                xs2[i] = (i - 1) * 0.1
                 ys2[i] = xs2[i] * xs2[i]
             end
             CImGui.BulletText("Anti-aliasing can be enabled from the plot's context menu (see Help).")
             if ImPlot.BeginPlot("Line Plot", "x", "f(x)")
                 ImPlot.PlotLine(xs1, ys1, label_id = "sin(x)")
-                ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle) #! error in api #? ImPlot.LibCImPlot #? no default values
+                ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
                 ImPlot.PlotLine(xs2, ys2, label_id = "x^2")
                 ImPlot.EndPlot()
             end
@@ -486,20 +458,20 @@ function ShowDemoWindow()
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Filled Line Plots")
         @cstatic(
-            xs1 = zeros(Float64, 101), 
-            ys1 = zeros(Float64, 101), 
-            ys2 = zeros(Float64, 101), 
-            ys3 = zeros(Float64, 101), 
+            xs1 = zeros(Float64, 100), 
+            ys1 = zeros(Float64, 100), 
+            ys2 = zeros(Float64, 100), 
+            ys3 = zeros(Float64, 100), 
             show_lines = true, 
             show_fills = true, 
             fill_ref = Float32(0.0),
         begin
             Random.seed!(0)
-            for i = 1:101 
-                xs1[i] = i
-                ys1[i] = rand(400.0 : 0.001 : 450.0)
-                ys2[i] = rand(275.0 : 0.001 : 350.0)
-                ys3[i] = rand(150.0 : 0.001 : 225.0)
+            for i = 1:100 
+                xs1[i] = (i - 1)
+                ys1[i] = 400.0 + rand()*50.0
+                ys2[i] = 275.0 + rand()*75.0
+                ys3[i] = 150.0 + rand()*75.0
             end
 
             @c CImGui.Checkbox("Lines", &show_lines) 
@@ -528,20 +500,20 @@ function ShowDemoWindow()
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Shaded Plots##")
         @cstatic(
-            xs = zeros(Float32, 1001), 
-            ys = zeros(Float32, 1001), 
-            ys1 = zeros(Float32, 1001), 
-            ys2 = zeros(Float32, 1001), 
-            ys3 = zeros(Float32, 1001), 
-            ys4 = zeros(Float32, 1001), 
+            xs  = zeros(Float32, 1000), 
+            ys  = zeros(Float32, 1000), 
+            ys1 = zeros(Float32, 1000), 
+            ys2 = zeros(Float32, 1000), 
+            ys3 = zeros(Float32, 1000), 
+            ys4 = zeros(Float32, 1000), 
             alpha = Float32(0.25),
         begin
             Random.seed!(0)
-            for i = 1:1001
-                xs[i]  = i * 0.001
-                ys[i]  = 0.25 + 0.25 * sin(25 * xs[i]) * sin(5 * xs[i]) + rand(-0.01 : 0.00001 : 0.01)
-                ys1[i] = ys[i] + rand(0.1 : 0.00001 : 0.12)
-                ys2[i] = ys[i] - rand(0.1 : 0.00001 : 0.12)
+            for i = 1:1000
+                xs[i]  = (i - 1) * 0.001
+                ys[i]  = 0.25 + 0.25 * sin(25 * xs[i]) * sin(5 * xs[i]) + (-0.01 + rand()*0.02)
+                ys1[i] = ys[i] + (rand()*.02 + 0.1)
+                ys2[i] = ys[i] - (rand()*.02 + 0.1)
                 ys3[i] = 0.75 + 0.2 * sin(25 * xs[i])
                 ys4[i] = 0.75 + 0.1 * cos(25 * xs[i])
             end
@@ -570,12 +542,12 @@ function ShowDemoWindow()
             ys2 = zeros(Float32, 50),
         begin
             for i = 1:100
-                xs1[i] = i * 0.01
-                ys1[i] = xs1[i] + 0.1 * rand(0 : 0.0001 : 1)
+                xs1[i] = (i - 1) * 0.01
+                ys1[i] = xs1[i] + 0.1 * rand()
             end
             for i = 1:50 
-                xs2[i] = 0.25 + 0.2 * rand(0 : 0.0001 : 1)
-                ys2[i] = 0.75 + 0.2 * rand(0 : 0.0001 : 1)
+                xs2[i] = 0.25 + 0.2 * rand()
+                ys2[i] = 0.75 + 0.2 * rand()
             end
 
             if ImPlot.BeginPlot("Scatter Plot", "", "")
@@ -590,10 +562,10 @@ function ShowDemoWindow()
     end
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Stairstep Plots")
-        @cstatic ys1 = zeros(Float32, 101) ys2 = zeros(Float32, 101) begin
-            for i = 1:101
-                ys1[i] = 0.5 + 0.4 * sin(50 * i * 0.01)
-                ys2[i] = 0.5 + 0.2 * sin(25 * i * 0.01)
+        @cstatic ys1 = zeros(Float32, 100) ys2 = zeros(Float32, 100) begin
+            for i = 1:100
+                ys1[i] = 0.5 + 0.4 * sin(50 * (i - 1) * 0.01)
+                ys2[i] = 0.5 + 0.2 * sin(25 * (i - 1) * 0.01)
             end
             if ImPlot.BeginPlot("Stairstep Plot", "x", "f(x)")
                 ImPlot.PlotStairs(ys1, xscale = 0.01, label_id = "Signal 1")
@@ -654,22 +626,20 @@ function ShowDemoWindow()
             err4  = Float32[0.02, 0.08, 0.15, 0.05, 0.2],
         begin
 
-
          ImPlot.SetNextPlotLimits(0, 6, 0, 10)
          if ImPlot.BeginPlot("##ErrorBars","","")
-            #@info typeof(xs), typeof(bar)
              ImPlot.PlotBars(xs, bar, count = 5, width = 0.5, label_id = "Bar")
              ImPlot.PlotErrorBars(xs, bar, err1, count = 5, label_id = "Bar")
 
-#             ImPlot.SetNextErrorBarStyle(ImPlot.GetColormapColor(1), 0)
+             ImPlot.SetNextErrorBarStyle(ImPlot.GetColormapColor(1), 0)
              ImPlot.PlotErrorBars(xs, lin1, err1, err2, count = 5, label_id = "Line")
              ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
              ImPlot.PlotLine(xs, lin1, count = 5, label_id = "Line")
 
-#             ImPlot.PushStyleColor(ImPlotCol_ErrorBar, ImPlot.GetColormapColor(2))
+             ImPlot.PushStyleColor(ImPlotCol_ErrorBar, ImPlot.GetColormapColor(2))
              ImPlot.PlotErrorBars(xs, lin2, err2, count = 5, label_id = "Scatter")
              ImPlot.PlotErrorBarsH(xs, lin2,  err3, err4, count = 5, label_id = "Scatter")
-#             ImPlot.PopStyleColor()
+             ImPlot.PopStyleColor()
              ImPlot.PlotScatter(xs, lin2, count = 5, label_id = "Scatter")
 
              ImPlot.EndPlot()
@@ -677,20 +647,19 @@ function ShowDemoWindow()
         end) #cstatic 
      end
      if CImGui.CollapsingHeader("Stem Plots##") 
-         @cstatic xs = zeros(Float64, 51) ys1 = zeros(Float64, 51) ys2 = zeros(Float64, 51) begin
-         for i = 1:51
-             xs[i] = i * 0.02
+         @cstatic xs = zeros(Float64, 50) ys1 = zeros(Float64, 50) ys2 = zeros(Float64, 50) begin
+         for i = 1:50
+             xs[i] = (i - 0) * 0.02
              ys1[i] = 1.0 + 0.5 * sin(25*xs[i]) * cos(2*xs[i])
              ys2[i] = 0.5 + 0.25  * sin(10*xs[i]) * sin(xs[i])
          end
          ImPlot.SetNextPlotLimits(0,1,0,1.6)
-         if ImPlot.BeginPlot("Stem Plots", "", "") #? no default size 
+         if ImPlot.BeginPlot("Stem Plots")
 
-             ImPlot.PlotStems(xs, ys1, count = 51, label_id = "Stems 1")
-
+             ImPlot.PlotStems(xs, ys1, count = 50, label_id = "Stems 1")
              ImPlot.SetNextLineStyle(ImVec4(1,0.5,0,0.75))
              ImPlot.SetNextMarkerStyle(ImPlotMarker_Square,5,ImVec4(1,0.5,0,0.25))
-             ImPlot.PlotStems(xs, ys2, count = 51, label_id = "Stems 2")
+             ImPlot.PlotStems(xs, ys2, count = 50, label_id = "Stems 2")
 
              ImPlot.EndPlot()
          end
@@ -769,9 +738,10 @@ function ShowDemoWindow()
          CImGui.SetNextItemWidth(225)
          @c CImGui.DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01, -20, 20)
 
-#         ImPlot.PushColormap(map)
+         ImPlot.PushColormap(map)
          ImPlot.SetNextPlotTicksX(0 + 1.0/14.0, 1 - 1.0/14.0, 7, labels = xlabels)
          ImPlot.SetNextPlotTicksY(1 - 1.0/14.0, 0 + 1.0/14.0, 7, labels = ylabels)
+
          if ImPlot.BeginPlot("##Heatmap1",C_NULL,C_NULL,ImVec2(225,225),
             flags = ImPlotFlags_NoLegend | ImPlotFlags_NoMousePos,
             x_flags = axes_flags, y_flags = axes_flags)
@@ -779,17 +749,16 @@ function ShowDemoWindow()
              ImPlot.PlotHeatmap(values1, 7, 7, scale_min, scale_max, label_id = "heat")
              ImPlot.EndPlot()
          end
-#         CImGui.SameLine()
-#         ImPlot.ShowColormapScale(scale_min, scale_max, 225)
-#         ImPlot.PopColormap()
+
+         CImGui.SameLine()
+         ImPlot.ShowColormapScale(scale_min, scale_max, 225)
+         ImPlot.PopColormap()
 
          CImGui.SameLine()
          
-         #Random.seed!(DEMO_TIME*1000000)
-         for i = 1:100*100
-             values2[i] = rand(0 : 0.0001 : 1) # alternatively, just: values2 .= rand(100,100)
-         end
-#         ImPlot.PushColormap(gray, 2)
+         values2 .= rand(100*100)
+
+         ImPlot.PushColormap(gray, 2)
          ImPlot.SetNextPlotLimits(-1,1,-1,1)
          if ImPlot.BeginPlot("##Heatmap2",C_NULL,C_NULL, ImVec2(225,225),
              x_flags = ImPlot.ImPlotAxisFlags_NoDecorations,
@@ -801,7 +770,7 @@ function ShowDemoWindow()
                                 bounds_max = ImPlot.ImPlotPoint(0,0))
              ImPlot.EndPlot()
          end
-#         ImPlot.PopColormap()
+         ImPlot.PopColormap()
         end) # cstatic
      end
     #-------------------------------------------------------------------------
@@ -862,7 +831,7 @@ function ShowDemoWindow()
             ImPlot.SetNextPlotLimitsX(t - history, t, ImGuiCond_Always)
             #? tried to use CircularBuffer here from DataStructures.jl, but it can't be properly passed into PlotLine functions...
             if ImPlot.BeginPlot("##Scrolling", C_NULL, C_NULL, ImVec2(-1,150);
-                flags = 0, #? IMPLOT_AUTO ?
+                flags = IMPLOT_AUTO,
                 x_flags = rt_axis, 
                 y_flags = rt_axis | ImPlotAxisFlags_LockMin
             )
@@ -900,8 +869,8 @@ function ShowDemoWindow()
 
             ImPlot.SetNextPlotLimits(0, 10, 0, 12)
             if ImPlot.BeginPlot("##MarkerStyles"; flags = ImPlotFlags_CanvasOnly, x_flags = ImPlotAxisFlags_NoDecorations, y_flags = ImPlotAxisFlags_NoDecorations)
-                xs = ImS8[1,4]
-                ys = ImS8[10,11]
+                xs = Int8[1,4]
+                ys = Int8[10,11]
 
                 # filled markers
                 for m = 1:ImPlotMarker_COUNT 
@@ -1114,8 +1083,8 @@ function ShowDemoWindow()
     if CImGui.CollapsingHeader("Querying")
         @cstatic(
             data = ImPlotPoint[],
-            range = ImPlotLimits(ImPlotRange(0,0), ImPlotRange(0,0)), #? maybe add constructor with default values? 
-            query = ImPlotLimits(ImPlotRange(0,0), ImPlotRange(0,0)),
+            range = ImPlotLimits(), #? maybe add constructor with default values? 
+            query = ImPlotLimits(),
         begin 
 
             CImGui.BulletText("Ctrl + click in the plot area to draw points.")
@@ -1139,17 +1108,15 @@ function ShowDemoWindow()
                     cnt = 0
                     # FIXME: This doesn't work because of now immutable ImPlotPoint -- use
                     # SetField instead ? 
-                    avg = ImPlotPoint(0,0)
+                    avg = ImPlotPoint()
                     for i = 1:length(data)
                         if ImPlot.Contains(range2, data[i].x, data[i].y)
-                            avg.x += data[i].x
-                            avg.y += data[i].y
+                            avg = ImPlotPoint(avg.x + data[i].x, avg.y + data[i].y)
                             cnt+=1
                         end
                     end
                     if cnt > 0
-                        avg.x = avg.x / cnt
-                        avg.y = avg.y / cnt
+                        avg = ImPlotPoint(avg.x / cnt, avg.y / cnt)
                         ImPlot.SetNextMarkerStyle(ImPlotMarker_Square)
                         ImPlot.PlotScatter([avg.x], [avg.y], label_id = "Average")
                     end
@@ -1264,7 +1231,7 @@ function ShowDemoWindow()
                   f = 0.1,
                   show_labels = true,
                   clamp = false,
-
+                  P = ImPlotPoint[ImPlotPoint(.05,.05), ImPlotPoint(0.2,0.4),  ImPlotPoint(0.8,0.6),  ImPlotPoint(.95,.95)],
                   B = Vector{ImPlotPoint}(undef, 100),
                   begin
 
@@ -1305,8 +1272,8 @@ function ShowDemoWindow()
                  w2 = 3*u*u*t
                  w3 = 3*u*t*t
                  w4 = t*t*t
-                 B[i] = ImPlotPoint(w1*BEZIER_P[1].x + w2*BEZIER_P[2].x + w3*BEZIER_P[3].x + w4*BEZIER_P[4].x,
-                                    w1*BEZIER_P[1].y + w2*BEZIER_P[2].y + w3*BEZIER_P[3].y + w4*BEZIER_P[4].y)
+                 B[i] = ImPlotPoint(w1*P[1].x + w2*P[2].x + w3*P[3].x + w4*P[4].x,
+                                    w1*P[1].y + w2*P[2].y + w3*P[3].y + w4*P[4].y)
              end
              yoff = fieldoffset(ImPlotPoint, 2)
 
@@ -1315,18 +1282,18 @@ function ShowDemoWindow()
              ImPlot.PlotLine("##bez", Ptr{Float64}(pointer(B)), Ptr{Float64}(pointer(B) + yoff), 100, 0, sizeof(ImPlotPoint))
 
              ImPlot.SetNextLineStyle(ImVec4(1,0.5,1,1))
-             ImPlot.PlotLine("##h1", Ptr{Float64}(pointer(BEZIER_P)), Ptr{Float64}(pointer(BEZIER_P) + yoff), 2, 0, sizeof(ImPlotPoint))
+             ImPlot.PlotLine("##h1", Ptr{Float64}(pointer(P)), Ptr{Float64}(pointer(P) + yoff), 2, 0, sizeof(ImPlotPoint))
 
              ImPlot.SetNextLineStyle(ImVec4(0,0.5,1,1))
-             ImPlot.PlotLine("##h2", Ptr{Float64}(pointer(BEZIER_P,3)), Ptr{Float64}(pointer(BEZIER_P,3) + yoff), 2, 0, sizeof(ImPlotPoint))
+             ImPlot.PlotLine("##h2", Ptr{Float64}(pointer(P,3)), Ptr{Float64}(pointer(P,3) + yoff), 2, 0, sizeof(ImPlotPoint))
 
-             ImPlot.DragPoint("P0", Ptr{Float64}(pointer(BEZIER_P)), Ptr{Float64}(pointer(BEZIER_P) + yoff), show_labels, ImVec4(0,0.9,0,1))
+             ImPlot.DragPoint("P0", Ptr{Float64}(pointer(P)), Ptr{Float64}(pointer(P) + yoff), show_labels, ImVec4(0,0.9,0,1))
 
-             ImPlot.DragPoint("P1", Ptr{Float64}(pointer(BEZIER_P, 2)), Ptr{Float64}(pointer(BEZIER_P,2) + yoff), show_labels, ImVec4(1,0.5,1,1))
+             ImPlot.DragPoint("P1", Ptr{Float64}(pointer(P, 2)), Ptr{Float64}(pointer(P,2) + yoff), show_labels, ImVec4(1,0.5,1,1))
 
-             ImPlot.DragPoint("P2", Ptr{Float64}(pointer(BEZIER_P,3)), Ptr{Float64}(pointer(BEZIER_P,3) + yoff), show_labels, ImVec4(0,0.5,1,1))
+             ImPlot.DragPoint("P2", Ptr{Float64}(pointer(P,3)), Ptr{Float64}(pointer(P,3) + yoff), show_labels, ImVec4(0,0.5,1,1))
 
-             ImPlot.DragPoint("P3", Ptr{Float64}(pointer(BEZIER_P,4)), Ptr{Float64}(pointer(BEZIER_P,4) + yoff), show_labels, ImVec4(0,0.9,0,1))
+             ImPlot.DragPoint("P3", Ptr{Float64}(pointer(P,4)), Ptr{Float64}(pointer(P,4) + yoff), show_labels, ImVec4(0,0.9,0,1))
 
              ImPlot.EndPlot()
          end 
@@ -1334,38 +1301,6 @@ function ShowDemoWindow()
      end
 #= We need to make vararg wrappers for Annotate functions for this to work (not
 # automatically wrapped by Clang.jl but possible to use!
-
-             ImPlot.PlotLine("##bez",
-                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(B[1])),
-                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(B[1]) + yoff), 100, 0, sizeof(ImPlotPoint)*2)
-
-             ImPlot.SetNextLineStyle(ImVec4(1,0.5,1,1))
-             ImPlot.PlotLine("##h1",
-                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1])),
-                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1]) + yoff), 2, 0, sizeof(ImPlotPoint)*2)
-
-             ImPlot.SetNextLineStyle(ImVec4(0,0.5,1,1))
-             ImPlot.PlotLine("##h2",
-                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3])),
-                             Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3]) + yoff), 2, 0, sizeof(ImPlotPoint)*2)
-
-             ImPlot.DragPoint("P0", 
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1])),  
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[1]) + yoff), show_labels, ImVec4(0,0.9,0,1))
-
-             ImPlot.DragPoint("P1",
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[2])),
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[2]) + yoff), show_labels, ImVec4(1,0.5,1,1))
-
-             ImPlot.DragPoint("P2",
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3])),
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[3]) + yoff), show_labels, ImVec4(0,0.5,1,1))
-
-             ImPlot.DragPoint("P3",
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[4])),
-                              Base.unsafe_convert(Ptr{Float64}, pointer_from_objref(BEZIER_P[4]) + yoff), show_labels, ImVec4(0,0.9,0,1))
-
-
      if CImGui.CollapsingHeader("Annotations")
          @cstatic(
                   p = Float32[0.25, 0.25, 0.75, 0.75, 0.25],
@@ -1484,7 +1419,7 @@ function ShowDemoWindow()
                         yAxis[i] = 0
                         # set specific y-axis if hovered
                         for y = 0:2 #? 1:3 
-                            if IsPlotYAxisHovered(y)
+                            if ImPlot.IsPlotYAxisHovered(y)
                                 yAxis[i] = y
                             end
                         end
@@ -1720,7 +1655,7 @@ if CImGui.CollapsingHeader("Offset and Stride")
         @c CImGui.SliderInt("Offset", &offset, -2*k_points_per, 2*k_points_per)
         if ImPlot.BeginPlot("##strideoffset")
             ImPlot.PushColormap(ImPlotColormap_Jet)
-            for c = 0:k_circles-1 #? 1:k_circles
+            for c = 0:k_circles-1
                 buff = "Circle $c"
                 ImPlot.PlotLine(buff, Ref(interleaved_data, c*2 + 1), Ref(interleaved_data, c*2 + 2), k_points_per, offset, 2*k_circles*sizeof(Float64))
             end
@@ -1878,7 +1813,33 @@ end
 #     #-------------------------------------------------------------------------
 #     if CImGui.CollapsingHeader("Custom Plotters and Tooltips")) 
 #         CImGui.BulletText("You can create custom plotters or extend ImPlot using implot_internal.h.")
-# 		dates  = [1546300800,1546387200,1546473600,1546560000,1546819200,1546905600,1546992000,1547078400,1547164800,1547424000,1547510400,1547596800,1547683200,1547769600,1547942400,1548028800,1548115200,1548201600,1548288000,1548374400,1548633600,1548720000,1548806400,1548892800,1548979200,1549238400,1549324800,1549411200,1549497600,1549584000,1549843200,1549929600,1550016000,1550102400,1550188800,1550361600,1550448000,1550534400,1550620800,1550707200,1550793600,1551052800,1551139200,1551225600,1551312000,1551398400,1551657600,1551744000,1551830400,1551916800,1552003200,1552262400,1552348800,1552435200,1552521600,1552608000,1552867200,1552953600,1553040000,1553126400,1553212800,1553472000,1553558400,1553644800,1553731200,1553817600,1554076800,1554163200,1554249600,1554336000,1554422400,1554681600,1554768000,1554854400,1554940800,1555027200,1555286400,1555372800,1555459200,1555545600,1555632000,1555891200,1555977600,1556064000,1556150400,1556236800,1556496000,1556582400,1556668800,1556755200,1556841600,1557100800,1557187200,1557273600,1557360000,1557446400,1557705600,1557792000,1557878400,1557964800,1558051200,1558310400,1558396800,1558483200,1558569600,1558656000,1558828800,1558915200,1559001600,1559088000,1559174400,1559260800,1559520000,1559606400,1559692800,1559779200,1559865600,1560124800,1560211200,1560297600,1560384000,1560470400,1560729600,1560816000,1560902400,1560988800,1561075200,1561334400,1561420800,1561507200,1561593600,1561680000,1561939200,1562025600,1562112000,1562198400,1562284800,1562544000,1562630400,1562716800,1562803200,1562889600,1563148800,1563235200,1563321600,1563408000,1563494400,1563753600,1563840000,1563926400,1564012800,1564099200,1564358400,1564444800,1564531200,1564617600,1564704000,1564963200,1565049600,1565136000,1565222400,1565308800,1565568000,1565654400,1565740800,1565827200,1565913600,1566172800,1566259200,1566345600,1566432000,1566518400,1566777600,1566864000,1566950400,1567036800,1567123200,1567296000,1567382400,1567468800,1567555200,1567641600,1567728000,1567987200,1568073600,1568160000,1568246400,1568332800,1568592000,1568678400,1568764800,1568851200,1568937600,1569196800,1569283200,1569369600,1569456000,1569542400,1569801600,1569888000,1569974400,1570060800,1570147200,1570406400,1570492800,1570579200,1570665600,1570752000,1571011200,1571097600,1571184000,1571270400,1571356800,1571616000,1571702400,1571788800,1571875200,1571961600]
+#= #         
+dates  =
+[1546300800,1546387200,1546473600,1546560000,1546819200,1546905600,1546992000,1547078400,
+ 1547164800,1547424000,1547510400,1547596800,1547683200,1547769600,1547942400,1548028800,
+ 1548115200,1548201600,1548288000,1548374400,1548633600,1548720000,1548806400,1548892800,
+ 1548979200,1549238400,1549324800,1549411200,1549497600,1549584000,1549843200,1549929600,
+ 1550016000,1550102400,1550188800,1550361600,1550448000,1550534400,1550620800,1550707200,
+ 1550793600,1551052800,1551139200,1551225600,1551312000,1551398400,1551657600,1551744000,
+ 1551830400,1551916800,1552003200,1552262400,1552348800,1552435200,1552521600,1552608000,
+ 1552867200,1552953600,1553040000,1553126400,1553212800,1553472000,1553558400,1553644800,
+ 1553731200,1553817600,1554076800,1554163200,1554249600,1554336000,1554422400,1554681600,
+ 1554768000,1554854400,1554940800,1555027200,1555286400,1555372800,1555459200,1555545600,
+ 1555632000,1555891200,1555977600,1556064000,1556150400,1556236800,1556496000,1556582400,
+ 1556668800,1556755200,1556841600,1557100800,1557187200,1557273600,1557360000,1557446400,
+ 1557705600,1557792000,1557878400,1557964800,1558051200,1558310400,1558396800,1558483200,
+ 1558569600,1558656000,1558828800,1558915200,1559001600,1559088000,1559174400,1559260800,
+ 1559520000,1559606400,1559692800,1559779200,1559865600,1560124800,1560211200,1560297600,
+ 1560384000,1560470400,1560729600,1560816000,1560902400,1560988800,1561075200,1561334400,
+ 1561420800,1561507200,1561593600,1561680000,1561939200,1562025600,1562112000,1562198400,
+ 1562284800,1562544000,1562630400,1562716800,1562803200,1562889600,1563148800,1563235200,
+ 1563321600,1563408000,1563494400,1563753600,1563840000,1563926400,1564012800,1564099200,
+ 1564358400,1564444800,1564531200,1564617600,1564704000,1564963200,1565049600,1565136000,
+ 1565222400,1565308800,1565568000,1565654400,1565740800,1565827200,1565913600,1566172800,
+ 1566259200,1566345600,1566432000,1566518400,1566777600,1566864000,1566950400,1567036800,
+ 1567123200,1567296000,1567382400,1567468800,1567555200,1567641600,1567728000,1567987200,
+ 1568073600,1568160000,1568246400,1568332800,1568592000,1568678400,1568764800,1568851200,
+ 1568937600,1569196800,1569283200,1569369600,1569456000,1569542400,1569801600,1569888000,569974400,1570060800,1570147200,1570406400,1570492800,1570579200,1570665600,1570752000,1571011200,1571097600,1571184000,1571270400,1571356800,1571616000,1571702400,1571788800,1571875200,1571961600]
 # 		opens  = [1284.7,1319.9,1318.7,1328,1317.6,1321.6,1314.3,1325,1319.3,1323.1,1324.7,1321.3,1323.5,1322,1281.3,1281.95,1311.1,1315,1314,1313.1,1331.9,1334.2,1341.3,1350.6,1349.8,1346.4,1343.4,1344.9,1335.6,1337.9,1342.5,1337,1338.6,1337,1340.4,1324.65,1324.35,1349.5,1371.3,1367.9,1351.3,1357.8,1356.1,1356,1347.6,1339.1,1320.6,1311.8,1314,1312.4,1312.3,1323.5,1319.1,1327.2,1332.1,1320.3,1323.1,1328,1330.9,1338,1333,1335.3,1345.2,1341.1,1332.5,1314,1314.4,1310.7,1314,1313.1,1315,1313.7,1320,1326.5,1329.2,1314.2,1312.3,1309.5,1297.4,1293.7,1277.9,1295.8,1295.2,1290.3,1294.2,1298,1306.4,1299.8,1302.3,1297,1289.6,1302,1300.7,1303.5,1300.5,1303.2,1306,1318.7,1315,1314.5,1304.1,1294.7,1293.7,1291.2,1290.2,1300.4,1284.2,1284.25,1301.8,1295.9,1296.2,1304.4,1323.1,1340.9,1341,1348,1351.4,1351.4,1343.5,1342.3,1349,1357.6,1357.1,1354.7,1361.4,1375.2,1403.5,1414.7,1433.2,1438,1423.6,1424.4,1418,1399.5,1435.5,1421.25,1434.1,1412.4,1409.8,1412.2,1433.4,1418.4,1429,1428.8,1420.6,1441,1460.4,1441.7,1438.4,1431,1439.3,1427.4,1431.9,1439.5,1443.7,1425.6,1457.5,1451.2,1481.1,1486.7,1512.1,1515.9,1509.2,1522.3,1513,1526.6,1533.9,1523,1506.3,1518.4,1512.4,1508.8,1545.4,1537.3,1551.8,1549.4,1536.9,1535.25,1537.95,1535.2,1556,1561.4,1525.6,1516.4,1507,1493.9,1504.9,1506.5,1513.1,1506.5,1509.7,1502,1506.8,1521.5,1529.8,1539.8,1510.9,1511.8,1501.7,1478,1485.4,1505.6,1511.6,1518.6,1498.7,1510.9,1510.8,1498.3,1492,1497.7,1484.8,1494.2,1495.6,1495.6,1487.5,1491.1,1495.1,1506.4]
 # 		highs  = [1284.75,1320.6,1327,1330.8,1326.8,1321.6,1326,1328,1325.8,1327.1,1326,1326,1323.5,1322.1,1282.7,1282.95,1315.8,1316.3,1314,1333.2,1334.7,1341.7,1353.2,1354.6,1352.2,1346.4,1345.7,1344.9,1340.7,1344.2,1342.7,1342.1,1345.2,1342,1350,1324.95,1330.75,1369.6,1374.3,1368.4,1359.8,1359,1357,1356,1353.4,1340.6,1322.3,1314.1,1316.1,1312.9,1325.7,1323.5,1326.3,1336,1332.1,1330.1,1330.4,1334.7,1341.1,1344.2,1338.8,1348.4,1345.6,1342.8,1334.7,1322.3,1319.3,1314.7,1316.6,1316.4,1315,1325.4,1328.3,1332.2,1329.2,1316.9,1312.3,1309.5,1299.6,1296.9,1277.9,1299.5,1296.2,1298.4,1302.5,1308.7,1306.4,1305.9,1307,1297.2,1301.7,1305,1305.3,1310.2,1307,1308,1319.8,1321.7,1318.7,1316.2,1305.9,1295.8,1293.8,1293.7,1304.2,1302,1285.15,1286.85,1304,1302,1305.2,1323,1344.1,1345.2,1360.1,1355.3,1363.8,1353,1344.7,1353.6,1358,1373.6,1358.2,1369.6,1377.6,1408.9,1425.5,1435.9,1453.7,1438,1426,1439.1,1418,1435,1452.6,1426.65,1437.5,1421.5,1414.1,1433.3,1441.3,1431.4,1433.9,1432.4,1440.8,1462.3,1467,1443.5,1444,1442.9,1447,1437.6,1440.8,1445.7,1447.8,1458.2,1461.9,1481.8,1486.8,1522.7,1521.3,1521.1,1531.5,1546.1,1534.9,1537.7,1538.6,1523.6,1518.8,1518.4,1514.6,1540.3,1565,1554.5,1556.6,1559.8,1541.9,1542.9,1540.05,1558.9,1566.2,1561.9,1536.2,1523.8,1509.1,1506.2,1532.2,1516.6,1519.7,1515,1519.5,1512.1,1524.5,1534.4,1543.3,1543.3,1542.8,1519.5,1507.2,1493.5,1511.4,1525.8,1522.2,1518.8,1515.3,1518,1522.3,1508,1501.5,1503,1495.5,1501.1,1497.9,1498.7,1492.1,1499.4,1506.9,1520.9]
 # 		lows   = [1282.85,1315,1318.7,1309.6,1317.6,1312.9,1312.4,1319.1,1319,1321,1318.1,1321.3,1319.9,1312,1280.5,1276.15,1308,1309.9,1308.5,1312.3,1329.3,1333.1,1340.2,1347,1345.9,1338,1340.8,1335,1332,1337.9,1333,1336.8,1333.2,1329.9,1340.4,1323.85,1324.05,1349,1366.3,1351.2,1349.1,1352.4,1350.7,1344.3,1338.9,1316.3,1308.4,1306.9,1309.6,1306.7,1312.3,1315.4,1319,1327.2,1317.2,1320,1323,1328,1323,1327.8,1331.7,1335.3,1336.6,1331.8,1311.4,1310,1309.5,1308,1310.6,1302.8,1306.6,1313.7,1320,1322.8,1311,1312.1,1303.6,1293.9,1293.5,1291,1277.9,1294.1,1286,1289.1,1293.5,1296.9,1298,1299.6,1292.9,1285.1,1288.5,1296.3,1297.2,1298.4,1298.6,1302,1300.3,1312,1310.8,1301.9,1292,1291.1,1286.3,1289.2,1289.9,1297.4,1283.65,1283.25,1292.9,1295.9,1290.8,1304.2,1322.7,1336.1,1341,1343.5,1345.8,1340.3,1335.1,1341.5,1347.6,1352.8,1348.2,1353.7,1356.5,1373.3,1398,1414.7,1427,1416.4,1412.7,1420.1,1396.4,1398.8,1426.6,1412.85,1400.7,1406,1399.8,1404.4,1415.5,1417.2,1421.9,1415,1413.7,1428.1,1434,1435.7,1427.5,1429.4,1423.9,1425.6,1427.5,1434.8,1422.3,1412.1,1442.5,1448.8,1468.2,1484.3,1501.6,1506.2,1498.6,1488.9,1504.5,1518.3,1513.9,1503.3,1503,1506.5,1502.1,1503,1534.8,1535.3,1541.4,1528.6,1525.6,1535.25,1528.15,1528,1542.6,1514.3,1510.7,1505.5,1492.1,1492.9,1496.8,1493.1,1503.4,1500.9,1490.7,1496.3,1505.3,1505.3,1517.9,1507.4,1507.1,1493.3,1470.5,1465,1480.5,1501.7,1501.4,1493.3,1492.1,1505.1,1495.7,1478,1487.1,1480.8,1480.6,1487,1488.3,1484.8,1484,1490.7,1490.4,1503.1]
@@ -1898,6 +1859,7 @@ end
 #         end
 #     end
     #-------------------------------------------------------------------------
+    =#
     CImGui.End()
 
 end

@@ -15,3 +15,11 @@ end
 function PushStyleVar(idx, val::Integer)
     LibCImPlot.PushStyleVarInt(idx, Cint(val))
 end
+
+function PopStyleColor(count::Integer = 1)
+    LibCImPlot.PopStyleColor(count)
+end
+
+function PopStyleVar(count::Integer = 1)
+    LibCImPlot.PopStyleVar(count)
+end
