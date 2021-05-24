@@ -6,7 +6,7 @@ import .LibCImPlot:
     GetLastItemColor,
     NextColormapColor
     
-function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
+function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer,
                            labels::Vector{String} = [""], show_default::Bool = false)
 
     eltype(values) !== Float64 && (values = Float64.(values))
@@ -14,7 +14,7 @@ function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer;
     LibCImPlot.SetNextPlotTicksXdoublePtr(values, Cint(n_ticks), labels, show_default) 
 end
 
-function SetNextPlotTicksX(x_min, x_max, n_ticks::Integer;
+function SetNextPlotTicksX(x_min, x_max, n_ticks::Integer,
                            labels::Vector{String} = [""], show_default::Bool = false)
     
     typeof(x_min) !== Float64 && (x_min = Float64(x_min))
@@ -23,7 +23,7 @@ function SetNextPlotTicksX(x_min, x_max, n_ticks::Integer;
     LibCImPlot.SetNextPlotTicksXdouble(x_min, x_max, Cint(n_ticks), labels, show_default)
 end
 
-function SetNextPlotTicksY(values::Vector{<:Real}, n_ticks::Integer;
+function SetNextPlotTicksY(values::Vector{<:Real}, n_ticks::Integer,
                            labels::Vector{String} = [""], show_default::Bool = false,
                            y_axis::Integer = 0)
 
@@ -33,7 +33,7 @@ function SetNextPlotTicksY(values::Vector{<:Real}, n_ticks::Integer;
                                           Cint(y_axis))
 end
 
-function SetNextPlotTicksY(y_min, y_max, n_ticks::Integer;
+function SetNextPlotTicksY(y_min, y_max, n_ticks::Integer,
                            labels::Vector{String} = [""], show_default::Bool = false,
                            y_axis::Integer = 0)
 
