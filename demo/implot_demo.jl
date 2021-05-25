@@ -985,7 +985,7 @@ function ShowDemoWindow()
                 y_now = Huge.GetY(t_now)
                 ImPlot.PlotScatter([t_now], [y_now], label_id = "Now")
                 
-                # ImPlot.Annotate(t_now,y_now,ImVec2(10,10),ImPlot.GetLastItemColor(),"Now") #! missing Annotate from api
+                ImPlot.Annotate(t_now,y_now,ImVec2(10,10),ImPlot.GetLastItemColor(),"Now")
                 ImPlot.EndPlot()
             end
         end)
@@ -1300,22 +1300,20 @@ function ShowDemoWindow()
          end 
      end) # cstatic
      end
-#= We need to make vararg wrappers for Annotate functions for this to work (not
-# automatically wrapped by Clang.jl but possible to use!
      if CImGui.CollapsingHeader("Annotations")
          @cstatic(
                   p = Float32[0.25, 0.25, 0.75, 0.75, 0.25],
                   clamp = false,
                   begin
 
-         CImGui.Checkbox("Clamp",&clamp)
+         @c CImGui.Checkbox("Clamp", &clamp)
          ImPlot.SetNextPlotLimits(0,2,0,1)
 
          if ImPlot.BeginPlot("##Annotations")
 
-             ImPlot.PlotScatter("##Points", &p[1], &p[2], 4)
+             ImPlot.PlotScatter("##Points", p, Ref(p,2), 4)
 
-             ImVec4 col = GetLastItemColor()
+             col = ImPlot.GetLastItemColor()
 
              clamp ? ImPlot.AnnotateClamped(0.25,0.25,ImVec2(-15,15),col,"BL") : ImPlot.Annotate(0.25,0.25,ImVec2(-15,15),col,"BL")
              clamp ? ImPlot.AnnotateClamped(0.75,0.25,ImVec2(15,15),col,"BR") : ImPlot.Annotate(0.75,0.25,ImVec2(15,15),col,"BR")
@@ -1327,17 +1325,13 @@ function ShowDemoWindow()
              by = Float32[0.25, 0.5, 0.75]
 
              ImPlot.PlotBars("##Bars",bx,by,3,0.2)
-
              for i = 1:3
-                 ImPlot.Annotate(bx[i],by[i],ImVec2(0,-5),"B[%d]=%.2f",i,by[i])
+                 ImPlot.Annotate(bx[i],by[i],ImVec2(0,-5),@sprintf("B[%d]=%.2f",i,by[i]))
              end
-
              ImPlot.EndPlot()
          end
-     end)
+     end) # cstatic
      end
-=#
-
      #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Drag and Drop") #! this section is reworked in upstream versions
         Random.seed!(trunc(Int, 10000000 * DEMO_TIME))
