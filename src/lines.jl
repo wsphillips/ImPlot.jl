@@ -88,3 +88,6 @@ function PlotLine(
 
     LibCImPlot.PlotLine(label_id, x, y, count, offset, stride)
 end
+
+PlotLineG(label_id, getter, data, count, offset = 0) =
+LibCImPlot.PlotLineG(label_id, getter, data, count, offset)

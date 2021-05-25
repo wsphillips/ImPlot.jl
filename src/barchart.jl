@@ -75,3 +75,5 @@ function PlotBarsH(x::AbstractArray{T1}, y::AbstractArray{T2};
     PlotBarsH(promote(x, y)..., kwargs...)
 end
 
+PlotBarsG(label_id, getter, data, count, width, offset = 0) =
+LibCImPlot.PlotBarsG(label_id, getter, data, count, offset)

@@ -20,8 +20,8 @@ using ImPlot
 # Encapsulates examples for customizing ImPlot.
 module MyImPlot
 
-using CImGui, ImPlot
-import CImGui.ImVec4
+using CImGui, ImPlot, Setfield
+import CImGui: ImVec4, ImVec2
 
 # Example for Custom Data and Getters section.
 struct Vector2f
@@ -35,28 +35,6 @@ struct WaveData
     amp::Float64
     freq::Float64
     offset::Float64
-end
-
-function _SineWave(wd::WaveData, len::Int)
-    xs = Vector{Float64}(undef, len)
-    ys = Vector{Float64}(undef, len)
-    for i = 1:len
-        x = i * wd.x
-        ys[i] = wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x)
-        xs[i] = x
-    end
-    return xs, ys
-end
-
-function _SawWave(wd::WaveData, len::Int)
-    xs = Vector{Float64}(undef, len)
-    ys = Vector{Float64}(undef, len)
-    for i = 1:len
-        x = i * wd.x
-        ys[i] = wd.offset + wd.amp * (-2 / 3.14 * atan(cos(3.14 * wd.freq * x) / sin(3.14 * wd.freq * x)))
-        xs[i] = x
-    end
-    return xs, ys
 end
 
 function SineWave(wd::WaveData, idx::Cint)::ImPlotPoint
@@ -208,30 +186,30 @@ function StyleSeaborn()
 
     style  = unsafe_load(ImPlot.GetStyle())
 
-    style.Colors[ImPlotCol_Line]          = IMPLOT_AUTO_COL
-    style.Colors[ImPlotCol_Fill]          = IMPLOT_AUTO_COL
-    style.Colors[ImPlotCol_MarkerOutline] = IMPLOT_AUTO_COL
-    style.Colors[ImPlotCol_MarkerFill]    = IMPLOT_AUTO_COL
-    style.Colors[ImPlotCol_ErrorBar]      = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_FrameBg]       = ImVec4(1.00, 1.00, 1.00, 1.00)
-    style.Colors[ImPlotCol_PlotBg]        = ImVec4(0.92, 0.92, 0.95, 1.00)
-    style.Colors[ImPlotCol_PlotBorder]    = ImVec4(0.00, 0.00, 0.00, 0.00)
-    style.Colors[ImPlotCol_LegendBg]      = ImVec4(0.92, 0.92, 0.95, 1.00)
-    style.Colors[ImPlotCol_LegendBorder]  = ImVec4(0.80, 0.81, 0.85, 1.00)
-    style.Colors[ImPlotCol_LegendText]    = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_TitleText]     = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_InlayText]     = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_XAxis]         = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_XAxisGrid]     = ImVec4(1.00, 1.00, 1.00, 1.00)
-    style.Colors[ImPlotCol_YAxis]         = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_YAxisGrid]     = ImVec4(1.00, 1.00, 1.00, 1.00)
-    style.Colors[ImPlotCol_YAxis2]        = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_YAxisGrid2]    = ImVec4(1.00, 1.00, 1.00, 1.00)
-    style.Colors[ImPlotCol_YAxis3]        = ImVec4(0.00, 0.00, 0.00, 1.00)
-    style.Colors[ImPlotCol_YAxisGrid3]    = ImVec4(1.00, 1.00, 1.00, 1.00)
-    style.Colors[ImPlotCol_Selection]     = ImVec4(1.00, 0.65, 0.00, 1.00)
-    style.Colors[ImPlotCol_Query]         = ImVec4(0.23, 0.10, 0.64, 1.00)
-    style.Colors[ImPlotCol_Crosshairs]    = ImVec4(0.23, 0.10, 0.64, 0.50)
+    @set style.Colors[1 + Int(ImPlotCol_Line)]          = IMPLOT_AUTO_COL
+    @set style.Colors[1 + Int(ImPlotCol_Fill)]          = IMPLOT_AUTO_COL
+    @set style.Colors[1 + Int(ImPlotCol_MarkerOutline)] = IMPLOT_AUTO_COL
+    @set style.Colors[1 + Int(ImPlotCol_MarkerFill)]    = IMPLOT_AUTO_COL
+    @set style.Colors[1 + Int(ImPlotCol_ErrorBar)]      = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_FrameBg)]       = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_PlotBg)]        = ImVec4(0.92, 0.92, 0.95, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_PlotBorder)]    = ImVec4(0.00, 0.00, 0.00, 0.00)
+    @set style.Colors[1 + Int(ImPlotCol_LegendBg)]      = ImVec4(0.92, 0.92, 0.95, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_LegendBorder)]  = ImVec4(0.80, 0.81, 0.85, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_LegendText)]    = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_TitleText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_InlayText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_XAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_XAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_YAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_YAxis2)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid2)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_YAxis3)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid3)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_Selection)]     = ImVec4(1.00, 0.65, 0.00, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_Query)]         = ImVec4(0.23, 0.10, 0.64, 1.00)
+    @set style.Colors[1 + Int(ImPlotCol_Crosshairs)]    = ImVec4(0.23, 0.10, 0.64, 0.50)
 
     style.LineWeight       = 1.5
     style.Marker           = ImPlotMarker_None
@@ -255,6 +233,8 @@ function StyleSeaborn()
     style.LegendPadding    = ImVec2(5,5)
     style.MousePosPadding  = ImVec2(5,5)
     style.PlotMinSize      = ImVec2(300,225)
+
+    unsafe_store!(ImPlot.GetStyle(), style)
 end
 
 end # module MyImPlot
@@ -1183,25 +1163,24 @@ function ShowDemoWindow()
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Legend")
         @cstatic(
+            # FIXME: Check if something simpler can be used with CheckboxFlags
             loc = Ref(Cint(ImPlotLocation_East)),
             h = false,
             o = true,
-            #!!! in Julia we cannot reproduce custom getters
-            xy1 = MyImPlot._SineWave(MyImPlot.WaveData(0.001, 0.2, 2, 0.75), 1000),
-            xy2 = MyImPlot._SawWave(MyImPlot.WaveData(0.001, 0.2, 4, 0.25), 1000),
-            xy3 = MyImPlot._SawWave(MyImPlot.WaveData(0.001, 0.2, 6, 0.5), 1000),
-            xy4 = MyImPlot._SineWave(MyImPlot.WaveData(0.001, 0.2, 2, 0.75), 1000),
-            xy5 = MyImPlot._SawWave(MyImPlot.WaveData(0.001, 0.2, 4, 0.25), 1000),
+            data1 = Ref(MyImPlot.WaveData(0.001, 0.2, 2, 0.75)),
+            data2 = Ref(MyImPlot.WaveData(0.001, 0.2, 4, 0.25)),
+            data3 = Ref(MyImPlot.WaveData(0.001, 0.2, 6, 0.5)),
         begin
 
-            CImGui.CheckboxFlags("North", loc, ImPlotLocation_North); CImGui.SameLine() #? (unsigned Int*)
-            CImGui.CheckboxFlags("South", loc, ImPlotLocation_South); CImGui.SameLine() #? (unsigned Int*)
-            CImGui.CheckboxFlags("West",  loc, ImPlotLocation_West);  CImGui.SameLine() #? (unsigned Int*)
-            CImGui.CheckboxFlags("East",  loc, ImPlotLocation_East);  CImGui.SameLine() #? (unsigned Int*)
+            CImGui.CheckboxFlags("North", loc, ImPlotLocation_North); CImGui.SameLine()
+            CImGui.CheckboxFlags("South", loc, ImPlotLocation_South); CImGui.SameLine()
+            CImGui.CheckboxFlags("West",  loc, ImPlotLocation_West);  CImGui.SameLine()
+            CImGui.CheckboxFlags("East",  loc, ImPlotLocation_East);  CImGui.SameLine()
+
             @c CImGui.Checkbox("Horizontal", &h); CImGui.SameLine()
             @c CImGui.Checkbox("Outside", &o)
             
-            #! this is ugly hack
+            # FIXME: this is an ugly hack
             style = unsafe_load(ImPlot.LibCImPlot.GetStyle())
             padding = Ref(style.LegendPadding) 
             if CImGui.SliderFloat2("LegendPadding", Ptr{Float32}(pointer_from_objref(padding)), 0.0, 20.0, "%.0f")
@@ -1216,15 +1195,20 @@ function ShowDemoWindow()
                 CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendSpacing, spacing[])
             end
 
+            sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+            sawwave_c = @cfunction(MyImPlot.SawWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+
+            GC.@preserve sinewave_c sawwave_c begin
+
             if ImPlot.BeginPlot("##Legend","x","y",ImVec2(-1,0))
                 ImPlot.SetLegendLocation(loc[], h ? ImPlotOrientation_Horizontal : ImPlotOrientation_Vertical, o)
-                #!!! In Julia we cannot use PlotLineG custom getters, yet it presents in api
-                ImPlot.PlotLine(xy1[1], xy1[2], label_id = "Item 1")         # "Item 1" added to legend
-                ImPlot.PlotLine(xy2[1], xy2[2], label_id = "Item 2##IDText")  # "Item 2" added to legend, text after ## used for ID only
-                ImPlot.PlotLine(xy3[1], xy3[2], label_id = "##NotListed")     # plotted, but not added to legend
-                ImPlot.PlotLine(xy4[1], xy4[2], label_id = "Item 3")         # "Item 3" added to legend
-                ImPlot.PlotLine(xy5[1], xy5[2], label_id = "Item 3")         # combined with previous "Item 3"
+                ImPlot.PlotLineG("Item 1", sinewave_c, data1, 1000)        # "Item 1" added to legend
+                ImPlot.PlotLineG("Item 2##IDText", sawwave_c, data2, 1000) # "Item 2" added to legend, text after ## used for ID only
+                ImPlot.PlotLineG("##NotListed", sawwave_c, data3, 1000)    # plotted, but not added to legend
+                ImPlot.PlotLineG("Item 3", sinewave_c, data1, 1000)        # "Item 3" added to legend
+                ImPlot.PlotLineG("Item 3", sawwave_c, data2, 1000)         # combined with previous "Item 3"
                 ImPlot.EndPlot()
+            end
             end
         end)
     end
@@ -1344,7 +1328,7 @@ function ShowDemoWindow()
             yAxis = nothing,
             t = Float32(0),
         begin 
-            if init #! if inside @cstatic, then LoadError: UndefVarError: K_CHANNELS not defined
+            if init # workaround for cstatic initialization
                 init = false
                 show = falses(K_CHANNELS)
                 yAxis = zeros(Int, K_CHANNELS)
@@ -1663,88 +1647,100 @@ if CImGui.CollapsingHeader("Offset and Stride")
         #offset += 1 # uncomment this line + comment out SliderInt for animation!
     end) 
 end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Custom Data and Getters")) 
-#         CImGui.BulletText("You can plot custom structs using the stride feature.")
-#         CImGui.BulletText("Most plotters can also be passed a function pointer for getting data.")
-#         CImGui.Indent()
-#             CImGui.BulletText("You can optionally pass user data to be given to your getter function.")
-#             CImGui.BulletText("C++ lambdas can be passed as function pointers as well!")
-#         CImGui.Unindent()
+     #-------------------------------------------------------------------------
+     if CImGui.CollapsingHeader("Custom Data and Getters")
+         CImGui.BulletText("You can plot custom structs using the stride feature.")
+         CImGui.BulletText("Most plotters can also be passed a function pointer for getting data.")
+         CImGui.Indent()
+             CImGui.BulletText("You can optionally pass user data to be given to your getter function.")
+             CImGui.BulletText("C++ lambdas can be passed as function pointers as well!")
+         CImGui.Unindent()
 
-#         vec2_data = [MyImPlot.Vector2f(0,0), MyImPlot.Vector2f(1,1)]
+         vec2_data = [MyImPlot.Vector2f(0,0), MyImPlot.Vector2f(1,1)]
 
-#         if ImPlot.BeginPlot("##Custom Data")) 
+         if ImPlot.BeginPlot("##Custom Data")
 
-#             # custom structs using stride example:
-#             ImPlot.PlotLine("Vector2f", &vec2_data[0].x, &vec2_data[0].y, 2, 0, sizeof(MyImPlot.Vector2f) /* or sizeof(Float32) * 2 */)
+             # custom structs using stride example:
+             vecyoffset = fieldoffset(MyImPlot.Vector2f, 2) # offset of :y field
+             vec_ptr = Ptr{typeof(vec2_data[1].x)}(pointer(vec2_data))
+             ImPlot.PlotLine("Vector2f", vec_ptr, vec_ptr + vecyoffset, 2, 0, sizeof(MyImPlot.Vector2f))
 
-#             # custom getter example 1:
-#             ImPlot.PlotLineG("Spiral", MyImPlot.Spiral, C_NULL, 1000)
+             # custom getter example 1:
+             spiral_c = @cfunction(MyImPlot.Spiral, ImPlotPoint, (Ptr{Cvoid}, Cint))
+             GC.@preserve spiral_c begin
+             ImPlot.PlotLineG("Spiral", spiral_c, C_NULL, 1000)
+             end
+             
+             # custom getter example 2:
+             data1 = Ref(MyImPlot.WaveData(0.001, 0.2, 2, 0.75))
+             data2 = Ref(MyImPlot.WaveData(0.001, 0.2, 4, 0.25))
+             sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+             sawwave_c = @cfunction(MyImPlot.SawWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
 
-#             # custom getter example 2:
-#             @cstatic ( begin end) data1 = MyImPlot.WaveData(0.001, 0.2, 2, 0.75)
-#             @cstatic ( begin end) data2 = MyImPlot.WaveData(0.001, 0.2, 4, 0.25)
-#             ImPlot.PlotLineG("Waves", MyImPlot.SineWave, &data1, 1000)
-#             ImPlot.PlotLineG("Waves", MyImPlot.SawWave, &data2, 1000)
-#             ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
-#             ImPlot.PlotShadedG("Waves", MyImPlot.SineWave, &data1, MyImPlot.SawWave, &data2, 1000)
-#             ImPlot.PopStyleVar(1)
+             GC.@preserve sinewave_c sawwave_c begin
+                 ImPlot.PlotLineG("Waves", sinewave_c, data1, 1000)
+                 ImPlot.PlotLineG("Waves", sawwave_c, data2, 1000)
+                 ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25)
+                 ImPlot.PlotShadedG("Waves", sinewave_c, data1, sawwave_c, data2, 1000)
+                 ImPlot.PopStyleVar()
+             end
 
-#             # you can also pass C++ lambdas:
-#             # auto lamda = [](void* data, Int idx)  ... return ImPlotPoint(x,y) end
-#             # ImPlot.PlotLine("My Lambda", lambda, data, 1000)
+             ImPlot.EndPlot()
+         end
+     end
+     #-------------------------------------------------------------------------
+    if CImGui.CollapsingHeader("Custom Ticks##")
+        @cstatic(
+            custom_ticks  = true,
+            custom_labels = true,
+            yticks = Float64[1,3,7,9],
+            ylabels = ["One","Three","Seven","Nine"],
+            yticks_aux = [0.2,0.4,0.6],
+            ylabels_aux = ["A","B","C","D","E","F"],
+            begin
 
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Custom Ticks##")) 
-#         @cstatic ( begin end) custom_ticks  = true
-#         @cstatic ( begin end) custom_labels = true
-#         CImGui.Checkbox("Show Custom Ticks", &custom_ticks)
-#         if custom_ticks) 
-#             CImGui.SameLine()
-#             CImGui.Checkbox("Show Custom Labels", &custom_labels)
-#         end
-#         pi = 3.14
-#         pi_str = "PI"
-#         @cstatic ( begin end) yticks[] = Float64[1,3,7,9]
-#         @cstatic ( begin end) ylabels[] = ["One","Three","Seven","Nine"]
-#         @cstatic ( begin end) yticks_aux[] = [0.2,0.4,0.6]
-#         @cstatic ( begin end) ylabels_aux[] = ["A","B","C","D","E","F"]
-#         if custom_ticks)
-#             ImPlot.SetNextPlotTicksX(&pi,1,custom_labels ? pi_str : C_NULL, true)
-#             ImPlot.SetNextPlotTicksY(yticks, 4, custom_labels ? ylabels : C_NULL)
-#             ImPlot.SetNextPlotTicksY(yticks_aux, 3, custom_labels ? ylabels_aux : C_NULL, false, 1)
-#             ImPlot.SetNextPlotTicksY(0, 1, 6, custom_labels ? ylabels_aux : C_NULL, false, 2)
-#         end
-#         ImPlot.SetNextPlotLimits(2.5,5,0,10)
-#         if ImPlot.BeginPlot("Custom Ticks", C_NULL, C_NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3)) 
-#             # nothing to see here, just the ticks
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Custom Styles")) 
-#         ImPlot.PushColormap(ImPlotColormap_Deep)
-#         # normally you wouldn't change the entire style each frame
-#         ImPlotStyle backup = ImPlot.GetStyle()
-#         MyImPlot.StyleSeaborn()
-#         ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 10)
-#         if ImPlot.BeginPlot("seaborn style", "x-axis", "y-axis")) 
-#             lin = UInt[8,8,9,7,8,8,8,9,7,8]
-#             bar = UInt[1,2,5,3,4,1,2,5,3,4]
-#             dot = UInt[7,6,6,7,8,5,6,5,8,7]
-#             ImPlot.PlotBars("Bars", bar, 10, 0.5)
-#             ImPlot.PlotLine("Line", lin, 10)
-#             ImPlot.NextColormapColor() # skip green
-#             ImPlot.PlotScatter("Scatter", dot, 10)
-#             ImPlot.EndPlot()
-#         end
-#         ImPlot.GetStyle() = backup
-#         ImPlot.PopColormap()
-#     end
+        @c CImGui.Checkbox("Show Custom Ticks", &custom_ticks)
+        if custom_ticks
+            CImGui.SameLine()
+            @c CImGui.Checkbox("Show Custom Labels", &custom_labels)
+        end
+
+        pi_str = ["PI"]
+
+        if custom_ticks
+            @c ImPlot.SetNextPlotTicksX(Float64[pi], 1, custom_labels ? pi_str : C_NULL, true)
+            ImPlot.SetNextPlotTicksY(yticks, 4, custom_labels ? ylabels : C_NULL)
+            ImPlot.SetNextPlotTicksY(yticks_aux, 3, custom_labels ? ylabels_aux : C_NULL, false, 1)
+            ImPlot.SetNextPlotTicksY(0, 1, 6, custom_labels ? ylabels_aux : C_NULL, false, 2)
+        end
+
+        ImPlot.SetNextPlotLimits(2.5,5,0,10)
+        if ImPlot.BeginPlot("Custom Ticks", C_NULL, C_NULL, ImVec2(-1,0), x_flags = ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3)
+            # nothing to see here, just the ticks
+            ImPlot.EndPlot()
+        end
+        end) # cstatic
+     end
+     #-------------------------------------------------------------------------
+     if CImGui.CollapsingHeader("Custom Styles")
+         ImPlot.PushColormap(ImPlotColormap_Deep)
+         # normally you wouldn't change the entire style each frame
+         backup = unsafe_load(ImPlot.GetStyle())
+         MyImPlot.StyleSeaborn()
+         ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 10)
+         if ImPlot.BeginPlot("seaborn style", "x-axis", "y-axis")
+             lin = UInt32[8,8,9,7,8,8,8,9,7,8]
+             bar = UInt32[1,2,5,3,4,1,2,5,3,4]
+             dot = UInt32[7,6,6,7,8,5,6,5,8,7]
+             ImPlot.PlotBars("Bars", bar, 10, 0.5)
+             ImPlot.PlotLine("Line", lin, 10)
+             ImPlot.NextColormapColor() # skip green
+             ImPlot.PlotScatter("Scatter", dot, 10)
+             ImPlot.EndPlot()
+         end
+         unsafe_store!(ImPlot.GetStyle(), backup)
+         ImPlot.PopColormap()
+     end
 #     #-------------------------------------------------------------------------
 #     if CImGui.CollapsingHeader("Custom Rendering")) 
 #         if ImPlot.BeginPlot("##CustomRend")) 

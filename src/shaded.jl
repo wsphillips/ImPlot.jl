@@ -129,13 +129,5 @@ function PlotShaded(
     LibCImPlot.PlotShaded(label_id, x, y, count, y_ref, offset, stride)
 end
 
-
-
-# function test_fieldvec(structvec::Vector{T}, field::Symbol) where T
-#     Tf = fieldtype(T, field)
-#     offset = fieldoffset(T, Base.fieldindex(T, field))
-#     ptr = (pointer(structvec, 1) + offset) |> Ptr{Tf}
-
-#     x = unsafe_wrap(Vector{Tf}, ptr, size(structvec); own = false)
-#     return x[1]
-# end
+PlotShadedG(label_id, getter1, data1, getter2, data2, count, offset=0) =
+LibCImPlot.PlotShadedG(label_id, getter1, data1, getter2, data2, count, offset)

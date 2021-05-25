@@ -7,7 +7,7 @@ import .LibCImPlot:
     NextColormapColor
     
 function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer,
-                           labels::Vector{String} = [""], show_default::Bool = false)
+                           labels = [""], show_default::Bool = false)
 
     eltype(values) !== Float64 && (values = Float64.(values))
 
@@ -15,7 +15,7 @@ function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer,
 end
 
 function SetNextPlotTicksX(x_min, x_max, n_ticks::Integer,
-                           labels::Vector{String} = [""], show_default::Bool = false)
+                           labels = [""], show_default::Bool = false)
     
     typeof(x_min) !== Float64 && (x_min = Float64(x_min))
     typeof(x_max) !== Float64 && (x_max = Float64(x_max))
@@ -24,7 +24,7 @@ function SetNextPlotTicksX(x_min, x_max, n_ticks::Integer,
 end
 
 function SetNextPlotTicksY(values::Vector{<:Real}, n_ticks::Integer,
-                           labels::Vector{String} = [""], show_default::Bool = false,
+                           labels = [""], show_default::Bool = false,
                            y_axis::Integer = 0)
 
     eltype(values) !== Float64 && (values = Float64.(values))
@@ -34,7 +34,7 @@ function SetNextPlotTicksY(values::Vector{<:Real}, n_ticks::Integer,
 end
 
 function SetNextPlotTicksY(y_min, y_max, n_ticks::Integer,
-                           labels::Vector{String} = [""], show_default::Bool = false,
+                           labels = [""], show_default::Bool = false,
                            y_axis::Integer = 0)
 
     typeof(y_min) !== Float64 && (y_min = Float64(y_min))

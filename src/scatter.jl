@@ -1,13 +1,13 @@
 # Scatter plots
 
 function PlotScatter(label_id, values::Union{AbstractArray{T},Ptr{T},Ref{T}}, count::Integer,
-                     xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0.0,
+                     xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0,
                      stride::Integer = sizeof(T)) where {T<:ImPlotData}
     LibCImPlot.PlotScatter(label_id, values, count, xscale, x0, offset, stride)
 end
 
 function PlotScatter(label_id, values::Union{AbstractArray{T},Ptr{T},Ref{T}}, count::Integer,
-                     xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0.0,
+                     xscale::Real = 1.0, x0::Real = 0.0, offset::Integer = 0,
                      stride::Integer = sizeof(Float64)) where {T<:Real}
     LibCImPlot.PlotScatter(label_id, Float64.(values), count, xscale, x0, offset, stride)
 end
@@ -98,3 +98,6 @@ function PlotScatter(
 
     LibCImPlot.PlotScatter(label_id, x, y, count, offset, stride)
 end
+
+PlotScatterG(label_id, getter, data, count, offset=0) =
+LibCImPlot.PlotScatterG(label_id, getter, data, count, offset)

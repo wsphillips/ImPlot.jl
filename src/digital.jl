@@ -54,3 +54,6 @@ function PlotDigital(
 
     LibCImPlot.PlotDigital(label_id, x, y, count, offset, stride)
 end
+
+PlotDigitalG(label_id, getter, data, count, offset=0) =
+LibCImPlot.PlotDigitalG(label_id, getter, data, counter, offset)
