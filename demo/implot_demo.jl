@@ -1741,70 +1741,79 @@ end
          unsafe_store!(ImPlot.GetStyle(), backup)
          ImPlot.PopColormap()
      end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Custom Rendering")) 
-#         if ImPlot.BeginPlot("##CustomRend")) 
-#             ImVec2 cntr = ImPlot.PlotToPixels(ImPlotPoint(0.5,  0.5))
-#             ImVec2 rmin = ImPlot.PlotToPixels(ImPlotPoint(0.25, 0.75))
-#             ImVec2 rmax = ImPlot.PlotToPixels(ImPlotPoint(0.75, 0.25))
-#             ImPlot.PushPlotClipRect()
-#             ImPlot.GetPlotDrawList()->AddCircleFilled(cntr,20,IM_COL32(255,255,0,255),20)
-#             ImPlot.GetPlotDrawList()->AddRect(rmin, rmax, IM_COL32(128,0,255,255))
-#             ImPlot.PopPlotClipRect()
-#             ImPlot.EndPlot()
-#         end
-#     end
-#     #-------------------------------------------------------------------------
-#     if CImGui.CollapsingHeader("Custom Context Menus")) 
-#         CImGui.BulletText("You can implement legend context menus to inject per-item controls and widgets.")
-#         CImGui.BulletText("Right click the legend label/icon to edit custom item attributes.")
-
-#         @cstatic ( begin end) frequency = Float32(0.1) #? is it critical to use Float32 here?
-#         @cstatic ( begin end) amplitude = Float32(0.5)
-#         @cstatic ( begin end) color     = ImVec4(1,1,0,1)
-#         @cstatic ( begin end) alpha     = Float32(1.0)
-#         @cstatic ( begin end) line      = false
-#         @cstatic ( begin end) thickness = Float32(1)
-#         @cstatic ( begin end) markers   = false
-#         @cstatic ( begin end) shaded    = false
-
-#         @cstatic ( begin end) vals = zeros(Float32, 101)
-#         for i = 1:101
-#             vals[i] = amplitude * sin(frequency * i)
-#         end
-#         ImPlot.SetNextPlotLimits(0,100,-1,1)
-#         if ImPlot.BeginPlot("Right Click the Legend")) 
-#             # rendering logic
-#             ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, alpha)
-#             if !line) 
-#                 ImPlot.SetNextFillStyle(color)
-#                 ImPlot.PlotBars("Right Click Me", vals, 101)
-#             else 
-#                 if markers) ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
-#                 ImPlot.SetNextLineStyle(color, thickness)
-#                 ImPlot.PlotLine("Right Click Me", vals, 101)
-#                 if shaded) ImPlot.PlotShaded("Right Click Me",vals,101)
-#             end
-#             ImPlot.PopStyleVar(1)
-#             # custom legend context menu
-#             if ImPlot.BeginLegendPopup("Right Click Me")) 
-#                 CImGui.SliderFloat("Frequency",&frequency,0,1,"%0.2f")
-#                 CImGui.SliderFloat("Amplitude",&amplitude,0,1,"%0.2f")
-#                 CImGui.Separator()
-#                 CImGui.ColorEdit3("Color",&color.x)
-#                 CImGui.SliderFloat("Transparency",&alpha,0,1,"%.2f")
-#                 CImGui.Checkbox("Line Plot", &line)
-#                 if line) 
-#                     CImGui.SliderFloat("Thickness", &thickness, 0, 5)
-#                     CImGui.Checkbox("Markers", &markers)
-#                     CImGui.Checkbox("Shaded",&shaded)
-#                 end
-#                 ImPlot.EndLegendPopup()
-#             end
-#             ImPlot.EndPlot()
-#         end
-#     end
      #-------------------------------------------------------------------------
+     if CImGui.CollapsingHeader("Custom Rendering")
+         if ImPlot.BeginPlot("##CustomRend")
+             cntr = ImPlot.PlotToPixels(ImPlotPoint(0.5,  0.5))
+             rmin = ImPlot.PlotToPixels(ImPlotPoint(0.25, 0.75))
+             rmax = ImPlot.PlotToPixels(ImPlotPoint(0.75, 0.25))
+             
+             ImPlot.PushPlotClipRect()
+             CImGui.AddCircleFilled(ImPlot.GetPlotDrawList(), cntr, 20, CImGui.IM_COL32(255,255,0,255), 20)
+             CImGui.AddRect(ImPlot.GetPlotDrawList(), rmin, rmax, CImGui.IM_COL32(128,0,255,255))
+             ImPlot.PopPlotClipRect()
+
+             ImPlot.EndPlot()
+         end
+     end
+    #-------------------------------------------------------------------------
+    if CImGui.CollapsingHeader("Custom Context Menus")
+        CImGui.BulletText("You can implement legend context menus to inject per-item controls and widgets.")
+        CImGui.BulletText("Right click the legend label/icon to edit custom item attributes.")
+
+        @cstatic(
+            init = true,
+            frequency = Float32(0.1),
+            amplitude = Float32(0.5),
+            color     = Ref(ImVec4(1,1,0,1)),
+            alpha     = Float32(1.0),
+            line      = false,
+            thickness = Float32(1),
+            markers   = false,
+            shaded    = false,
+            vals = zeros(Float32, 101),
+        begin
+            
+        for i = 1:101
+            vals[i] = amplitude * sin(frequency * i)
+        end
+
+        ImPlot.SetNextPlotLimits(0,100,-1,1)
+        if ImPlot.BeginPlot("Right Click the Legend")
+
+            # rendering logic
+            ImPlot.PushStyleVar(ImPlotStyleVar_FillAlpha, alpha)
+            if !line 
+                ImPlot.SetNextFillStyle(color[])
+                ImPlot.PlotBars("Right Click Me", vals, 101)
+            else 
+                markers && ImPlot.SetNextMarkerStyle(ImPlotMarker_Circle)
+                ImPlot.SetNextLineStyle(color[], thickness)
+                ImPlot.PlotLine("Right Click Me", vals, 101)
+                shaded && ImPlot.PlotShaded("Right Click Me",vals,101)
+            end
+            ImPlot.PopStyleVar()
+
+            # custom legend context menu
+            if ImPlot.BeginLegendPopup("Right Click Me")
+                @c CImGui.SliderFloat("Frequency",&frequency,0,1,"%0.2f")
+                @c CImGui.SliderFloat("Amplitude",&amplitude,0,1,"%0.2f")
+                CImGui.Separator()
+                CImGui.ColorEdit3("Color",Ptr{Float32}(pointer_from_objref(color)))
+                @c CImGui.SliderFloat("Transparency",&alpha,0,1,"%.2f")
+                @c CImGui.Checkbox("Line Plot", &line)
+                if line 
+                    @c CImGui.SliderFloat("Thickness", &thickness, 0, 5)
+                    @c CImGui.Checkbox("Markers", &markers)
+                    @c CImGui.Checkbox("Shaded",&shaded)
+                end
+                ImPlot.EndLegendPopup()
+            end
+            ImPlot.EndPlot()
+        end
+    end) # cstatic
+    end
+    #-------------------------------------------------------------------------
 #= Custom plotting requires imgui_internal.h--not available until post v0.9 cimplot
      if CImGui.CollapsingHeader("Custom Plotters and Tooltips")) 
          CImGui.BulletText("You can create custom plotters or extend ImPlot using implot_internal.h.")

@@ -1590,6 +1590,9 @@ function AnnotateClamped(x::Real, y::Real, pix_offset::ImVec2, color::ImVec4, fm
           x, y, pix_offset, color, fmt...)
 end
 
+BeginLegendDragDropSource(label_id) = BeginLegendDragDropSource(label_id, 0)
+BeginLegendPopup(label_id) = BeginLegendPopup(label_id, 1)
+
 export ImPlotPoint, ImPlotRange, ImPlotLimits, ImPlotStyle, ImPlotInputMap, ImPlotContext
 export CreateContext, DestroyContext, GetCurrentContext, SetCurrentContext, SetImGuiContext
 export EndPlot
@@ -1601,7 +1604,7 @@ export GetStyle
 export GetStyleColorName, GetMarkerName, PopColormap, GetColormapSize, ShowColormapScale
 export GetColormapName, PushPlotClipRect, PopPlotClipRect
 export ShowStyleSelector, ShowColormapSelector, ShowUserGuide, ShowDemoWindow, ShowMetricsWindow
-export Annotate, AnnotateClamped
+export Annotate, AnnotateClamped, PushPlotClipRect, PopPlotClipRect, GetPlotDrawList
 
 
 # exports
