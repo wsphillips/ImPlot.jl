@@ -37,25 +37,17 @@ struct WaveData
     offset::Float64
 end
 
-function SineWave(wd::WaveData, idx::Cint)::ImPlotPoint
+function SineWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+    wd = unsafe_load(Ptr{WaveData}(data))
     x = idx * wd.x
     return ImPlotPoint(x, wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x))
 end
 
-function SineWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function SawWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
     wd = unsafe_load(Ptr{WaveData}(data))
-    return SineWave(wd, idx)
-end
-
-function SawWave(wd::WaveData, idx::Cint)::ImPlotPoint
     x = idx * wd.x
     y = wd.offset + wd.amp * (-2/3.14 * atan(cos(3.14*wd.freq*x) / sin(3.14*wd.freq*x)))
     return ImPlotPoint(x, y)
-end
-
-function SawWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
-    wd = unsafe_load(Ptr{WaveData}(data))
-    return SawWave(wd, idx)
 end
 
 function Spiral(::Ptr{Nothing}, idx::Cint)::ImPlotPoint
@@ -68,9 +60,6 @@ function Spiral(::Ptr{Nothing}, idx::Cint)::ImPlotPoint
     return ImPlotPoint(0.5 + (a + b * Th / (2.0 * 3.14)) * cos(Th),
                        0.5 + (a + b * Th / (2.0 * 3.14)) * sin(Th))
 end
-
-Spiral(idx::Cint) = Spiral(C_NULL, idx)
-
 
 # Example for Tables section.
 function Sparkline(id::String, values::Vector{Float32}, count::Int, min_v::Float32, max_v::Float32, offset::Int, col::ImVec4, size::ImVec4)
@@ -582,10 +571,10 @@ function ShowDemoWindow()
 
                 if horz
                     ImPlot.SetNextPlotLimits(0, 110, -0.5, 9.5, ImGuiCond_Always)
-                    ImPlot.SetNextPlotTicksY(positions, 10; labels = labels)
+                    ImPlot.SetNextPlotTicksY(positions, 10, labels)
                 else 
                     ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 110, ImGuiCond_Always)
-                    ImPlot.SetNextPlotTicksX(positions, 10; labels = labels)
+                    ImPlot.SetNextPlotTicksX(positions, 10, labels)
                 end
                 if ImPlot.BeginPlot("Bar Plot", horz ? "Score" :  "Student", horz ? "Student" : "Score",
                                     ImVec2(-1,0), y_flags = horz ? ImPlotAxisFlags_Invert : 0)
