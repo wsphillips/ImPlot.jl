@@ -12,6 +12,8 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 
 [compat]
+CEnum = "0.4.0"
+Setfield = "0.7.0"
 CImGui = "~1.79.0"
 CImPlot_jll = "0.8.0"
 julia = "1.3"
