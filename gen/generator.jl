@@ -2,7 +2,7 @@ using Clang.Generators
 
 # using ImPlot.LibCImPlot.CImPlot_jll
 
-using CImGui_jll
+using CImGui.CImGui_jll
 
 include_dir = joinpath(CImGui_jll.artifact_dir, "include")
 
@@ -68,11 +68,11 @@ function revise_function!(e::Expr)
             if (Meta.isexpr(cargtype, :curly) && cargtype.args[1] == :Ptr) && cargtype.args[2] ∈ imdatatypes 
                 
                 # Input arrays allocated in Julia should be passed as Ref: https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/#When-to-use-T,-Ptr{T}-and-Ref{T}
-                e.args[2].args[1].args[4].args[i].args[1] = :Ref
+                # e.args[2].args[1].args[4].args[i].args[1] = :Ref
 
                 # Annotate the Julia method signature
                 sym = e.args[1].args[i+1]
-                e.args[1].args[i+1] = Expr(:(::), sym, Expr(:curly, :AbstractArray, cargtype.args[2]))
+                e.args[1].args[i+1] = Expr(:(::), sym, Expr(:curly, :Union, Expr(:curly, :AbstractArray, cargtype.args[2]), Expr(:curly, :Ref, cargtype.args[2]), Expr(:curly, :Ptr, cargtype.args[2])))
                 # Used if you want to calculate stride size below
                 #= if cargtype.args[2] ∈ keys(typedict)
                     global stridesize = sizeof(typedict[cargtype.args[2]])

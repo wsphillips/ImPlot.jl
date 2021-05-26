@@ -10,7 +10,8 @@ end
 include("libcimplot.jl")
 
 using .LibCImPlot
-import .LibCImPlot: BeginPlot
+export IMPLOT_AUTO, IMPLOT_AUTO_COL
+export ImPlotPoint, ImPlotRange, ImPlotLimits
 
 const ImPlotData = Union{Float32, Float64, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64}
 const IMPLOT_ENUMS = [ImPlotFlags_, ImPlotAxisFlags_, ImPlotCol_, ImPlotStyleVar_, ImPlotMarker_,
@@ -23,7 +24,7 @@ for i in IMPLOT_ENUMS
     end
 end
 
-function LibCImPlot.BeginPlot(title_id::String, x_label, y_label, size::ImVec2 = ImVec2(-1,0);
+function BeginPlot(title_id::String, x_label = C_NULL, y_label = C_NULL, size::ImVec2 = ImVec2(-1,0);
                     flags = ImPlotFlags_None,
                     x_flags = ImPlotAxisFlags_None,
                     y_flags = ImPlotAxisFlags_None,
@@ -34,6 +35,7 @@ function LibCImPlot.BeginPlot(title_id::String, x_label, y_label, size::ImVec2 =
                          flags, x_flags, y_flags, y2_flags, y3_flags)
 end
 
+include("constructors.jl")
 include("lines.jl")
 include("stairs.jl")
 include("shaded.jl")

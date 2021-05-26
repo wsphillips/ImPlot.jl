@@ -68,7 +68,7 @@ auto_mutability = true
 # when calling this function via `ccall`, passing a `Vector{mutable_type}(undef, n)` to the first
 # argument will trigger a crash, one needs to use `Ref{NTuple{n,mutable_type}}()` instead.
 # this is not convenient and that's where the `auto_mutability_blacklist` comes in.
-auto_mutability_blacklist = []
+auto_mutability_blacklist = ["ImPlotRange","ImPlotLimits","ImPlotPoint"]
 
 # opposite to `auto_mutability_blacklist` and has a higher priority
 auto_mutability_whitelist = []
