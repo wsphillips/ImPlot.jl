@@ -18,16 +18,21 @@ Simple installation via the package registry:
 NOTE: The current stable version of **ImPlot on the registry is backed by binaries built from implot v0.4**. If you would like to try out some of the newer plot types and features, the development branch is currently running with binaries built from implot v0.8. To use that instead, install via:
 
 ```
-]add https://github.com/wsphillips/ImPlot.jl#master
+]add https://github.com/wsphillips/ImPlot.jl#main
 ```
-Also note, there are currently no convenience functions for the newer implot features on the development branch. You will have to work with the lower-level function wrappers in the `LibCImPlot` submodule
 
 ## Example Usage
 
-Use `demo/demo.jl` to check if things are working + the demo window that shows off what the 
-API can do.
+Use `demo/implot_demo.jl` to check if things are working via:
 
-Plots are delcarative and follow a similar pattern as CImGui.jl:
+```julia
+include("implot_demo.jl")
+show()
+```
+
+`implot_demo.jl` replicates all the plotting functionality visible in `implot_demo.cpp` of implot v0.8, with the exception of examples using Tables (depends on upstream imgui) and custom plotting with `implot_internal.h` functions (depends on cimplot v0.9). 
+
+Aside from the replication of the C++ interface, we have some convenience for some things that are slightly less verbose. See `demo/example_plots.jl` and below.
 
 ```julia
 
@@ -46,7 +51,3 @@ if show_window
     CImGui.End()
 end
 ```
-
-For some basic Julia imlementation examples, see also `demo/example_plots.jl` Another good
-place to look is the [C++ demo
-sources](https://github.com/epezent/implot/blob/v0.3/implot_demo.cpp)
