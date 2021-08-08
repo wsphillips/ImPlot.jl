@@ -1,5 +1,5 @@
 using Clang.Generators
-
+using ExprTools, MacroTools
 # using ImPlot.LibCImPlot.CImPlot_jll
 
 using CImGui.CImGui_jll
@@ -33,86 +33,81 @@ args = ["-I$include_dir", "-DCIMGUI_DEFINE_ENUMS_AND_STRUCTS"]
 @add_def ImDrawList
 @add_def ImGuiContext
 
-#=
-jltypes = [Float32, Float64, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64]
-typedict = Dict(zip(imtypes,jltypes))
-=#
+# jltypes = [Float32, Float64, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64]
+# typedict = Dict(zip(imtypes,jltypes))
 #type_names = ["FloatPtr", "doublePtr", "S8Ptr", "U8Ptr", "S16Ptr", "U16Ptr", "S32Ptr", "U32Ptr", "S64Ptr", "U64Ptr"]  
-
 imdatatypes = [:Cfloat, :Cdouble, :ImS8, :ImU8, :ImS16, :ImU16, :ImS32, :ImU32, :ImS64, :ImU64]
 plot_types = ["Line", "Scatter", "Stairs", "Shaded", "BarsH", "Bars", "ErrorBarsH", "ErrorBars", "Stems", "VLines", "HLines", "PieChart", "Heatmap", "Histogram", "Histogram2D", "Digital"]
 
 ctx = create_context(CIMPLOT_H, args, options)
-
 build!(ctx, BUILDSTAGE_NO_PRINTING)
 
-function revise_function!(e::Expr)
-    
-    # Get name of the function
-    fname = string(e.args[1].args[1])
+#json_string = read("my.json", String)
+#JSON3.read(json_string)
+# @capture(ex, ccall((funsymbol_, libcimplot), rettype_, (argtypes__,), argnames__))
 
-    # Skip if it's not a prefix added by cimplot
-    startswith(fname,"ImPlot_") || return e
-
-    # Strip off the prefix to match C++ (since we have a namespace)
-    fname = fname[8:end] # remove first 7 characters == 'ImPlot_'
-
-    # Plot functions are templated and have a regular structure
-    if startswith(fname, "Plot")
-
-        # iterate the tuple of C argument types in the function's ccall
-        cargtypes = e.args[2].args[1].args[4].args    
-        for (i, cargtype) in enumerate(cargtypes)
-            
-            # All pointers in plot functions (where eltype ∈ imdatatypes) are array inputs
-            if (Meta.isexpr(cargtype, :curly) && cargtype.args[1] == :Ptr) && cargtype.args[2] ∈ imdatatypes 
-                
-                # Input arrays allocated in Julia should be passed as Ref: https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/#When-to-use-T,-Ptr{T}-and-Ref{T}
-                # e.args[2].args[1].args[4].args[i].args[1] = :Ref
-
-                # Annotate the Julia method signature
-                sym = e.args[1].args[i+1]
-                e.args[1].args[i+1] = Expr(:(::), sym, Expr(:curly, :Union, Expr(:curly, :AbstractArray, cargtype.args[2]), Expr(:curly, :Ref, cargtype.args[2]), Expr(:curly, :Ptr, cargtype.args[2])))
-                # Used if you want to calculate stride size below
-                #= if cargtype.args[2] ∈ keys(typedict)
-                    global stridesize = sizeof(typedict[cargtype.args[2]])
-                end =#
-            elseif cargtype == :Cint
-                sym = e.args[1].args[i+1]
-                #= it's possible to set default arg values from DAG expressions too. Examples below are unused for now.
-                if sym == :stride
-                    e.args[1].args[1+i] = Expr(:call, :(=), Expr(:(::), sym, :Integer), Expr(:call, :Int32, stridesize))
-                elseif sym == :offset
-                    e.args[1].args[1+i] = Expr(:call, :(=), Expr(:(::), sym, :Integer), Expr(:call, :zero, :Int32))
-                else =#
-                    e.args[1].args[1+i] = Expr(:(::), sym, :Integer)
-                # end
-            elseif cargtype ∈ [:Cdouble, :Cfloat]
-                sym = e.args[1].args[i+1]
-                e.args[1].args[i+1] = Expr(:(::), sym, :Real)
-            end
-        end
-
-        for ptype in plot_types
-            fullname = "Plot" * ptype
-            if startswith(fname, fullname)
-                if fname[length(fullname)+1] == 'G' || fname[length(fullname)+1] == 'H'
-                    fname = fname[1:length(fullname)+1]
-                else
-                    fname = fname[1:length(fullname)]
+function carg_modify(ex, fun_args)
+    if @capture(ex, ccall((funsymbol_, libcimplot), rettype_, (argtypes__,), argnames__))
+        for (i, argtype) in enumerate(argtypes)
+            if @capture(argtype, Ptr{ptrtype_}) && ptrtype ∈ imdatatypes
+                arg = fun_args[i]
+                @show arg
+                if @capture(fun_args[i], sym_::Ptr{sigptrtype_})
+                    if sigptrtype == ptrtype
+                    fun_args[i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+                    println("Here")
+                    end
+                elseif @capture(argtype, sym_::Cint)
+                    fun_args[i] = :($sym::Integer) 
+                elseif @capture(argtype, sym_::Cdouble | sym_::Cfloat)
+                    fun_args[i] = :($sym::Real)
                 end
             end
         end
+        return :(ccall(($funsymbol, libcimplot), $rettype, $(argtypes...,), $(argnames...)))
+    else
+        return ex
     end
-             
-    e.args[1].args[1] = Symbol(fname)
-    return e 
+end             
+
+function revise_function(e::Expr)
+    
+    def = ExprTools.splitdef(e)
+    # Skip if it's not a prefix added by cimplot
+    fun_name = string(def[:name])
+    startswith(fun_name,"ImPlot_") || return e
+
+    # Strip off the prefix to match C++ (since we have a namespace)
+    fun_name = fun_name[8:end] # remove first 7 characters == 'ImPlot_'
+
+    # Plot functions are templated and have a regular structure
+    if startswith(fun_name, "Plot")
+        body = def[:body]
+        fun_args= def[:args]
+        new_body = MacroTools.postwalk(x -> carg_modify(x, fun_args), body)
+        new_name = ""
+        for ptype in plot_types
+            fullname = "Plot" * ptype
+            if startswith(fun_name, fullname)
+                if length(fullname) > length(new_name)
+                    new_name = fullname
+                end
+            end
+        end
+        def[:name] = Symbol(new_name)
+        def[:args] = fun_args
+        def[:body] = new_body
+    end
+    return ExprTools.combinedef(def)
 end
 
 function rewrite!(dag::ExprDAG)
     for node in get_nodes(dag)
-        for expr in get_exprs(node)
-            Meta.isexpr(expr, :function) && revise_function!(expr)
+        expressions = get_exprs(node)
+        for (i, expr) in enumerate(expressions)
+            if Meta.isexpr(expr, :function)
+                expressions[i] = revise_function(expr)
+            end
         end
     end
 end

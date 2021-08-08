@@ -4,8 +4,15 @@
 # ccall((function_name, expression), returntype, (argtype1, ...), argvalue1, ...)
 library_name = "libcimplot"
 
-# the new generator is able to print everthing into one single file instead of a pair of two files.
-output_file_path = "../src/libcimplot.jl"
+# this entry allows you to specify different library names for different headers.
+# in the following example:
+# library_names = {"config.h" = "libclang_config", "libclang_p.*.h" = "libclang_patch"}
+# those functions in the `config.h` will be generated as:
+# ccall((function_name, libclang_config), returntype, (argtype1, ...), argvalue1, ...)
+library_names = {}
+
+# output file path relative to the working directory
+output_file_path = "./tmp/libcimplot.jl"
 
 # if this entry is not empty, the generator will print the code below to the `output_file_path`.
 # module module_name
@@ -16,7 +23,10 @@ module_name = "LibCImPlot"
 # if this entry is not empty, the generator will print the code below to the `output_file_path`.
 # using jll_pkg_name
 # export jll_pkg_name
-# jll_pkg_name = "CImPlot_jll"
+jll_pkg_name = "CImPlot_jll"
+
+# for packages that have extra JLL package dependencies
+jll_pkg_extra = []
 
 # identifiers that starts with the string listed in this entry will be exported.
 export_symbol_prefixes = ["ImPlotFlags_", "ImPlotAxisFlags_", "ImPlotCol_", "ImPlotStyleVar_",
@@ -31,42 +41,65 @@ prologue_file_path = "./prologue.jl"
 # this is often used for applying custom patches.
 epilogue_file_path = "./epilogue.jl"
 
-# automatically detect system std headers especially for macOS users.
-auto_detect_system_headers = true
-
-# header blacklist
-header_blacklist = []
-
 # node with an id in the `printer_blacklist` will be ignored in the printing passes. 
 # this is very useful for custom editing. 
-printer_blacklist = ["CIMGUIPLOT_INCLUDED"]
+printer_blacklist = [
+    "CIMGUIPLOT_INCLUDED"
+]
 
 # Julia's `@enum` do not allow duplicated values, so by default, C enums are translated to 
 # CEnum.jl's `@cenum`. 
-# if this entry is true, those duplicated enum constants are commented. 
+# if this entry is true, `@enum` is used and those duplicated enum constants are just commented. 
 use_julia_native_enum_type = false
 
+# use `@cenum` but do not print `using CEnum`.
+# this is useful in the case of using `CEnum` directly in the source tree instead of using `CEnum` as a dependency
+print_using_CEnum = true
+
+# use deterministic symbol instead of `gensym`-generated `var"##XXX"`
+use_deterministic_symbol = true
+
 # by default, only those declarations in the local header file are processed. 
-# for example, those declarations in the standard C library will be ignored. 
-# if you'd like to disable this behavior, please set this option to false.
+# those declarations in the system headers will be treated sepcially and will be generated if necessary. 
+# if you'd like to generate all of the symbols in the system headers, please set this option to false.
 is_local_header_only = true
 
-# by default, we skip all of those compiler declarations.
-skip_compiler_definition = true
-
-# run `DeAnonymize` pass if this option is set to true.
+# if this option is set to true, C code with a style of
+# ```c
+# typedef struct {
+#     int x;
+# } my_struct;
+# ```
+# will be generated as:
+# ```julia
+# struct my_struct
+#     x::Cint
+# end
+# ```
+# instead of
+# ```julia
+# struct var"##Ctag#NUM"
+#     x::Cint
+# end
+# const my_struct = var"##Ctag#NUM"
+# ```
 smart_de_anonymize = true
 
+# EXPERIMENTAL
 # if this option is set to true, those structs that are not necessary to be an 
-# immutable struct will be changed to be a mutable struct. 
+# immutable struct will be generated as a mutable struct. 
 # this option is default to false, do read the paragraph below before using this feature.
 auto_mutability = true
 
+# add inner constructor `Foo() = new()`
+auto_mutability_with_new = true
+
 # if you feel like certain structs should not be generated as mutable struct, please add them in the following list. 
-# for example, if a C function accepts a vector of some type as its argument:
+# for example, if a C function accepts a `Vector` of some type as its argument like:
 #     void foo(mutable_type *list, int n);
 # when calling this function via `ccall`, passing a `Vector{mutable_type}(undef, n)` to the first
-# argument will trigger a crash, one needs to use `Ref{NTuple{n,mutable_type}}()` instead.
+# argument will trigger a crash, the reason is mutable structs are not stored inline within a `Vector`,
+# one should use `Ref{NTuple{n,mutable_type}}()` instead.
 # this is not convenient and that's where the `auto_mutability_blacklist` comes in.
 auto_mutability_blacklist = ["ImPlotRange","ImPlotLimits","ImPlotPoint"]
 
@@ -82,7 +115,7 @@ use_julia_bool = true
 always_NUL_terminated_string = true
 
 # generate strictly typed function
-is_function_strictly_typed = false
+is_function_strictly_typed = true
 
 # if true, opaque pointers in function arguments will be translated to `Ptr{Cvoid}`.
 opaque_func_arg_as_PtrCvoid = false
@@ -90,17 +123,33 @@ opaque_func_arg_as_PtrCvoid = false
 # if true, opaque types are translated to `mutable struct` instead of `Cvoid`.
 opaque_as_mutable_struct = true
 
+# if true, use Julia 1.5's new `@ccall` macro 
+use_ccall_macro = false
+
+wrap_variadic_function = true
+# generate getproperty/setproperty! methods for the types in the following list
+field_access_method_list = []
+
+# the generator will prefix the function argument names in the following list with a "_" to 
+# prevent the generated symbols from conflicting with the symbols defined and exported in Base.
+function_argument_conflict_symbols = []
+
 [codegen.macro]
-# it highly recommended to set this entry to "basic".
+# it‘s highly recommended to set this entry to "basic".
 # if you'd like to skip all of the macros, please set this entry to "disable".
-# if you'd like to aggressive translate macros to Julia, please set this entry to "aggressive".
+# if you'd like to translate function-like macros to Julia, please set this entry to "aggressive".
 macro_mode = "basic"
 
-# if this entry is true, the generator prints the following message as comments.
+# function-like macros in the following list will always be translated.
+functionlike_macro_whitelist = []
+
+# if true, the generator prints the following message as comments.
 # "# Skipping MacroDefinition: ..."
 add_comment_for_skipped_macro = true
 
-# ignore any macros that is suffixed with "_H"
+# if true, ignore any macros that is suffixed with "_H" or in the `ignore_header_guards_with_suffixes` list
 ignore_header_guards = true
+ignore_header_guards_with_suffixes = []
 
-[general.log]
+# if true, ignore those pure definition macros in the C code
+ignore_pure_definition = true
