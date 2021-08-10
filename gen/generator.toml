@@ -1,28 +1,12 @@
 [general]
-# it could also be an expression as long as `Meta.parse` can parse this string successfully.
-# basically, it should be the `expression` in the following code:
-# ccall((function_name, expression), returntype, (argtype1, ...), argvalue1, ...)
 library_name = "libcimplot"
-
-# this entry allows you to specify different library names for different headers.
-# in the following example:
-# library_names = {"config.h" = "libclang_config", "libclang_p.*.h" = "libclang_patch"}
-# those functions in the `config.h` will be generated as:
-# ccall((function_name, libclang_config), returntype, (argtype1, ...), argvalue1, ...)
 library_names = {}
-
-# output file path relative to the working directory
 output_file_path = "./tmp/libcimplot.jl"
 
-# if this entry is not empty, the generator will print the code below to the `output_file_path`.
-# module module_name
-# 
-# end # module
+# if not empty, wrap the output in a module of this name.
 module_name = "LibCImPlot"
 
-# if this entry is not empty, the generator will print the code below to the `output_file_path`.
-# using jll_pkg_name
-# export jll_pkg_name
+# if not empty, `using` + `export` jll pkg
 jll_pkg_name = "CImPlot_jll"
 
 # for packages that have extra JLL package dependencies
@@ -89,10 +73,10 @@ smart_de_anonymize = true
 # if this option is set to true, those structs that are not necessary to be an 
 # immutable struct will be generated as a mutable struct. 
 # this option is default to false, do read the paragraph below before using this feature.
-auto_mutability = true
+auto_mutability = false
 
 # add inner constructor `Foo() = new()`
-auto_mutability_with_new = true
+auto_mutability_with_new = false
 
 # if you feel like certain structs should not be generated as mutable struct, please add them in the following list. 
 # for example, if a C function accepts a `Vector` of some type as its argument like:

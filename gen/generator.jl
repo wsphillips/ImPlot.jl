@@ -1,5 +1,5 @@
 using Clang.Generators
-using ExprTools, MacroTools
+using ExprTools, MacroTools, JSON3
 # using ImPlot.LibCImPlot.CImPlot_jll
 using CImGui.CImGui_jll
 
@@ -36,6 +36,7 @@ push!(args, "-I$CIMPLOT_INCLUDE_DIR")
 @add_def ImGuiContext
 
 imdatatypes = [:Cfloat, :Cdouble, :ImS8, :ImU8, :ImS16, :ImU16, :ImS32, :ImU32, :ImS64, :ImU64]
+
 plot_types = ["Line", "Scatter", "Stairs", "Shaded", "BarsH", "Bars", "ErrorBarsH",
               "ErrorBars", "Stems", "VLines", "HLines", "PieChart", "Heatmap", "Histogram",
               "Histogram2D", "Digital"]
@@ -43,34 +44,190 @@ plot_types = ["Line", "Scatter", "Stairs", "Shaded", "BarsH", "Bars", "ErrorBars
 ctx = create_context(CIMPLOT_H, args, options)
 build!(ctx, BUILDSTAGE_NO_PRINTING)
 
-#json_string = read("my.json", String)
-#JSON3.read(json_string)
+json_string = read("assets/definitions.json", String);
+metadata = JSON3.read(json_string);
 
-function carg_modify(ex, fun_args)
-    if @capture(ex, ccall((funsymbol_, libcimplot), rettype_, (argtypes__,), argnames__))
-        for (i, argtype) in enumerate(argtypes)
-            if @capture(argtype, Ptr{ptrtype_}) && ptrtype ∈ imdatatypes
-                arg = fun_args[i]
-                fun_args[i] = :($arg::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
-            elseif @capture(argtype, sym_::Cint)
-                fun_args[i] = :($sym::Integer) 
-            elseif @capture(argtype, sym_::Cdouble | sym_::Cfloat)
-                fun_args[i] = :($sym::Real)
+function split_ccall(body)
+    local funsymbol, rettype, argtypes, argnames
+    for ex in body.args
+        @capture(ex, ccall((funsymbol_, libcimplot), rettype_, (argtypes__,), argnames__)) && break
+    end
+    return (funsymbol, rettype, argtypes, argnames)
+end
+
+function parse_default(T::DataType, str)
+    str == "((void*)0" && return :C_NULL
+    T <: Integer && return (startswith(str, "sizeof") ? :(sizeof($T)) : Meta.parse(str))
+    T <: AbstractFloat && return Meta.parse(str) 
+    T <: Cstring && return str
+    T <: Bool && return Meta.parse(str)
+    T <: Symbol && return Symbol(str)
+    return nothing
+end
+
+function make_plotmethod(def, metadata)
+
+    def[:name] = Symbol(metadata.funcname)
+    (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body]) 
+    fun_args = def[:args]
+
+    for (i, argtype) in enumerate(argtypes)
+        sym = argnames[i]
+        if @capture(argtype, Ptr{ptrtype_}) && ptrtype ∈ imdatatypes
+            def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+        elseif argtype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
+
+            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
+                val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
+                def[:args][i] = :($sym::Integer = $val)
+            else
+                def[:args][i] = :($sym::Integer) 
+            end
+
+        elseif argtype ∈ (:Cfloat, :Cdouble)
+            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
+                val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
+                def[:args][i] = :($sym::Real = $val)
+            else
+                def[:args][i] = :($sym::Real)
+            end
+        elseif argtype == :Cstring
+            # Don't annotate string arguments--we want to be able to pass C_NULL
+            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
+                val = parse_default(eval(argtype), getproperty(metadata.defaults, sym))
+                def[:args][i] = :($sym = $val)
             end
         end
-        return :(ccall(($funsymbol, libcimplot), $rettype, $(argtypes...,), $(argnames...)))
-    else
-        return ex
     end
+    
+    def[:body] = Expr(:block, 
+                      :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
 end             
 
-function revise_function(e::Expr)
-    
-    def = ExprTools.splitdef(e)
-    # Skip if it's not a prefix added by cimplot
-    fun_name = string(def[:name])
-    startswith(fun_name,"ImPlot_") || return e
+function make_finalizer!(def, metadata)
+    def[:name] = :(Base.finalizer)
+    (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body]) 
+    argtype = only(argtypes)
+    argname = only(argnames)
 
+    @capture(argtype, Ptr{ptrtype_})
+    def[:args] = [:($argname::$ptrtype)]
+    new_ccall = :(ccall(($funsymbol, libcimplot), $rettype, ($argtype,), $argname))
+    def[:body] = Expr(:block, :(ptr = pointer_from_objref($argname)),
+                      :(GC.@preserve $argname $new_ccall))
+end
+
+function make_constructor!(def, metadata)
+    def[:name] = Symbol(metadata.stname)
+    (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
+    new_ccall = :(ptr = ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...)))
+    def[:body] = Expr(:block, new_ccall, :(unsafe_load(ptr)))
+end
+
+function make_objmethod!(def, metadata)
+    def[:name] = Symbol(metadata.funcname)
+end
+
+function make_nonudt(def, metadata)
+    def[:name] = Symbol(metadata.funcname)
+    (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
+    out_arg_type = first(argtypes)
+    sym = popfirst!(def[:args]) 
+    @capture(first(argtypes), Ptr{ptr_type_})
+    def[:body] = Expr(:block,
+                      :($sym = Ref($ptr_type)),
+                      :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))),
+                      :($sym[]))
+
+    if length(propertynames(metadata.defaults)) > 0
+        # parse default values
+    end  
+end
+
+function make_generic(def, metadata)
+    def[:name] = Symbol(metadata.funcname)
+    (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
+    def[:body] = Expr(:block,
+                      :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
+    if length(propertynames(metadata.defaults)) > 0
+        # parse default values
+    end
+end
+
+function revise_function(ex::Expr, all_metadata, options) 
+    def = ExprTools.splitdef(ex)
+    
+    # Skip Expr function names (e.g. :(Base.getproperty))
+    def[:name] isa Symbol || return ex
+    fun_name = String(def[:name])
+
+    # Skip functions not in the JSON metadata
+    any(startswith.(fun_name,String.(propertynames(all_metadata)))) || return ex
+    
+    local metadata
+    # Find and extract metadata for specific cimplot function
+    for objfield in all_metadata
+        objvec = objfield.second
+        idx = findfirst(x -> isequal(x.ov_cimguiname, fun_name), objvec)
+        if !isnothing(idx)
+            metadata = objvec[idx]
+            break
+        end
+    end
+
+    @isdefined(metadata) || throw("Could not find cimgui function in JSON metadata")
+   
+    # Check if it's for a type
+    if metadata.stname !== ""
+        # Skip constructors/destructors 
+        if metadata.stname ∉ options["general"]["auto_mutability_blacklist"]
+            if hasproperty(metadata, :destructor)
+                make_finalizer!(def, metadata)
+                return ExprTools.combinedef(def)
+            elseif hasproperty(metadata, :constructor)
+                # write contructor...
+                make_constructor!(def, metadata)
+                return ExprTools.combinedef(def)
+            end
+            # Fall through to object method
+            make_objmethod!(def,metadata)
+            return ExprTools.combinedef(def)
+        end
+    elseif startswith(metadata.funcname, "Plot")
+        # Since Plot functions are templated, dispatch on pointer (data input) arguments
+        make_plotmethod(def, metadata)
+        return ExprTools.combinedef(def)
+    elseif hasproperty(metadata, :nonUDT)
+
+        # Pop the pOut argument and insert a Ref creation and unload...
+        make_nonudt(def, metadata)
+        return ExprTools.combinedef(def)
+
+    else
+        make_generic(def, metadata)
+        out = ExprTools.combinedef(def)
+        return out
+    end
+    @warn "function not parsed"
+        return ex
+end
+
+function rewrite!(dag::ExprDAG, metadata, options)
+    for node in get_nodes(dag)
+        expressions = get_exprs(node)
+        for (i, expr) in enumerate(expressions)
+            if Meta.isexpr(expr, :function)
+                    expressions[i] = revise_function(expr, metadata, options)
+            end
+        end
+    end
+end
+
+rewrite!(ctx.dag, metadata, options)
+build!(ctx, BUILDSTAGE_PRINTING_ONLY)
+
+
+    #=
     # Strip off the prefix to match C++ (since we have a namespace)
     fun_name = fun_name[8:end] # remove first 7 characters == 'ImPlot_'
 
@@ -93,18 +250,5 @@ function revise_function(e::Expr)
         def[:body] = new_body
     end
     return ExprTools.combinedef(def)
-end
+    =#
 
-function rewrite!(dag::ExprDAG)
-    for node in get_nodes(dag)
-        expressions = get_exprs(node)
-        for (i, expr) in enumerate(expressions)
-            if Meta.isexpr(expr, :function)
-                expressions[i] = revise_function(expr)
-            end
-        end
-    end
-end
-
-rewrite!(ctx.dag)
-build!(ctx, BUILDSTAGE_PRINTING_ONLY)

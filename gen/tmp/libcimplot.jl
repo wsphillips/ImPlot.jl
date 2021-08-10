@@ -308,1264 +308,1290 @@ function ImPlotLimits_Containsdouble(self, x::Cdouble, y::Cdouble)
     ccall((:ImPlotLimits_Containsdouble, libcimplot), Bool, (Ptr{ImPlotLimits}, Cdouble, Cdouble), self, x, y)
 end
 
-function ImPlotStyle_ImPlotStyle()
-    ccall((:ImPlotStyle_ImPlotStyle, libcimplot), Ptr{ImPlotStyle}, ())
+function ImPlotStyle()
+    ptr = ccall((:ImPlotStyle_ImPlotStyle, libcimplot), Ptr{ImPlotStyle}, ())
+    unsafe_load(ptr)
 end
 
-function ImPlotStyle_destroy(self)
-    ccall((:ImPlotStyle_destroy, libcimplot), Cvoid, (Ptr{ImPlotStyle},), self)
+function Base.finalizer(self::ImPlotStyle)
+    ptr = pointer_from_objref(self)
+    #= REPL[41]:11 =# GC.@preserve self ccall((:ImPlotStyle_destroy, libcimplot), Cvoid, (Ptr{ImPlotStyle},), self)
 end
 
-function ImPlotInputMap_ImPlotInputMap()
-    ccall((:ImPlotInputMap_ImPlotInputMap, libcimplot), Ptr{ImPlotInputMap}, ())
+function ImPlotInputMap()
+    ptr = ccall((:ImPlotInputMap_ImPlotInputMap, libcimplot), Ptr{ImPlotInputMap}, ())
+    unsafe_load(ptr)
 end
 
-function ImPlotInputMap_destroy(self)
-    ccall((:ImPlotInputMap_destroy, libcimplot), Cvoid, (Ptr{ImPlotInputMap},), self)
+function Base.finalizer(self::ImPlotInputMap)
+    ptr = pointer_from_objref(self)
+    #= REPL[41]:11 =# GC.@preserve self ccall((:ImPlotInputMap_destroy, libcimplot), Cvoid, (Ptr{ImPlotInputMap},), self)
 end
 
-function ImPlot_CreateContext()
+function CreateContext()
     ccall((:ImPlot_CreateContext, libcimplot), Ptr{ImPlotContext}, ())
 end
 
-function ImPlot_DestroyContext(ctx)
+function DestroyContext(ctx)
     ccall((:ImPlot_DestroyContext, libcimplot), Cvoid, (Ptr{ImPlotContext},), ctx)
 end
 
-function ImPlot_GetCurrentContext()
+function GetCurrentContext()
     ccall((:ImPlot_GetCurrentContext, libcimplot), Ptr{ImPlotContext}, ())
 end
 
-function ImPlot_SetCurrentContext(ctx)
+function SetCurrentContext(ctx)
     ccall((:ImPlot_SetCurrentContext, libcimplot), Cvoid, (Ptr{ImPlotContext},), ctx)
 end
 
-function ImPlot_BeginPlot(title_id, x_label, y_label, size::ImVec2, flags::ImPlotFlags, x_flags::ImPlotAxisFlags, y_flags::ImPlotAxisFlags, y2_flags::ImPlotAxisFlags, y3_flags::ImPlotAxisFlags)
+function BeginPlot(title_id, x_label, y_label, size::ImVec2, flags::ImPlotFlags, x_flags::ImPlotAxisFlags, y_flags::ImPlotAxisFlags, y2_flags::ImPlotAxisFlags, y3_flags::ImPlotAxisFlags)
     ccall((:ImPlot_BeginPlot, libcimplot), Bool, (Cstring, Cstring, Cstring, ImVec2, ImPlotFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags, ImPlotAxisFlags), title_id, x_label, y_label, size, flags, x_flags, y_flags, y2_flags, y3_flags)
 end
 
-function ImPlot_EndPlot()
+function EndPlot()
     ccall((:ImPlot_EndPlot, libcimplot), Cvoid, ())
 end
 
-function PlotLine(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLinedoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLinedoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotLine(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLinedoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLinedoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotLine(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotLineU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotLine(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotLineU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotScatter(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotScatter(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotScatterU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotScatter(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotScatterU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, xscale, x0, offset, stride)
+function PlotStairs(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, xscale, x0, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStairsU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotStairs(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStairsU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairs(label_id, getter, data, count::Cint, offset::Cint)
-    ccall((:ImPlot_PlotStairsG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cint), label_id, getter, data, count, offset)
+function PlotStairsG(label_id, getter, data, count::Integer, offset::Integer = 0)
+    ccall((:ImPlot_PlotStairsG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedFloatPtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedFloatPtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadeddoublePtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadeddoublePtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS8PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS8PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU8PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU8PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS16PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS16PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU16PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU16PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS32PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS32PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU32PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU32PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS64PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS64PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU64PtrIntdoubledoubleInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotShaded(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU64PtrIntdoubledoubleInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedFloatPtrFloatPtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedFloatPtrFloatPtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadeddoublePtrdoublePtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadeddoublePtrdoublePtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS8PtrS8PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS8PtrS8PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU8PtrU8PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU8PtrU8PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS16PtrS16PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS16PtrS16PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU16PtrU16PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU16PtrU16PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS32PtrS32PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS32PtrS32PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU32PtrU32PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU32PtrU32PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS64PtrS64PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS64PtrS64PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU64PtrU64PtrIntInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU64PtrU64PtrIntInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys1::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys2::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys1::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys2::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys1::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys2::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadeddoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys1::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys2::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadeddoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys1::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys2::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS8PtrS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys1::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys2::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS8PtrS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys1::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys2::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU8PtrU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys1::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys2::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU8PtrU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys1::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys2::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS16PtrS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys1::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys2::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS16PtrS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys1::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys2::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU16PtrU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys1::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys2::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU16PtrU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys1::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys2::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS32PtrS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys1::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys2::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS32PtrS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys1::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys2::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU32PtrU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys1::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys2::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU32PtrU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys1::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys2::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedS64PtrS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys1::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys2::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedS64PtrS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotShaded(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys1::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys2::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotShadedU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys1, ys2, count, offset, stride)
+function PlotShaded(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys1::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys2::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotShadedU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys1, ys2, count, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, width::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, width, shift, offset, stride)
+function PlotBars(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, width::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, width, shift, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBars(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, width::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, width, offset, stride)
+function PlotBars(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, width::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, width, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, height::Cdouble, shift::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, height, shift, offset, stride)
+function PlotBarsH(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, height::Real = 0.67, shift::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cint, Cint), label_id, values, count, height, shift, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotBarsH(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, height::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotBarsHU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, height, offset, stride)
+function PlotBarsH(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, height::Real, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotBarsHU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, height, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, err::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, err::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, err::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsdoublePtrdoublePtrdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, err::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsdoublePtrdoublePtrdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, err::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS8PtrS8PtrS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, err::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS8PtrS8PtrS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, err::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU8PtrU8PtrU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, err::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU8PtrU8PtrU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, err::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS16PtrS16PtrS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, err::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS16PtrS16PtrS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, err::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU16PtrU16PtrU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, err::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU16PtrU16PtrU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, err::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS32PtrS32PtrS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, err::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS32PtrS32PtrS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, err::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU32PtrU32PtrU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, err::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU32PtrU32PtrU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, err::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS64PtrS64PtrS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, err::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS64PtrS64PtrS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, err::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU64PtrU64PtrU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, err::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU64PtrU64PtrU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, neg::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, pos::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, neg::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, pos::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsFloatPtrFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, neg::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, pos::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsdoublePtrdoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, neg::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, pos::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsdoublePtrdoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, neg::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, pos::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS8PtrS8PtrS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, neg::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, pos::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS8PtrS8PtrS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, neg::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, pos::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU8PtrU8PtrU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, neg::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, pos::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU8PtrU8PtrU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, neg::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, pos::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS16PtrS16PtrS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, neg::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, pos::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS16PtrS16PtrS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, neg::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, pos::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU16PtrU16PtrU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, neg::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, pos::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU16PtrU16PtrU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, neg::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, pos::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS32PtrS32PtrS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, neg::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, pos::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS32PtrS32PtrS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, neg::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, pos::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU32PtrU32PtrU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, neg::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, pos::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU32PtrU32PtrU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, neg::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, pos::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsS64PtrS64PtrS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, neg::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, pos::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsS64PtrS64PtrS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBars(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, neg::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, pos::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsU64PtrU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBars(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, neg::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, pos::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsU64PtrU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, err::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, err::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHFloatPtrFloatPtrFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, err::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHdoublePtrdoublePtrdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, err::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHdoublePtrdoublePtrdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, err::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS8PtrS8PtrS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, err::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS8PtrS8PtrS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, err::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU8PtrU8PtrU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, err::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU8PtrU8PtrU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, err::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS16PtrS16PtrS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, err::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS16PtrS16PtrS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, err::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU16PtrU16PtrU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, err::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU16PtrU16PtrU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, err::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS32PtrS32PtrS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, err::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS32PtrS32PtrS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, err::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU32PtrU32PtrU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, err::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU32PtrU32PtrU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, err::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS64PtrS64PtrS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, err::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS64PtrS64PtrS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, err::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU64PtrU64PtrU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, err, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, err::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU64PtrU64PtrU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, err, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, neg::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, pos::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, neg::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, pos::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHFloatPtrFloatPtrFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, neg::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, pos::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, neg::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, pos::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHdoublePtrdoublePtrdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, neg::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, pos::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS8PtrS8PtrS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, neg::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, pos::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS8PtrS8PtrS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, neg::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, pos::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU8PtrU8PtrU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, neg::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, pos::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU8PtrU8PtrU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, neg::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, pos::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS16PtrS16PtrS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, neg::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, pos::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS16PtrS16PtrS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, neg::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, pos::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU16PtrU16PtrU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, neg::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, pos::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU16PtrU16PtrU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, neg::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, pos::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS32PtrS32PtrS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, neg::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, pos::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS32PtrS32PtrS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, neg::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, pos::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU32PtrU32PtrU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, neg::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, pos::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU32PtrU32PtrU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, neg::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, pos::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHS64PtrS64PtrS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, neg::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, pos::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHS64PtrS64PtrS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, neg::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, pos::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotErrorBarsHU64PtrU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, neg, pos, count, offset, stride)
+function PlotErrorBarsH(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, neg::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, pos::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotErrorBarsHU64PtrU64PtrU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, neg, pos, count, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsFloatPtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsFloatPtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsdoublePtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsdoublePtrInt, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU8PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU8PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU16PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU16PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU32PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU32PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, y_ref::Cdouble, xscale::Cdouble, x0::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU64PtrInt, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Cint, :Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
+function PlotStems(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, y_ref::Real = 0, xscale::Real = 1, x0::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU64PtrInt, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cdouble, Cint, Cint), label_id, values, count, y_ref, xscale, x0, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsFloatPtrFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsFloatPtrFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsdoublePtrdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsdoublePtrdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS8PtrS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS8PtrS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU8PtrU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU8PtrU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS16PtrS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS16PtrS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU16PtrU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU16PtrU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS32PtrS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS32PtrS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU32PtrU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU32PtrU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsS64PtrS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsS64PtrS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotStems(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, y_ref::Cdouble, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotStemsU64PtrU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cdouble, :Cint, :Cint), label_id, xs, ys, count, y_ref, offset, stride)
+function PlotStems(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, y_ref::Real = 0, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotStemsU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartFloatPtr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{Cfloat}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartFloatPtr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartdoublePtr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{Cdouble}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartdoublePtr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartS8Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImS8}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartS8Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartU8Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImU8}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartU8Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartS16Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImS16}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartS16Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartU16Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImU16}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartU16Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartS32Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImS32}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartS32Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartU32Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImU32}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartU32Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartS64Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImS64}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartS64Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, x::Cdouble, y::Cdouble, radius::Cdouble, normalize::Bool, label_fmt, angle0::Cdouble)
-    ccall((:ImPlot_PlotPieChartU64Ptr, libcimplot), Cvoid, (:(Ptr{Cstring}), :(Ptr{ImU64}), :Cint, :Cdouble, :Cdouble, :Cdouble, :Bool, :Cstring, :Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
+function PlotPieChart(label_ids, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, x::Real, y::Real, radius::Real, normalize::Bool, label_fmt = "\"%.1f\"", angle0::Real = 90)
+    ccall((:ImPlot_PlotPieChartU64Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapdoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapdoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHeatmap(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, rows::Cint, cols::Cint, scale_min::Cdouble, scale_max::Cdouble, label_fmt, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
-    ccall((:ImPlot_PlotHeatmapU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :Cint, :Cint, :Cdouble, :Cdouble, :Cstring, :ImPlotPoint, :ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
+function PlotHeatmap(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, rows::Integer, cols::Integer, scale_min::Real, scale_max::Real, label_fmt = "\"%.1f\"", bounds_min::ImPlotPoint, bounds_max::ImPlotPoint)
+    ccall((:ImPlot_PlotHeatmapU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalFloatPtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cfloat}), :(Ptr{Cfloat}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalFloatPtr, libcimplot), Cvoid, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitaldoublePtr, libcimplot), Cvoid, (:Cstring, :(Ptr{Cdouble}), :(Ptr{Cdouble}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitaldoublePtr, libcimplot), Cvoid, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalS8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS8}), :(Ptr{ImS8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalS8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalU8Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU8}), :(Ptr{ImU8}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalU8Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalS16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS16}), :(Ptr{ImS16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalS16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalU16Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU16}), :(Ptr{ImU16}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalU16Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalS32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS32}), :(Ptr{ImS32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalS32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalU32Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU32}), :(Ptr{ImU32}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalU32Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalS64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImS64}), :(Ptr{ImS64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalS64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotDigital(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Cint, offset::Cint, stride::Cint)
-    ccall((:ImPlot_PlotDigitalU64Ptr, libcimplot), Cvoid, (:Cstring, :(Ptr{ImU64}), :(Ptr{ImU64}), :Cint, :Cint, :Cint), label_id, xs, ys, count, offset, stride)
+function PlotDigital(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, offset::Integer = 0, stride::Integer = sizeof(Int32))
+    ccall((:ImPlot_PlotDigitalU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function var""(label_id, user_texture_id::ImTextureID, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint, uv0::ImVec2, uv1::ImVec2, tint_col::ImVec4)
-    ccall((:ImPlot_PlotImage, libcimplot), Cvoid, (:Cstring, :ImTextureID, :ImPlotPoint, :ImPlotPoint, :ImVec2, :ImVec2, :ImVec4), label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
+function PlotImage(label_id, user_texture_id::ImTextureID, bounds_min::ImPlotPoint, bounds_max::ImPlotPoint, uv0::ImVec2, uv1::ImVec2, tint_col::ImVec4)
+    ccall((:ImPlot_PlotImage, libcimplot), Cvoid, (Cstring, ImTextureID, ImPlotPoint, ImPlotPoint, ImVec2, ImVec2, ImVec4), label_id, user_texture_id, bounds_min, bounds_max, uv0, uv1, tint_col)
 end
 
-function var""(text, x::Cdouble, y::Cdouble, vertical::Bool, pix_offset::ImVec2)
-    ccall((:ImPlot_PlotText, libcimplot), Cvoid, (:Cstring, :Cdouble, :Cdouble, :Bool, :ImVec2), text, x, y, vertical, pix_offset)
+function PlotText(text, x::Real, y::Real, vertical::Bool, pix_offset::ImVec2)
+    ccall((:ImPlot_PlotText, libcimplot), Cvoid, (Cstring, Cdouble, Cdouble, Bool, ImVec2), text, x, y, vertical, pix_offset)
 end
 
-function var""(label_id)
-    ccall((:ImPlot_PlotDummy, libcimplot), Cvoid, (:Cstring,), label_id)
+function PlotDummy(label_id)
+    ccall((:ImPlot_PlotDummy, libcimplot), Cvoid, (Cstring,), label_id)
 end
 
-function ImPlot_SetNextPlotLimits(xmin::Cdouble, xmax::Cdouble, ymin::Cdouble, ymax::Cdouble, cond::ImGuiCond)
+function SetNextPlotLimits(xmin::Cdouble, xmax::Cdouble, ymin::Cdouble, ymax::Cdouble, cond::ImGuiCond)
     ccall((:ImPlot_SetNextPlotLimits, libcimplot), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, ImGuiCond), xmin, xmax, ymin, ymax, cond)
 end
 
-function ImPlot_SetNextPlotLimitsX(xmin::Cdouble, xmax::Cdouble, cond::ImGuiCond)
+function SetNextPlotLimitsX(xmin::Cdouble, xmax::Cdouble, cond::ImGuiCond)
     ccall((:ImPlot_SetNextPlotLimitsX, libcimplot), Cvoid, (Cdouble, Cdouble, ImGuiCond), xmin, xmax, cond)
 end
 
-function ImPlot_SetNextPlotLimitsY(ymin::Cdouble, ymax::Cdouble, cond::ImGuiCond, y_axis::ImPlotYAxis)
+function SetNextPlotLimitsY(ymin::Cdouble, ymax::Cdouble, cond::ImGuiCond, y_axis::ImPlotYAxis)
     ccall((:ImPlot_SetNextPlotLimitsY, libcimplot), Cvoid, (Cdouble, Cdouble, ImGuiCond, ImPlotYAxis), ymin, ymax, cond, y_axis)
 end
 
-function ImPlot_LinkNextPlotLimits(xmin, xmax, ymin, ymax, ymin2, ymax2, ymin3, ymax3)
+function LinkNextPlotLimits(xmin, xmax, ymin, ymax, ymin2, ymax2, ymin3, ymax3)
     ccall((:ImPlot_LinkNextPlotLimits, libcimplot), Cvoid, (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}), xmin, xmax, ymin, ymax, ymin2, ymax2, ymin3, ymax3)
 end
 
-function ImPlot_FitNextPlotAxes(x::Bool, y::Bool, y2::Bool, y3::Bool)
+function FitNextPlotAxes(x::Bool, y::Bool, y2::Bool, y3::Bool)
     ccall((:ImPlot_FitNextPlotAxes, libcimplot), Cvoid, (Bool, Bool, Bool, Bool), x, y, y2, y3)
 end
 
-function ImPlot_SetNextPlotTicksXdoublePtr(values, n_ticks::Cint, labels, show_default::Bool)
+function SetNextPlotTicksX(values, n_ticks::Cint, labels, show_default::Bool)
     ccall((:ImPlot_SetNextPlotTicksXdoublePtr, libcimplot), Cvoid, (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool), values, n_ticks, labels, show_default)
 end
 
-function ImPlot_SetNextPlotTicksXdouble(x_min::Cdouble, x_max::Cdouble, n_ticks::Cint, labels, show_default::Bool)
+function SetNextPlotTicksX(x_min::Cdouble, x_max::Cdouble, n_ticks::Cint, labels, show_default::Bool)
     ccall((:ImPlot_SetNextPlotTicksXdouble, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool), x_min, x_max, n_ticks, labels, show_default)
 end
 
-function ImPlot_SetNextPlotTicksYdoublePtr(values, n_ticks::Cint, labels, show_default::Bool, y_axis::ImPlotYAxis)
+function SetNextPlotTicksY(values, n_ticks::Cint, labels, show_default::Bool, y_axis::ImPlotYAxis)
     ccall((:ImPlot_SetNextPlotTicksYdoublePtr, libcimplot), Cvoid, (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool, ImPlotYAxis), values, n_ticks, labels, show_default, y_axis)
 end
 
-function ImPlot_SetNextPlotTicksYdouble(y_min::Cdouble, y_max::Cdouble, n_ticks::Cint, labels, show_default::Bool, y_axis::ImPlotYAxis)
+function SetNextPlotTicksY(y_min::Cdouble, y_max::Cdouble, n_ticks::Cint, labels, show_default::Bool, y_axis::ImPlotYAxis)
     ccall((:ImPlot_SetNextPlotTicksYdouble, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool, ImPlotYAxis), y_min, y_max, n_ticks, labels, show_default, y_axis)
 end
 
-function ImPlot_SetPlotYAxis(y_axis::ImPlotYAxis)
+function SetPlotYAxis(y_axis::ImPlotYAxis)
     ccall((:ImPlot_SetPlotYAxis, libcimplot), Cvoid, (ImPlotYAxis,), y_axis)
 end
 
-function ImPlot_HideNextItem(hidden::Bool, cond::ImGuiCond)
+function HideNextItem(hidden::Bool, cond::ImGuiCond)
     ccall((:ImPlot_HideNextItem, libcimplot), Cvoid, (Bool, ImGuiCond), hidden, cond)
 end
 
-function ImPlot_PixelsToPlotVec2(pOut, pix::ImVec2, y_axis::ImPlotYAxis)
+function PixelsToPlot(pix::ImVec2, y_axis::ImPlotYAxis)
+    pOut = Ref(ImPlotPoint)
     ccall((:ImPlot_PixelsToPlotVec2, libcimplot), Cvoid, (Ptr{ImPlotPoint}, ImVec2, ImPlotYAxis), pOut, pix, y_axis)
+    pOut[]
 end
 
-function ImPlot_PixelsToPlotFloat(pOut, x::Cfloat, y::Cfloat, y_axis::ImPlotYAxis)
+function PixelsToPlot(x::Cfloat, y::Cfloat, y_axis::ImPlotYAxis)
+    pOut = Ref(ImPlotPoint)
     ccall((:ImPlot_PixelsToPlotFloat, libcimplot), Cvoid, (Ptr{ImPlotPoint}, Cfloat, Cfloat, ImPlotYAxis), pOut, x, y, y_axis)
+    pOut[]
 end
 
-function var""(pOut, plt::ImPlotPoint, y_axis::ImPlotYAxis)
-    ccall((:ImPlot_PlotToPixelsPlotPoInt, libcimplot), Cvoid, (:(Ptr{ImVec2}), :ImPlotPoint, :ImPlotYAxis), pOut, plt, y_axis)
+function PlotToPixels(pOut, plt::ImPlotPoint, y_axis::ImPlotYAxis)
+    ccall((:ImPlot_PlotToPixelsPlotPoInt, libcimplot), Cvoid, (Ptr{ImVec2}, ImPlotPoint, ImPlotYAxis), pOut, plt, y_axis)
 end
 
-function var""(pOut, x::Cdouble, y::Cdouble, y_axis::ImPlotYAxis)
-    ccall((:ImPlot_PlotToPixelsdouble, libcimplot), Cvoid, (:(Ptr{ImVec2}), :Cdouble, :Cdouble, :ImPlotYAxis), pOut, x, y, y_axis)
+function PlotToPixels(pOut, x::Real, y::Real, y_axis::ImPlotYAxis)
+    ccall((:ImPlot_PlotToPixelsdouble, libcimplot), Cvoid, (Ptr{ImVec2}, Cdouble, Cdouble, ImPlotYAxis), pOut, x, y, y_axis)
 end
 
-function ImPlot_GetPlotPos(pOut)
+function GetPlotPos()
+    pOut = Ref(ImVec2)
     ccall((:ImPlot_GetPlotPos, libcimplot), Cvoid, (Ptr{ImVec2},), pOut)
+    pOut[]
 end
 
-function ImPlot_GetPlotSize(pOut)
+function GetPlotSize()
+    pOut = Ref(ImVec2)
     ccall((:ImPlot_GetPlotSize, libcimplot), Cvoid, (Ptr{ImVec2},), pOut)
+    pOut[]
 end
 
-function ImPlot_IsPlotHovered()
+function IsPlotHovered()
     ccall((:ImPlot_IsPlotHovered, libcimplot), Bool, ())
 end
 
-function ImPlot_IsPlotXAxisHovered()
+function IsPlotXAxisHovered()
     ccall((:ImPlot_IsPlotXAxisHovered, libcimplot), Bool, ())
 end
 
-function ImPlot_IsPlotYAxisHovered(y_axis::ImPlotYAxis)
+function IsPlotYAxisHovered(y_axis::ImPlotYAxis)
     ccall((:ImPlot_IsPlotYAxisHovered, libcimplot), Bool, (ImPlotYAxis,), y_axis)
 end
 
-function ImPlot_GetPlotMousePos(pOut, y_axis::ImPlotYAxis)
+function GetPlotMousePos(y_axis::ImPlotYAxis)
+    pOut = Ref(ImPlotPoint)
     ccall((:ImPlot_GetPlotMousePos, libcimplot), Cvoid, (Ptr{ImPlotPoint}, ImPlotYAxis), pOut, y_axis)
+    pOut[]
 end
 
-function ImPlot_GetPlotLimits(pOut, y_axis::ImPlotYAxis)
+function GetPlotLimits(y_axis::ImPlotYAxis)
+    pOut = Ref(ImPlotLimits)
     ccall((:ImPlot_GetPlotLimits, libcimplot), Cvoid, (Ptr{ImPlotLimits}, ImPlotYAxis), pOut, y_axis)
+    pOut[]
 end
 
-function ImPlot_IsPlotQueried()
+function IsPlotQueried()
     ccall((:ImPlot_IsPlotQueried, libcimplot), Bool, ())
 end
 
-function ImPlot_GetPlotQuery(pOut, y_axis::ImPlotYAxis)
+function GetPlotQuery(y_axis::ImPlotYAxis)
+    pOut = Ref(ImPlotLimits)
     ccall((:ImPlot_GetPlotQuery, libcimplot), Cvoid, (Ptr{ImPlotLimits}, ImPlotYAxis), pOut, y_axis)
+    pOut[]
 end
 
-function ImPlot_DragLineX(id, x_value, show_label::Bool, col::ImVec4, thickness::Cfloat)
+function DragLineX(id, x_value, show_label::Bool, col::ImVec4, thickness::Cfloat)
     ccall((:ImPlot_DragLineX, libcimplot), Bool, (Cstring, Ptr{Cdouble}, Bool, ImVec4, Cfloat), id, x_value, show_label, col, thickness)
 end
 
-function ImPlot_DragLineY(id, y_value, show_label::Bool, col::ImVec4, thickness::Cfloat)
+function DragLineY(id, y_value, show_label::Bool, col::ImVec4, thickness::Cfloat)
     ccall((:ImPlot_DragLineY, libcimplot), Bool, (Cstring, Ptr{Cdouble}, Bool, ImVec4, Cfloat), id, y_value, show_label, col, thickness)
 end
 
-function ImPlot_DragPoint(id, x, y, show_label::Bool, col::ImVec4, radius::Cfloat)
+function DragPoint(id, x, y, show_label::Bool, col::ImVec4, radius::Cfloat)
     ccall((:ImPlot_DragPoint, libcimplot), Bool, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Bool, ImVec4, Cfloat), id, x, y, show_label, col, radius)
 end
 
-function ImPlot_SetLegendLocation(location::ImPlotLocation, orientation::ImPlotOrientation, outside::Bool)
+function SetLegendLocation(location::ImPlotLocation, orientation::ImPlotOrientation, outside::Bool)
     ccall((:ImPlot_SetLegendLocation, libcimplot), Cvoid, (ImPlotLocation, ImPlotOrientation, Bool), location, orientation, outside)
 end
 
-function ImPlot_SetMousePosLocation(location::ImPlotLocation)
+function SetMousePosLocation(location::ImPlotLocation)
     ccall((:ImPlot_SetMousePosLocation, libcimplot), Cvoid, (ImPlotLocation,), location)
 end
 
-function ImPlot_IsLegendEntryHovered(label_id)
+function IsLegendEntryHovered(label_id)
     ccall((:ImPlot_IsLegendEntryHovered, libcimplot), Bool, (Cstring,), label_id)
 end
 
-function ImPlot_BeginLegendDragDropSource(label_id, flags::ImGuiDragDropFlags)
+function BeginLegendDragDropSource(label_id, flags::ImGuiDragDropFlags)
     ccall((:ImPlot_BeginLegendDragDropSource, libcimplot), Bool, (Cstring, ImGuiDragDropFlags), label_id, flags)
 end
 
-function ImPlot_EndLegendDragDropSource()
+function EndLegendDragDropSource()
     ccall((:ImPlot_EndLegendDragDropSource, libcimplot), Cvoid, ())
 end
 
-function ImPlot_BeginLegendPopup(label_id, mouse_button::ImGuiMouseButton)
+function BeginLegendPopup(label_id, mouse_button::ImGuiMouseButton)
     ccall((:ImPlot_BeginLegendPopup, libcimplot), Bool, (Cstring, ImGuiMouseButton), label_id, mouse_button)
 end
 
-function ImPlot_EndLegendPopup()
+function EndLegendPopup()
     ccall((:ImPlot_EndLegendPopup, libcimplot), Cvoid, ())
 end
 
-function ImPlot_GetStyle()
+function GetStyle()
     ccall((:ImPlot_GetStyle, libcimplot), Ptr{ImPlotStyle}, ())
 end
 
-function ImPlot_StyleColorsAuto(dst)
+function StyleColorsAuto(dst)
     ccall((:ImPlot_StyleColorsAuto, libcimplot), Cvoid, (Ptr{ImPlotStyle},), dst)
 end
 
-function ImPlot_StyleColorsClassic(dst)
+function StyleColorsClassic(dst)
     ccall((:ImPlot_StyleColorsClassic, libcimplot), Cvoid, (Ptr{ImPlotStyle},), dst)
 end
 
-function ImPlot_StyleColorsDark(dst)
+function StyleColorsDark(dst)
     ccall((:ImPlot_StyleColorsDark, libcimplot), Cvoid, (Ptr{ImPlotStyle},), dst)
 end
 
-function ImPlot_StyleColorsLight(dst)
+function StyleColorsLight(dst)
     ccall((:ImPlot_StyleColorsLight, libcimplot), Cvoid, (Ptr{ImPlotStyle},), dst)
 end
 
-function ImPlot_PushStyleColorU32(idx::ImPlotCol, col::ImU32)
+function PushStyleColor(idx::ImPlotCol, col::ImU32)
     ccall((:ImPlot_PushStyleColorU32, libcimplot), Cvoid, (ImPlotCol, ImU32), idx, col)
 end
 
-function ImPlot_PushStyleColorVec4(idx::ImPlotCol, col::ImVec4)
+function PushStyleColor(idx::ImPlotCol, col::ImVec4)
     ccall((:ImPlot_PushStyleColorVec4, libcimplot), Cvoid, (ImPlotCol, ImVec4), idx, col)
 end
 
-function ImPlot_PopStyleColor(count::Cint)
+function PopStyleColor(count::Cint)
     ccall((:ImPlot_PopStyleColor, libcimplot), Cvoid, (Cint,), count)
 end
 
-function ImPlot_PushStyleVarFloat(idx::ImPlotStyleVar, val::Cfloat)
+function PushStyleVar(idx::ImPlotStyleVar, val::Cfloat)
     ccall((:ImPlot_PushStyleVarFloat, libcimplot), Cvoid, (ImPlotStyleVar, Cfloat), idx, val)
 end
 
-function ImPlot_PushStyleVarInt(idx::ImPlotStyleVar, val::Cint)
+function PushStyleVar(idx::ImPlotStyleVar, val::Cint)
     ccall((:ImPlot_PushStyleVarInt, libcimplot), Cvoid, (ImPlotStyleVar, Cint), idx, val)
 end
 
-function ImPlot_PushStyleVarVec2(idx::ImPlotStyleVar, val::ImVec2)
+function PushStyleVar(idx::ImPlotStyleVar, val::ImVec2)
     ccall((:ImPlot_PushStyleVarVec2, libcimplot), Cvoid, (ImPlotStyleVar, ImVec2), idx, val)
 end
 
-function ImPlot_PopStyleVar(count::Cint)
+function PopStyleVar(count::Cint)
     ccall((:ImPlot_PopStyleVar, libcimplot), Cvoid, (Cint,), count)
 end
 
-function ImPlot_SetNextLineStyle(col::ImVec4, weight::Cfloat)
+function SetNextLineStyle(col::ImVec4, weight::Cfloat)
     ccall((:ImPlot_SetNextLineStyle, libcimplot), Cvoid, (ImVec4, Cfloat), col, weight)
 end
 
-function ImPlot_SetNextFillStyle(col::ImVec4, alpha_mod::Cfloat)
+function SetNextFillStyle(col::ImVec4, alpha_mod::Cfloat)
     ccall((:ImPlot_SetNextFillStyle, libcimplot), Cvoid, (ImVec4, Cfloat), col, alpha_mod)
 end
 
-function ImPlot_SetNextMarkerStyle(marker::ImPlotMarker, size::Cfloat, fill::ImVec4, weight::Cfloat, outline::ImVec4)
+function SetNextMarkerStyle(marker::ImPlotMarker, size::Cfloat, fill::ImVec4, weight::Cfloat, outline::ImVec4)
     ccall((:ImPlot_SetNextMarkerStyle, libcimplot), Cvoid, (ImPlotMarker, Cfloat, ImVec4, Cfloat, ImVec4), marker, size, fill, weight, outline)
 end
 
-function ImPlot_SetNextErrorBarStyle(col::ImVec4, size::Cfloat, weight::Cfloat)
+function SetNextErrorBarStyle(col::ImVec4, size::Cfloat, weight::Cfloat)
     ccall((:ImPlot_SetNextErrorBarStyle, libcimplot), Cvoid, (ImVec4, Cfloat, Cfloat), col, size, weight)
 end
 
-function ImPlot_GetLastItemColor(pOut)
+function GetLastItemColor()
+    pOut = Ref(ImVec4)
     ccall((:ImPlot_GetLastItemColor, libcimplot), Cvoid, (Ptr{ImVec4},), pOut)
+    pOut[]
 end
 
-function ImPlot_GetStyleColorName(idx::ImPlotCol)
+function GetStyleColorName(idx::ImPlotCol)
     ccall((:ImPlot_GetStyleColorName, libcimplot), Cstring, (ImPlotCol,), idx)
 end
 
-function ImPlot_GetMarkerName(idx::ImPlotMarker)
+function GetMarkerName(idx::ImPlotMarker)
     ccall((:ImPlot_GetMarkerName, libcimplot), Cstring, (ImPlotMarker,), idx)
 end
 
-function ImPlot_PushColormapPlotColormap(colormap::ImPlotColormap)
+function PushColormap(colormap::ImPlotColormap)
     ccall((:ImPlot_PushColormapPlotColormap, libcimplot), Cvoid, (ImPlotColormap,), colormap)
 end
 
-function ImPlot_PushColormapVec4Ptr(colormap, size::Cint)
+function PushColormap(colormap, size::Cint)
     ccall((:ImPlot_PushColormapVec4Ptr, libcimplot), Cvoid, (Ptr{ImVec4}, Cint), colormap, size)
 end
 
-function ImPlot_PopColormap(count::Cint)
+function PopColormap(count::Cint)
     ccall((:ImPlot_PopColormap, libcimplot), Cvoid, (Cint,), count)
 end
 
-function ImPlot_SetColormapVec4Ptr(colormap, size::Cint)
+function SetColormap(colormap, size::Cint)
     ccall((:ImPlot_SetColormapVec4Ptr, libcimplot), Cvoid, (Ptr{ImVec4}, Cint), colormap, size)
 end
 
-function ImPlot_SetColormapPlotColormap(colormap::ImPlotColormap, samples::Cint)
+function SetColormap(colormap::ImPlotColormap, samples::Cint)
     ccall((:ImPlot_SetColormapPlotColormap, libcimplot), Cvoid, (ImPlotColormap, Cint), colormap, samples)
 end
 
-function ImPlot_GetColormapSize()
+function GetColormapSize()
     ccall((:ImPlot_GetColormapSize, libcimplot), Cint, ())
 end
 
-function ImPlot_GetColormapColor(pOut, index::Cint)
+function GetColormapColor(index::Cint)
+    pOut = Ref(ImVec4)
     ccall((:ImPlot_GetColormapColor, libcimplot), Cvoid, (Ptr{ImVec4}, Cint), pOut, index)
+    pOut[]
 end
 
-function ImPlot_LerpColormap(pOut, t::Cfloat)
+function LerpColormap(t::Cfloat)
+    pOut = Ref(ImVec4)
     ccall((:ImPlot_LerpColormap, libcimplot), Cvoid, (Ptr{ImVec4}, Cfloat), pOut, t)
+    pOut[]
 end
 
-function ImPlot_NextColormapColor(pOut)
+function NextColormapColor()
+    pOut = Ref(ImVec4)
     ccall((:ImPlot_NextColormapColor, libcimplot), Cvoid, (Ptr{ImVec4},), pOut)
+    pOut[]
 end
 
-function ImPlot_ShowColormapScale(scale_min::Cdouble, scale_max::Cdouble, height::Cfloat)
+function ShowColormapScale(scale_min::Cdouble, scale_max::Cdouble, height::Cfloat)
     ccall((:ImPlot_ShowColormapScale, libcimplot), Cvoid, (Cdouble, Cdouble, Cfloat), scale_min, scale_max, height)
 end
 
-function ImPlot_GetColormapName(colormap::ImPlotColormap)
+function GetColormapName(colormap::ImPlotColormap)
     ccall((:ImPlot_GetColormapName, libcimplot), Cstring, (ImPlotColormap,), colormap)
 end
 
-function ImPlot_GetInputMap()
+function GetInputMap()
     ccall((:ImPlot_GetInputMap, libcimplot), Ptr{ImPlotInputMap}, ())
 end
 
-function ImPlot_GetPlotDrawList()
+function GetPlotDrawList()
     ccall((:ImPlot_GetPlotDrawList, libcimplot), Ptr{ImDrawList}, ())
 end
 
-function ImPlot_PushPlotClipRect()
+function PushPlotClipRect()
     ccall((:ImPlot_PushPlotClipRect, libcimplot), Cvoid, ())
 end
 
-function ImPlot_PopPlotClipRect()
+function PopPlotClipRect()
     ccall((:ImPlot_PopPlotClipRect, libcimplot), Cvoid, ())
 end
 
-function ImPlot_ShowStyleSelector(label)
+function ShowStyleSelector(label)
     ccall((:ImPlot_ShowStyleSelector, libcimplot), Bool, (Cstring,), label)
 end
 
-function ImPlot_ShowColormapSelector(label)
+function ShowColormapSelector(label)
     ccall((:ImPlot_ShowColormapSelector, libcimplot), Bool, (Cstring,), label)
 end
 
-function ImPlot_ShowStyleEditor(ref)
+function ShowStyleEditor(ref)
     ccall((:ImPlot_ShowStyleEditor, libcimplot), Cvoid, (Ptr{ImPlotStyle},), ref)
 end
 
-function ImPlot_ShowUserGuide()
+function ShowUserGuide()
     ccall((:ImPlot_ShowUserGuide, libcimplot), Cvoid, ())
 end
 
-function ImPlot_ShowMetricsWindow(p_popen)
+function ShowMetricsWindow(p_popen)
     ccall((:ImPlot_ShowMetricsWindow, libcimplot), Cvoid, (Ptr{Bool},), p_popen)
 end
 
-function ImPlot_SetImGuiContext(ctx)
+function SetImGuiContext(ctx)
     ccall((:ImPlot_SetImGuiContext, libcimplot), Cvoid, (Ptr{ImGuiContext},), ctx)
 end
 
-function ImPlot_ShowDemoWindow(p_open)
+function ShowDemoWindow(p_open)
     ccall((:ImPlot_ShowDemoWindow, libcimplot), Cvoid, (Ptr{Bool},), p_open)
 end
 
-function PlotLine(label_id, getter, data, count::Cint, offset::Cint)
-    ccall((:ImPlot_PlotLineG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cint), label_id, getter, data, count, offset)
+function PlotLineG(label_id, getter, data, count::Integer, offset::Integer = 0)
+    ccall((:ImPlot_PlotLineG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotScatter(label_id, getter, data, count::Cint, offset::Cint)
-    ccall((:ImPlot_PlotScatterG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cint), label_id, getter, data, count, offset)
+function PlotScatterG(label_id, getter, data, count::Integer, offset::Integer = 0)
+    ccall((:ImPlot_PlotScatterG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotShaded(label_id, getter1, data1, getter2, data2, count::Cint, offset::Cint)
-    ccall((:ImPlot_PlotShadedG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cint), label_id, getter1, data1, getter2, data2, count, offset)
+function PlotShadedG(label_id, getter1, data1, getter2, data2, count::Integer, offset::Integer = 0)
+    ccall((:ImPlot_PlotShadedG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter1, data1, getter2, data2, count, offset)
 end
 
-function PlotBars(label_id, getter, data, count::Cint, width::Cdouble, offset::Cint)
-    ccall((:ImPlot_PlotBarsG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cdouble, :Cint), label_id, getter, data, count, width, offset)
+function PlotBarsG(label_id, getter, data, count::Integer, width::Real, offset::Integer = 0)
+    ccall((:ImPlot_PlotBarsG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, width, offset)
 end
 
-function PlotBarsH(label_id, getter, data, count::Cint, height::Cdouble, offset::Cint)
-    ccall((:ImPlot_PlotBarsHG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cdouble, :Cint), label_id, getter, data, count, height, offset)
+function PlotBarsHG(label_id, getter, data, count::Integer, height::Real, offset::Integer = 0)
+    ccall((:ImPlot_PlotBarsHG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, height, offset)
 end
 
-function PlotDigital(label_id, getter, data, count::Cint, offset::Cint)
-    ccall((:ImPlot_PlotDigitalG, libcimplot), Cvoid, (:Cstring, :(Ptr{Cvoid}), :(Ptr{Cvoid}), :Cint, :Cint), label_id, getter, data, count, offset)
+function PlotDigitalG(label_id, getter, data, count::Integer, offset::Integer = 0)
+    ccall((:ImPlot_PlotDigitalG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
 # Skipping MacroDefinition: API __attribute__ ( ( __visibility__ ( "default" ) ) )
