@@ -1,13 +1,14 @@
+
+cd(@__DIR__)
+
 using Clang.Generators
 using ExprTools, MacroTools, JSON3
 # using ImPlot.LibCImPlot.CImPlot_jll
 using CImGui.CImGui_jll
 
-cd(@__DIR__)
-
 const CIMGUI_INCLUDE_DIR = joinpath(CImGui_jll.artifact_dir, "include")
 const CIMPLOT_INCLUDE_DIR = @__DIR__
-const CIMPLOT_H = joinpath(@__DIR__, "cimplot_patched.h") |> normpath
+const CIMPLOT_H = normpath(@__DIR__, "cimplot_patched.h")
 
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
@@ -36,6 +37,10 @@ push!(args, "-I$CIMPLOT_INCLUDE_DIR")
 @add_def ImGuiContext
 
 imdatatypes = [:Cfloat, :Cdouble, :ImS8, :ImU8, :ImS16, :ImU16, :ImS32, :ImU32, :ImS64, :ImU64]
+jldatatypes = [:Float32, :Float64, :Int8, :UInt8, :Int16, :UInt16, :Int32, :UInt32, :Int64, :UInt64] 
+
+imtojl_lookup = Dict(zip(imdatatypes, jldatatypes))
+jltoim_lookup = Dict(zip(jldatatypes, imdatatypes))
 
 plot_types = ["Line", "Scatter", "Stairs", "Shaded", "BarsH", "Bars", "ErrorBarsH",
               "ErrorBars", "Stems", "VLines", "HLines", "PieChart", "Heatmap", "Histogram",
@@ -62,7 +67,7 @@ function parse_default(T::DataType, str)
     T <: Cstring && return str
     T <: Bool && return Meta.parse(str)
     T <: Symbol && return Symbol(str)
-    return nothing
+    return @warn "Not parsing default value of: $str"
 end
 
 function make_plotmethod(def, metadata)
@@ -70,13 +75,13 @@ function make_plotmethod(def, metadata)
     def[:name] = Symbol(metadata.funcname)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body]) 
     fun_args = def[:args]
-
     for (i, argtype) in enumerate(argtypes)
         sym = argnames[i]
+        jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
         if @capture(argtype, Ptr{ptrtype_}) && ptrtype ∈ imdatatypes
             def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
-        elseif argtype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
-
+        elseif jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
+            
             if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
                 val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
                 def[:args][i] = :($( Expr(:kw, :($sym::Integer), val)) )
@@ -85,22 +90,33 @@ function make_plotmethod(def, metadata)
                 def[:args][i] = :($sym::Integer) 
             end
 
-        elseif argtype ∈ (:Cfloat, :Cdouble)
+        elseif jltype ∈ (:Cfloat, :Cdouble)
             if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
                 val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
                 def[:args][i] = :($( Expr(:kw, :($sym::Real), val)) )
             else
                 def[:args][i] = :($sym::Real)
             end
-        elseif argtype == :Cstring
+        elseif jltype ∈ (:Cstring,:Bool)
             # Don't annotate string arguments--we want to be able to pass C_NULL
             if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
                 val = parse_default(eval(argtype), getproperty(metadata.defaults, sym))
                 def[:args][i] = :($(Expr(:kw, sym, val)))
             end
+        elseif startswith(string(jltype), "Im")
+            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
+                raw_val = getproperty(metadata.defaults,sym)
+                if startswith(raw_val, "Im")
+                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), :($(Symbol(raw_val))))) )
+                else
+                    val = Meta.parse(raw_val) #parse_default(eval(argtype), getproperty(metadata.defaults,sym))
+                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), val)) )
+                end
+            else
+                def[:args][i] = :($sym::$jltype)
+            end
         end
-    end
-    
+    end 
     def[:body] = Expr(:block, 
                       :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
 end             
@@ -114,8 +130,8 @@ function make_finalizer!(def, metadata)
     @capture(argtype, Ptr{ptrtype_})
     def[:args] = [:($argname::$ptrtype)]
     new_ccall = :(ccall(($funsymbol, libcimplot), $rettype, ($argtype,), $argname))
-    def[:body] = Expr(:block, :(ptr = pointer_from_objref($argname)),
-                      :(GC.@preserve $argname $new_ccall))
+    new_body = Expr(:block, :(ptr = pointer_from_objref($argname)), :(GC.@preserve $argname $new_ccall))
+    def[:body] = MacroTools.prewalk(rmlines, new_body)
 end
 
 function make_constructor!(def, metadata)
@@ -140,8 +156,54 @@ function make_nonudt(def, metadata)
                       :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))),
                       :($sym[]))
 
-    if length(propertynames(metadata.defaults)) > 0
-        # parse default values
+   for (i, argtype) in enumerate(argtypes)
+       i == 1 && continue
+       sym = argnames[i]
+       jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
+       # Skip pointer types
+       @capture(jltype, Ptr{ptrtype_}) && continue
+      
+       if jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
+           if hasproperty(metadata.defaults, sym)
+               val = parse_default(eval(jltype), getproperty(metadata.defaults, sym))
+               def[:args][i-1] = :($( Expr(:kw, :($sym::Integer), val)) )
+           else
+           def[:args][i-1] = :($sym::Integer) 
+           end
+           continue
+       elseif jltype ∈ (:Cfloat, :Cdouble)
+           if hasproperty(metadata.defaults, sym)
+               val = parse_default(eval(jltype), getproperty(metadata.defaults,sym))
+               def[:args][i-1] = :($( Expr(:kw, :($sym::Real), val)) )
+           else
+               def[:args][i-1] = :($sym::Real)
+           end
+           continue
+       elseif argtype ∈ (:Cstring, :Bool)
+           # Don't annotate string arguments--we want to be able to pass C_NULL
+           if hasproperty(metadata.defaults, sym)
+               val = parse_default(eval(argtype), getproperty(metadata.defaults, sym))
+               def[:args][i-1] = :($(Expr(:kw, sym, val)))
+           end
+           continue
+       elseif startswith(string(jltype), "Im")
+            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
+                raw_val = getproperty(metadata.defaults,sym)
+                if startswith(raw_val, "Im")
+                    def[:args][i-1] = :($( Expr(:kw, :($sym::$jltype), :($(Symbol(raw_val))))) )
+                else
+                    val = Meta.parse(raw_val) #parse_default(eval(argtype), getproperty(metadata.defaults,sym))
+                    def[:args][i-1] = :($( Expr(:kw, :($sym::$jltype), val)) )
+                end
+            else
+                def[:args][i-1] = :($sym::$jltype)
+            end
+            continue
+        end
+       if hasproperty(metadata.defaults, sym)
+           val = getproperty(metadata.defaults, sym)
+           println("Not processing default value for: $sym = $val")
+       end
     end  
 end
 
@@ -150,9 +212,54 @@ function make_generic(def, metadata)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
     def[:body] = Expr(:block,
                       :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
-    if length(propertynames(metadata.defaults)) > 0
-        # parse default values
-    end
+   for (i, argtype) in enumerate(argtypes)
+       sym = argnames[i]
+       jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
+       # Skip pointer types
+       @capture(jltype, Ptr{ptrtype_}) && continue
+      
+       if jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
+           if hasproperty(metadata.defaults, sym)
+               val = parse_default(eval(jltype), getproperty(metadata.defaults, sym))
+               def[:args][i] = :($( Expr(:kw, :($sym::Integer), val)) )
+           else
+           def[:args][i] = :($sym::Integer) 
+           end
+           continue
+       elseif jltype ∈ (:Cfloat, :Cdouble)
+           if hasproperty(metadata.defaults, sym)
+               val = parse_default(eval(jltype), getproperty(metadata.defaults,sym))
+               def[:args][i] = :($( Expr(:kw, :($sym::Real), val)) )
+           else
+               def[:args][i] = :($sym::Real)
+           end
+           continue
+       elseif argtype ∈ (:Cstring, :Bool)
+           # Don't annotate string arguments--we want to be able to pass C_NULL
+           if hasproperty(metadata.defaults, sym)
+               val = parse_default(eval(argtype), getproperty(metadata.defaults, sym))
+               def[:args][i] = :($(Expr(:kw, sym, val)))
+           end
+           continue
+       elseif startswith(string(jltype), "Im")
+            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
+                raw_val = getproperty(metadata.defaults,sym)
+                if startswith(raw_val, "Im")
+                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), :($(Symbol(raw_val))))) )
+                else
+                    val = Meta.parse(raw_val) #parse_default(typeof(Meta.parse(raw_val)), raw_val)
+                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), val)) )
+                end
+            else
+                def[:args][i] = :($sym::$jltype)
+            end
+            continue
+        end
+       if hasproperty(metadata.defaults, sym)
+           val = getproperty(metadata.defaults, sym)
+           println("Not processing default value for: $sym = $val")
+       end
+    end  
 end
 
 function revise_function(ex::Expr, all_metadata, options) 
@@ -226,37 +333,7 @@ end
 
 ctx = create_context(CIMPLOT_H, args, options)
 build!(ctx, BUILDSTAGE_NO_PRINTING)
-
 rewrite!(ctx.dag, metadata, options)
-
-
-
-
 build!(ctx, BUILDSTAGE_PRINTING_ONLY)
 
-
-    #=
-    # Strip off the prefix to match C++ (since we have a namespace)
-    fun_name = fun_name[8:end] # remove first 7 characters == 'ImPlot_'
-
-    # Plot functions are templated and have a regular structure
-    if startswith(fun_name, "Plot")
-        body = def[:body]
-        fun_args= def[:args]
-        new_body = MacroTools.postwalk(x -> carg_modify(x, fun_args), body)
-        new_name = ""
-        for ptype in plot_types
-            fullname = "Plot" * ptype
-            if startswith(fun_name, fullname)
-                if length(fullname) > length(new_name)
-                    new_name = fullname
-                end
-            end
-        end
-        def[:name] = Symbol(new_name)
-        def[:args] = fun_args
-        def[:body] = new_body
-    end
-    return ExprTools.combinedef(def)
-    =#
 
