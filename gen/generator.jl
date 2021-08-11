@@ -79,7 +79,8 @@ function make_plotmethod(def, metadata)
 
             if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
                 val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
-                def[:args][i] = :($sym::Integer = $val)
+                def[:args][i] = :($( Expr(:kw, :($sym::Integer), val)) )
+
             else
                 def[:args][i] = :($sym::Integer) 
             end
@@ -87,7 +88,7 @@ function make_plotmethod(def, metadata)
         elseif argtype ∈ (:Cfloat, :Cdouble)
             if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
                 val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
-                def[:args][i] = :($sym::Real = $val)
+                def[:args][i] = :($( Expr(:kw, :($sym::Real), val)) )
             else
                 def[:args][i] = :($sym::Real)
             end
@@ -95,7 +96,7 @@ function make_plotmethod(def, metadata)
             # Don't annotate string arguments--we want to be able to pass C_NULL
             if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
                 val = parse_default(eval(argtype), getproperty(metadata.defaults, sym))
-                def[:args][i] = :($sym = $val)
+                def[:args][i] = :($(Expr(:kw, sym, val)))
             end
         end
     end
@@ -208,7 +209,7 @@ function revise_function(ex::Expr, all_metadata, options)
         out = ExprTools.combinedef(def)
         return out
     end
-    @warn "function not parsed"
+    @warn "function $(def[:name]) not parsed"
         return ex
 end
 
@@ -223,7 +224,14 @@ function rewrite!(dag::ExprDAG, metadata, options)
     end
 end
 
+ctx = create_context(CIMPLOT_H, args, options)
+build!(ctx, BUILDSTAGE_NO_PRINTING)
+
 rewrite!(ctx.dag, metadata, options)
+
+
+
+
 build!(ctx, BUILDSTAGE_PRINTING_ONLY)
 
 
