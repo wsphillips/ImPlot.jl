@@ -2,12 +2,12 @@
 
 import .LibCImPlot.GetColormapSize
 
-function SetColormap(colormap, samples::Integer = 1)
-    LibCImPlot.SetColormapPlotColormap(colormap, Cint(samples))
+function SetColormap(colormap, samples::Integer=1)
+    return LibCImPlot.SetColormapPlotColormap(colormap, Cint(samples))
 end
 
 function SetColormap(colors::ImVec4, num_colors::Integer)
-    LibCImPlot.SetColormapVec4Ptr(colors, Cint(num_colors))
+    return LibCImPlot.SetColormapVec4Ptr(colors, Cint(num_colors))
 end
 
 function GetColormapColor(index::Integer)
@@ -23,13 +23,13 @@ function LerpColormap(t::Integer)
 end
 
 function PushColormap(colormap)
-    LibCImPlot.PushColormapPlotColormap(colormap)
+    return LibCImPlot.PushColormapPlotColormap(colormap)
 end
 
 function PushColormap(colormap::Vector{ImVec4}, size::Integer)
-    LibCImPlot.PushColormapVec4Ptr(colormap, size)
+    return LibCImPlot.PushColormapVec4Ptr(colormap, size)
 end
 
-function PopColormap(count::Integer = 1)
-    LibCImPlot.PopColormap(count)
+function PopColormap(count::Integer=1)
+    return LibCImPlot.PopColormap(count)
 end
