@@ -70,51 +70,62 @@ function parse_default(T::DataType, str)
     return @warn "Not parsing default value of: $str"
 end
 
+function revise_arg(def, metadata, i, sym, jltype)
+    if jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
+        if hasproperty(metadata.defaults, sym)
+            val = parse_default(eval(jltype), getproperty(metadata.defaults,sym))
+            def[:args][i] = :($( Expr(:kw, :($sym::Integer), val)) )
+        else
+            def[:args][i] = :($sym::Integer) 
+        end
+        return
+    elseif jltype ∈ (:Cfloat, :Cdouble)
+        if hasproperty(metadata.defaults, sym)
+            val = parse_default(eval(jltype), getproperty(metadata.defaults,sym))
+            def[:args][i] = :($( Expr(:kw, :($sym::Real), val)) )
+        else
+            def[:args][i] = :($sym::Real)
+        end
+        return
+    elseif jltype ∈ (:Cstring,:Bool)
+        # Don't annotate string arguments--we want to be able to pass C_NULL
+        if hasproperty(metadata.defaults, sym)
+            val = parse_default(eval(jltype), getproperty(metadata.defaults, sym))
+            def[:args][i] = :($(Expr(:kw, sym, val)))
+        end
+        return
+    elseif startswith(string(jltype), "Im")
+        if hasproperty(metadata.defaults, sym)
+            raw_val = getproperty(metadata.defaults,sym)
+            if startswith(raw_val, "Im")
+                def[:args][i] = :($( Expr(:kw, :($sym::$jltype), :($(Symbol(raw_val))))) )
+            else
+                val = Meta.parse(raw_val)
+                def[:args][i] = :($( Expr(:kw, :($sym::$jltype), val)) )
+            end
+        else
+            def[:args][i] = :($sym::$jltype)
+        end
+        return
+    elseif hasproperty(metadata.defaults, sym)
+        val = getproperty(metadata.defaults, sym)
+        println("Not processing default value for: $sym = $val")
+        return
+    end
+end
+
 function make_plotmethod(def, metadata)
 
     def[:name] = Symbol(metadata.funcname)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body]) 
-    fun_args = def[:args]
+
     for (i, argtype) in enumerate(argtypes)
         sym = argnames[i]
         jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
-        if @capture(argtype, Ptr{ptrtype_}) && ptrtype ∈ imdatatypes
+        if @capture(jltype, Ptr{ptrtype_}) && ptrtype ∈ imdatatypes
             def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
-        elseif jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
-            
-            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
-                val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
-                def[:args][i] = :($( Expr(:kw, :($sym::Integer), val)) )
-
-            else
-                def[:args][i] = :($sym::Integer) 
-            end
-
-        elseif jltype ∈ (:Cfloat, :Cdouble)
-            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
-                val = parse_default(eval(argtype), getproperty(metadata.defaults,sym))
-                def[:args][i] = :($( Expr(:kw, :($sym::Real), val)) )
-            else
-                def[:args][i] = :($sym::Real)
-            end
-        elseif jltype ∈ (:Cstring,:Bool)
-            # Don't annotate string arguments--we want to be able to pass C_NULL
-            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
-                val = parse_default(eval(argtype), getproperty(metadata.defaults, sym))
-                def[:args][i] = :($(Expr(:kw, sym, val)))
-            end
-        elseif startswith(string(jltype), "Im")
-            if length(metadata.defaults) > 0 && hasproperty(metadata.defaults, sym)
-                raw_val = getproperty(metadata.defaults,sym)
-                if startswith(raw_val, "Im")
-                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), :($(Symbol(raw_val))))) )
-                else
-                    val = Meta.parse(raw_val) #parse_default(eval(argtype), getproperty(metadata.defaults,sym))
-                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), val)) )
-                end
-            else
-                def[:args][i] = :($sym::$jltype)
-            end
+        else
+            revise_arg(def, metadata, i, sym, jltype)
         end
     end 
     def[:body] = Expr(:block, 
