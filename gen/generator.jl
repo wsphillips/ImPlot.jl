@@ -120,6 +120,8 @@ function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
                 rx = match(r"\(.+\)",raw_val)
                 tupex = Meta.parse(rx.match)
                 def[:args][i] = :($( Expr(:kw, :($sym::$ptrtype), :($ptrtype($(tupex.args...))) )))
+        elseif ptrtype == :Cstring
+            def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
         else
            def[:args][i] = :($sym::$ptrtype) 
         end
@@ -177,7 +179,15 @@ function make_objmethod!(def, metadata)
         jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
         # Skip pointer types
         if @capture(jltype, Ptr{ptrtype_})
-            ptrtype ∉ PRIMITIVE_TYPES && continue
+            ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
+            if ptrtype in (imdatatypes..., :Cstring)
+                if ptrtype == :Cstring
+                    def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+                else   
+                    def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+                end
+                continue
+            end
         end
         revise_arg(def, metadata, i, sym, jltype) # offset bc we pop off first arg above
      end  
@@ -188,18 +198,27 @@ function make_nonudt(def, metadata)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
     sym = popfirst!(def[:args]) 
     @capture(first(argtypes), Ptr{ptr_type_})
+    argtypes[1] = :(Ref{$ptr_type})
     def[:body] = Expr(:block,
-                      :($sym = Ref($ptr_type)),
+                      :($sym = Ref{$ptr_type}()),
                       :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))),
                       ptr_type in PRIMITIVE_TYPES ? :($sym[]) : :($sym))
-
+    
    for (i, argtype) in enumerate(argtypes)
        i == 1 && continue
        sym = argnames[i]
        jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
        # Skip pointer types
        if @capture(jltype, Ptr{ptrtype_})
-           ptrtype ∉ PRIMITIVE_TYPES && continue
+            ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
+            if ptrtype in (imdatatypes..., :Cstring)
+                if ptrtype == :Cstring
+                    def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+                else   
+                    def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+                end
+                continue
+            end
        end
        revise_arg(def, metadata, i-1, sym, jltype) # offset bc we pop off first arg above
     end  
@@ -215,7 +234,15 @@ function make_generic(def, metadata)
        jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
        # Skip pointer types
        if @capture(jltype, Ptr{ptrtype_})
-           ptrtype ∉ PRIMITIVE_TYPES && continue
+            ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
+            if ptrtype in (imdatatypes..., :Cstring)
+                if ptrtype == :Cstring
+                    def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+                else   
+                    def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+                end
+                continue
+            end
        end
        revise_arg(def, metadata, i, sym, jltype)
    end
@@ -291,5 +318,5 @@ ctx = create_context(CIMPLOT_H, args, options)
 build!(ctx, BUILDSTAGE_NO_PRINTING)
 rewrite!(ctx.dag, metadata, options)
 build!(ctx, BUILDSTAGE_PRINTING_ONLY)
-format(normpath(@__DIR__,"..","src"), YASStyle())
+#format(normpath(@__DIR__,"..","src"), YASStyle())
 

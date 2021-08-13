@@ -1941,7 +1941,7 @@ function show()
         width = 1360, 
         height = 780, 
         title = "Demo plots", 
-        hotloading = true
+        hotloading = false 
     )
 end
 

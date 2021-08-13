@@ -1,10 +1,11 @@
-
-function SetNextPlotTicksX(values::Vector{<:Real}, args...)
+#=
+function SetNextPlotTicksX(values::Vector{<:Real}, n_ticks::Integer, args...)
     eltype(values) !== Float64 && (values = Float64.(values))
-    return SetNextPlotTicksX(values, args...)
+    return SetNextPlotTicksX(values, n_ticks, args...)
 end
 
-function SetNextPlotTicksY(values::Vector{<:Real}, args...)
+function SetNextPlotTicksY(values::Vector{<:Real}, n_ticks::Integer, args...)
     eltype(values) !== Float64 && (values = Float64.(values))
-    return SetNextPlotTicksY(values, args...)
+    return SetNextPlotTicksY(values, n_ticks, args...)
 end
+=#

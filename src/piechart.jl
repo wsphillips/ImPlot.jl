@@ -1,7 +1,7 @@
 # Pie charts
-function PlotPieChart(label_ids, values::AbstractArray{<:Real}, args...)
-    return PlotPieChart(label_ids, Float64.(values), args...)
-end
+#function PlotPieChart(label_ids, values::AbstractArray{<:Real}, args...)
+#    return PlotPieChart(label_ids, Float64.(values), args...)
+#end
 
 function PlotPieChart(values::AbstractArray{T}, count::Integer, x, y, radius;
                       normalize::Bool=false, label_fmt::String="%.1f", angle0=90.0,
