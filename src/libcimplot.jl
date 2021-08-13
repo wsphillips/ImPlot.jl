@@ -604,7 +604,7 @@ function PlotStairs(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{Im
     ccall((:ImPlot_PlotStairsU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairsG(label_id, getter::Cvoid, data::Cvoid, count::Integer, offset::Integer = 0)
+function PlotStairsG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotStairsG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
@@ -1128,43 +1128,43 @@ function PlotStems(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU
     ccall((:ImPlot_PlotStemsU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cdouble, Cint, Cint), label_id, xs, ys, count, y_ref, offset, stride)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartFloatPtr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{Cfloat}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartdoublePtr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartS8Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS8}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartU8Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU8}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartS16Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS16}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartU16Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU16}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartS32Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS32}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartU32Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU32}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartS64Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImS64}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
-function PlotPieChart(label_ids::Union{Ptr{Cstring}, Ref{String}, AbstractArray{String}}, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
+function PlotPieChart(label_ids::Union{Ptr{Nothing}, String, AbstractArray{String}}, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, x::Real, y::Real, radius::Real, normalize = false, label_fmt = "%.1f", angle0::Real = 90)
     ccall((:ImPlot_PlotPieChartU64Ptr, libcimplot), Cvoid, (Ptr{Cstring}, Ptr{ImU64}, Cint, Cdouble, Cdouble, Cdouble, Bool, Cstring, Cdouble), label_ids, values, count, x, y, radius, normalize, label_fmt, angle0)
 end
 
@@ -1496,7 +1496,7 @@ function PushColormap(colormap)
     ccall((:ImPlot_PushColormapPlotColormap, libcimplot), Cvoid, (ImPlotColormap,), colormap)
 end
 
-function PushColormap(colormap::ImVec4, size::Integer)
+function PushColormap(colormap::Union{ImVec4, AbstractArray{ImVec4}}, size::Integer)
     ccall((:ImPlot_PushColormapVec4Ptr, libcimplot), Cvoid, (Ptr{ImVec4}, Cint), colormap, size)
 end
 
@@ -1504,7 +1504,7 @@ function PopColormap(count::Integer = 1)
     ccall((:ImPlot_PopColormap, libcimplot), Cvoid, (Cint,), count)
 end
 
-function SetColormap(colormap::ImVec4, size::Integer)
+function SetColormap(colormap::Union{ImVec4, AbstractArray{ImVec4}}, size::Integer)
     ccall((:ImPlot_SetColormapVec4Ptr, libcimplot), Cvoid, (Ptr{ImVec4}, Cint), colormap, size)
 end
 
@@ -1586,27 +1586,27 @@ function ShowDemoWindow(p_open)
     ccall((:ImPlot_ShowDemoWindow, libcimplot), Cvoid, (Ptr{Bool},), p_open)
 end
 
-function PlotLineG(label_id, getter::Cvoid, data::Cvoid, count::Integer, offset::Integer = 0)
+function PlotLineG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotLineG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotScatterG(label_id, getter::Cvoid, data::Cvoid, count::Integer, offset::Integer = 0)
+function PlotScatterG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotScatterG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotShadedG(label_id, getter1::Cvoid, data1::Cvoid, getter2::Cvoid, data2::Cvoid, count::Integer, offset::Integer = 0)
+function PlotShadedG(label_id, getter1::Union{Cvoid, AbstractArray{Cvoid}}, data1::Union{Cvoid, AbstractArray{Cvoid}}, getter2::Union{Cvoid, AbstractArray{Cvoid}}, data2::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotShadedG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter1, data1, getter2, data2, count, offset)
 end
 
-function PlotBarsG(label_id, getter::Cvoid, data::Cvoid, count::Integer, width::Real, offset::Integer = 0)
+function PlotBarsG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, width::Real, offset::Integer = 0)
     ccall((:ImPlot_PlotBarsG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, width, offset)
 end
 
-function PlotBarsHG(label_id, getter::Cvoid, data::Cvoid, count::Integer, height::Real, offset::Integer = 0)
+function PlotBarsHG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, height::Real, offset::Integer = 0)
     ccall((:ImPlot_PlotBarsHG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, height, offset)
 end
 
-function PlotDigitalG(label_id, getter::Cvoid, data::Cvoid, count::Integer, offset::Integer = 0)
+function PlotDigitalG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotDigitalG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 

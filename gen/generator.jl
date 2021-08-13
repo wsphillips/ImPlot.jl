@@ -91,6 +91,7 @@ function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
             val = parse_default(eval(jltype), getproperty(metadata.defaults, sym))
             def[:args][i] = :($(Expr(:kw, sym, val)))
         end
+
         return
     elseif startswith(string(jltype), "Im")
         if hasproperty(metadata.defaults, sym)
@@ -119,11 +120,11 @@ function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
         if hasproperty(metadata.defaults, sym) && endswith(raw_val, r"\(.+\)")
                 rx = match(r"\(.+\)",raw_val)
                 tupex = Meta.parse(rx.match)
-                def[:args][i] = :($( Expr(:kw, :($sym::$ptrtype), :($ptrtype($(tupex.args...))) )))
+                def[:args][i] = :($(Expr(:kw, :($sym::Union{$ptrtype,AbstractArray{$ptrtype}}), :($ptrtype($(tupex.args...))))))
         elseif ptrtype == :Cstring
-            def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+            def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
         else
-           def[:args][i] = :($sym::$ptrtype) 
+           def[:args][i] = :($sym::Union{$ptrtype,AbstractArray{$ptrtype}}) 
         end
         return
     end
@@ -182,7 +183,7 @@ function make_objmethod!(def, metadata)
             ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
             if ptrtype in (imdatatypes..., :Cstring)
                 if ptrtype == :Cstring
-                    def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+                    def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
                 else   
                     def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
                 end
@@ -213,7 +214,7 @@ function make_nonudt(def, metadata)
             ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
             if ptrtype in (imdatatypes..., :Cstring)
                 if ptrtype == :Cstring
-                    def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+                    def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
                 else   
                     def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
                 end
@@ -237,7 +238,7 @@ function make_generic(def, metadata)
             ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
             if ptrtype in (imdatatypes..., :Cstring)
                 if ptrtype == :Cstring
-                    def[:args][i] = :($sym::Union{Ptr{Cstring},Ref{String},AbstractArray{String}})
+                    def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
                 else   
                     def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
                 end

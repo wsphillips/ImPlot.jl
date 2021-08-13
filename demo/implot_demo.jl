@@ -404,8 +404,8 @@ function ShowDemoWindow()
         indent = CImGui.CalcItemWidth() - CImGui.GetFrameHeight()
         CImGui.Indent(CImGui.CalcItemWidth() - CImGui.GetFrameHeight())
         # a hack -- works for now 
-        aaidx = findfirst(x -> x == :AntiAliasedLines, fieldnames(ImPlot.LibCImPlot.ImPlotStyle))
-        aaoffset = fieldoffset(ImPlot.LibCImPlot.ImPlotStyle, aaidx)
+        aaidx = findfirst(x -> x == :AntiAliasedLines, fieldnames(ImPlot.ImPlotStyle))
+        aaoffset = fieldoffset(ImPlot.ImPlotStyle, aaidx)
         CImGui.Checkbox("Anti-Aliased Lines", ImPlot.GetStyle() + aaoffset)
         CImGui.Unindent(indent)
     end
@@ -910,15 +910,15 @@ function ShowDemoWindow()
             use_24hour_clock = false,
         begin 
             if @c CImGui.Checkbox("Local Time", &use_local_time)
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :UseLocalTime, use_24hour_clock)
+                CImGui.Set(ImPlot.GetStyle(), :UseLocalTime, use_24hour_clock)
             end
             CImGui.SameLine()
             if @c CImGui.Checkbox("ISO 8601", &use_ISO8601)
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :UseISO8601, use_ISO8601)
+                CImGui.Set(ImPlot.GetStyle(), :UseISO8601, use_ISO8601)
             end
             CImGui.SameLine()
             if @c CImGui.Checkbox("24 Hour Clock", &use_24hour_clock)
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
+                CImGui.Set(ImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
             end
         end)
 
@@ -1170,18 +1170,18 @@ function ShowDemoWindow()
             @c CImGui.Checkbox("Outside", &o)
             
             # FIXME: this is an ugly hack
-            style = unsafe_load(ImPlot.LibCImPlot.GetStyle())
+            style = unsafe_load(ImPlot.GetStyle())
             padding = Ref(style.LegendPadding) 
             if CImGui.SliderFloat2("LegendPadding", Ptr{Float32}(pointer_from_objref(padding)), 0.0, 20.0, "%.0f")
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendPadding, padding[])
+                CImGui.Set(ImPlot.GetStyle(), :LegendPadding, padding[])
             end
             inner_padding = Ref(style.LegendInnerPadding)
             if CImGui.SliderFloat2("LegendInnerPadding", Ptr{Float32}(pointer_from_objref(inner_padding)), 0.0, 10.0, "%.0f")
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendInnerPadding, inner_padding[])
+                CImGui.Set(ImPlot.GetStyle(), :LegendInnerPadding, inner_padding[])
             end
             spacing = Ref(style.LegendSpacing)
             if CImGui.SliderFloat2("LegendSpacing", Ptr{Float32}(pointer_from_objref(spacing)), 0.0, 5.0, "%.0f")
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendSpacing, spacing[])
+                CImGui.Set(ImPlot.GetStyle(), :LegendSpacing, spacing[])
             end
 
             sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
