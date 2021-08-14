@@ -49,6 +49,7 @@ metadata = JSON3.read(json_defs);
 json_enums = read("assets/structs_and_enums.json", String);
 enums = JSON3.read(json_enums);
 const ENUMS = Symbol.(chop.(string.(propertynames(enums.enums))))
+const DESPECIALIZE = ["LinkNextPlotLimits"]
 
 function split_ccall(body)
     local funsymbol, rettype, argtypes, argnames
@@ -232,11 +233,18 @@ function make_generic(def, metadata)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
     def[:body] = Expr(:block,
                       :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
-   for (i, argtype) in enumerate(argtypes)
-       sym = argnames[i]
-       jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
-       # Skip pointer types
-       if @capture(jltype, Ptr{ptrtype_})
+    for (i, argtype) in enumerate(argtypes)
+        sym = argnames[i]
+        jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
+
+        # Remove all type annotations from marked functions
+        if metadata.funcname in DESPECIALIZE
+            def[:args][i] = :($sym)  
+            continue
+        end
+
+        # Skip pointer types
+        if @capture(jltype, Ptr{ptrtype_})
             ptrtype ∉ vcat(PRIMITIVE_TYPES, imdatatypes) && continue
             if ptrtype in (imdatatypes..., :Cstring)
                 if ptrtype == :Cstring
@@ -246,8 +254,8 @@ function make_generic(def, metadata)
                 end
                 continue
             end
-       end
-       revise_arg(def, metadata, i, sym, jltype)
+        end
+        revise_arg(def, metadata, i, sym, jltype)
    end
 end
 

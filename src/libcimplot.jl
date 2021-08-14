@@ -1272,7 +1272,7 @@ function SetNextPlotLimitsY(ymin::Real, ymax::Real, cond = ImGuiCond_Once, y_axi
     ccall((:ImPlot_SetNextPlotLimitsY, libcimplot), Cvoid, (Cdouble, Cdouble, ImGuiCond, ImPlotYAxis), ymin, ymax, cond, y_axis)
 end
 
-function LinkNextPlotLimits(xmin::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, xmax::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ymin::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ymax::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ymin2::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ymax2::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ymin3::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ymax3::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}})
+function LinkNextPlotLimits(xmin, xmax, ymin, ymax, ymin2, ymax2, ymin3, ymax3)
     ccall((:ImPlot_LinkNextPlotLimits, libcimplot), Cvoid, (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}), xmin, xmax, ymin, ymax, ymin2, ymax2, ymin3, ymax3)
 end
 
