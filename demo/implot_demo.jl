@@ -173,32 +173,33 @@ end
 # Example for Custom Styles section.
 function StyleSeaborn()
 
-    style  = unsafe_load(ImPlot.GetStyle())
+    style  = ImPlot.GetStyle()
+    colors = unsafe_load(style.Colors)
 
-    @set style.Colors[1 + Int(ImPlotCol_Line)]          = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_Fill)]          = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_MarkerOutline)] = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_MarkerFill)]    = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_ErrorBar)]      = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_FrameBg)]       = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_PlotBg)]        = ImVec4(0.92, 0.92, 0.95, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_PlotBorder)]    = ImVec4(0.00, 0.00, 0.00, 0.00)
-    @set style.Colors[1 + Int(ImPlotCol_LegendBg)]      = ImVec4(0.92, 0.92, 0.95, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_LegendBorder)]  = ImVec4(0.80, 0.81, 0.85, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_LegendText)]    = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_TitleText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_InlayText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_XAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_XAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxis2)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid2)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxis3)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid3)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_Selection)]     = ImVec4(1.00, 0.65, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_Query)]         = ImVec4(0.23, 0.10, 0.64, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_Crosshairs)]    = ImVec4(0.23, 0.10, 0.64, 0.50)
+    @set colors[1 + Int(ImPlotCol_Line)]          = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_Fill)]          = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_MarkerOutline)] = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_MarkerFill)]    = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_ErrorBar)]      = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_FrameBg)]       = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_PlotBg)]        = ImVec4(0.92, 0.92, 0.95, 1.00)
+    @set colors[1 + Int(ImPlotCol_PlotBorder)]    = ImVec4(0.00, 0.00, 0.00, 0.00)
+    @set colors[1 + Int(ImPlotCol_LegendBg)]      = ImVec4(0.92, 0.92, 0.95, 1.00)
+    @set colors[1 + Int(ImPlotCol_LegendBorder)]  = ImVec4(0.80, 0.81, 0.85, 1.00)
+    @set colors[1 + Int(ImPlotCol_LegendText)]    = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_TitleText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_InlayText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_XAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_XAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxis2)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxisGrid2)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxis3)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxisGrid3)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_Selection)]     = ImVec4(1.00, 0.65, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_Query)]         = ImVec4(0.23, 0.10, 0.64, 1.00)
+    @set colors[1 + Int(ImPlotCol_Crosshairs)]    = ImVec4(0.23, 0.10, 0.64, 0.50)
 
     style.LineWeight       = 1.5
     style.Marker           = ImPlotMarker_None
@@ -222,8 +223,6 @@ function StyleSeaborn()
     style.LegendPadding    = ImVec2(5,5)
     style.MousePosPadding  = ImVec2(5,5)
     style.PlotMinSize      = ImVec2(300,225)
-
-    unsafe_store!(ImPlot.GetStyle(), style)
 end
 
 end # module MyImPlot
@@ -1714,7 +1713,7 @@ end
      if CImGui.CollapsingHeader("Custom Styles")
          ImPlot.PushColormap(ImPlotColormap_Deep)
          # normally you wouldn't change the entire style each frame
-         backup = unsafe_load(ImPlot.GetStyle())
+         backup = deepcopy(unsafe_load(ImPlot.GetStyle()))
          MyImPlot.StyleSeaborn()
          ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 10)
          if ImPlot.BeginPlot("seaborn style", "x-axis", "y-axis")
