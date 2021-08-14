@@ -604,7 +604,7 @@ function PlotStairs(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{Im
     ccall((:ImPlot_PlotStairsU64PtrU64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint), label_id, xs, ys, count, offset, stride)
 end
 
-function PlotStairsG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
+function PlotStairsG(label_id, getter, data, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotStairsG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
@@ -1586,27 +1586,27 @@ function ShowDemoWindow(p_open)
     ccall((:ImPlot_ShowDemoWindow, libcimplot), Cvoid, (Ptr{Bool},), p_open)
 end
 
-function PlotLineG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
+function PlotLineG(label_id, getter, data, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotLineG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotScatterG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
+function PlotScatterG(label_id, getter, data, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotScatterG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 
-function PlotShadedG(label_id, getter1::Union{Cvoid, AbstractArray{Cvoid}}, data1::Union{Cvoid, AbstractArray{Cvoid}}, getter2::Union{Cvoid, AbstractArray{Cvoid}}, data2::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
+function PlotShadedG(label_id, getter1, data1, getter2, data2, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotShadedG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter1, data1, getter2, data2, count, offset)
 end
 
-function PlotBarsG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, width::Real, offset::Integer = 0)
+function PlotBarsG(label_id, getter, data, count::Integer, width::Real, offset::Integer = 0)
     ccall((:ImPlot_PlotBarsG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, width, offset)
 end
 
-function PlotBarsHG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, height::Real, offset::Integer = 0)
+function PlotBarsHG(label_id, getter, data, count::Integer, height::Real, offset::Integer = 0)
     ccall((:ImPlot_PlotBarsHG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cdouble, Cint), label_id, getter, data, count, height, offset)
 end
 
-function PlotDigitalG(label_id, getter::Union{Cvoid, AbstractArray{Cvoid}}, data::Union{Cvoid, AbstractArray{Cvoid}}, count::Integer, offset::Integer = 0)
+function PlotDigitalG(label_id, getter, data, count::Integer, offset::Integer = 0)
     ccall((:ImPlot_PlotDigitalG, libcimplot), Cvoid, (Cstring, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Cint), label_id, getter, data, count, offset)
 end
 

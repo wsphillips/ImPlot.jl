@@ -123,6 +123,8 @@ function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
                 def[:args][i] = :($(Expr(:kw, :($sym::Union{$ptrtype,AbstractArray{$ptrtype}}), :($ptrtype($(tupex.args...))))))
         elseif ptrtype == :Cstring
             def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
+        elseif ptrtype == :Cvoid
+            return
         else
            def[:args][i] = :($sym::Union{$ptrtype,AbstractArray{$ptrtype}}) 
         end
