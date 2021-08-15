@@ -1,22 +1,20 @@
 name = "ImPlot"
 uuid = "e8efc688-5342-4ad4-b4ba-9025a731b363"
 authors = ["Wiktor Phillips <wsphillips@gmail.com>"]
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
-CImGui = "5d785b6c-b76f-510e-a07c-3070796c7e87"
-CImPlot_jll = "278f1f02-c5a0-563f-9174-e8b244dda450"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+LibCImGui = "9be01004-c4f5-478b-abeb-cb32b114cf5e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 
 [compat]
 CEnum = "0.4.0"
+LibCImGui = "1.82.2"
 Setfield = "0.7.0"
-CImGui = "~1.79.0"
-CImPlot_jll = "0.8.0"
-julia = "1.3"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
