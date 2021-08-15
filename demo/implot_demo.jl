@@ -37,28 +37,36 @@ struct WaveData
     offset::Float64
 end
 
-function SineWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function SineWave(data::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
     wd = unsafe_load(Ptr{WaveData}(data))
     x = idx * wd.x
-    return ImPlotPoint(x, wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x))
+    y = wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x)
+    unsafe_store!(Ptr{Cdouble}(pt), Float64(x))
+    unsafe_store!(Ptr{Cdouble}(pt + 8), Float64(y))
+    return nothing
 end
 
-function SawWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function SawWave(data::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
     wd = unsafe_load(Ptr{WaveData}(data))
     x = idx * wd.x
     y = wd.offset + wd.amp * (-2/3.14 * atan(cos(3.14*wd.freq*x) / sin(3.14*wd.freq*x)))
-    return ImPlotPoint(x, y)
+    unsafe_store!(Ptr{Cdouble}(pt), Float64(x))
+    unsafe_store!(Ptr{Cdouble}(pt+8), Float64(y))
+    return nothing
 end
 
-function Spiral(::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function Spiral(::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
     r = 0.9             # outer radius
     a = 0               # inner radius
     b = 0.05            # increment per rev
     n = (r - a) / b     # number  of revolutions
     th = 2 * n * 3.14   # angle
     Th = th * idx / (1000 - 1)
-    return ImPlotPoint(0.5 + (a + b * Th / (2.0 * 3.14)) * cos(Th),
-                       0.5 + (a + b * Th / (2.0 * 3.14)) * sin(Th))
+    x = 0.5 + (a + b * Th / (2.0 * 3.14)) * cos(Th)
+    y = 0.5 + (a + b * Th / (2.0 * 3.14)) * sin(Th)
+    unsafe_store!(Ptr{Cdouble}(pt), Float64(x))
+    unsafe_store!(Ptr{Cdouble}(pt+8), Float64(y))
+    return nothing
 end
 
 # Example for Tables section.
@@ -173,32 +181,33 @@ end
 # Example for Custom Styles section.
 function StyleSeaborn()
 
-    style  = unsafe_load(ImPlot.GetStyle())
+    style  = ImPlot.GetStyle()
+    colors = unsafe_load(style.Colors)
 
-    @set style.Colors[1 + Int(ImPlotCol_Line)]          = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_Fill)]          = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_MarkerOutline)] = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_MarkerFill)]    = IMPLOT_AUTO_COL
-    @set style.Colors[1 + Int(ImPlotCol_ErrorBar)]      = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_FrameBg)]       = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_PlotBg)]        = ImVec4(0.92, 0.92, 0.95, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_PlotBorder)]    = ImVec4(0.00, 0.00, 0.00, 0.00)
-    @set style.Colors[1 + Int(ImPlotCol_LegendBg)]      = ImVec4(0.92, 0.92, 0.95, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_LegendBorder)]  = ImVec4(0.80, 0.81, 0.85, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_LegendText)]    = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_TitleText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_InlayText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_XAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_XAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxis2)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid2)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxis3)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_YAxisGrid3)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_Selection)]     = ImVec4(1.00, 0.65, 0.00, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_Query)]         = ImVec4(0.23, 0.10, 0.64, 1.00)
-    @set style.Colors[1 + Int(ImPlotCol_Crosshairs)]    = ImVec4(0.23, 0.10, 0.64, 0.50)
+    @set colors[1 + Int(ImPlotCol_Line)]          = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_Fill)]          = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_MarkerOutline)] = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_MarkerFill)]    = IMPLOT_AUTO_COL
+    @set colors[1 + Int(ImPlotCol_ErrorBar)]      = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_FrameBg)]       = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_PlotBg)]        = ImVec4(0.92, 0.92, 0.95, 1.00)
+    @set colors[1 + Int(ImPlotCol_PlotBorder)]    = ImVec4(0.00, 0.00, 0.00, 0.00)
+    @set colors[1 + Int(ImPlotCol_LegendBg)]      = ImVec4(0.92, 0.92, 0.95, 1.00)
+    @set colors[1 + Int(ImPlotCol_LegendBorder)]  = ImVec4(0.80, 0.81, 0.85, 1.00)
+    @set colors[1 + Int(ImPlotCol_LegendText)]    = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_TitleText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_InlayText)]     = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_XAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_XAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxis)]         = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxisGrid)]     = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxis2)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxisGrid2)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxis3)]        = ImVec4(0.00, 0.00, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_YAxisGrid3)]    = ImVec4(1.00, 1.00, 1.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_Selection)]     = ImVec4(1.00, 0.65, 0.00, 1.00)
+    @set colors[1 + Int(ImPlotCol_Query)]         = ImVec4(0.23, 0.10, 0.64, 1.00)
+    @set colors[1 + Int(ImPlotCol_Crosshairs)]    = ImVec4(0.23, 0.10, 0.64, 0.50)
 
     style.LineWeight       = 1.5
     style.Marker           = ImPlotMarker_None
@@ -222,8 +231,6 @@ function StyleSeaborn()
     style.LegendPadding    = ImVec2(5,5)
     style.MousePosPadding  = ImVec2(5,5)
     style.PlotMinSize      = ImVec2(300,225)
-
-    unsafe_store!(ImPlot.GetStyle(), style)
 end
 
 end # module MyImPlot
@@ -404,8 +411,8 @@ function ShowDemoWindow()
         indent = CImGui.CalcItemWidth() - CImGui.GetFrameHeight()
         CImGui.Indent(CImGui.CalcItemWidth() - CImGui.GetFrameHeight())
         # a hack -- works for now 
-        aaidx = findfirst(x -> x == :AntiAliasedLines, fieldnames(ImPlot.LibCImPlot.ImPlotStyle))
-        aaoffset = fieldoffset(ImPlot.LibCImPlot.ImPlotStyle, aaidx)
+        aaidx = findfirst(x -> x == :AntiAliasedLines, fieldnames(ImPlot.ImPlotStyle))
+        aaoffset = fieldoffset(ImPlot.ImPlotStyle, aaidx)
         CImGui.Checkbox("Anti-Aliased Lines", ImPlot.GetStyle() + aaoffset)
         CImGui.Unindent(indent)
     end
@@ -910,15 +917,15 @@ function ShowDemoWindow()
             use_24hour_clock = false,
         begin 
             if @c CImGui.Checkbox("Local Time", &use_local_time)
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :UseLocalTime, use_24hour_clock)
+                CImGui.Set(ImPlot.GetStyle(), :UseLocalTime, use_24hour_clock)
             end
             CImGui.SameLine()
             if @c CImGui.Checkbox("ISO 8601", &use_ISO8601)
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :UseISO8601, use_ISO8601)
+                CImGui.Set(ImPlot.GetStyle(), :UseISO8601, use_ISO8601)
             end
             CImGui.SameLine()
             if @c CImGui.Checkbox("24 Hour Clock", &use_24hour_clock)
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
+                CImGui.Set(ImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
             end
         end)
 
@@ -1170,22 +1177,24 @@ function ShowDemoWindow()
             @c CImGui.Checkbox("Outside", &o)
             
             # FIXME: this is an ugly hack
-            style = unsafe_load(ImPlot.LibCImPlot.GetStyle())
+            style = unsafe_load(ImPlot.GetStyle())
             padding = Ref(style.LegendPadding) 
             if CImGui.SliderFloat2("LegendPadding", Ptr{Float32}(pointer_from_objref(padding)), 0.0, 20.0, "%.0f")
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendPadding, padding[])
+                CImGui.Set(ImPlot.GetStyle(), :LegendPadding, padding[])
             end
             inner_padding = Ref(style.LegendInnerPadding)
             if CImGui.SliderFloat2("LegendInnerPadding", Ptr{Float32}(pointer_from_objref(inner_padding)), 0.0, 10.0, "%.0f")
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendInnerPadding, inner_padding[])
+                CImGui.Set(ImPlot.GetStyle(), :LegendInnerPadding, inner_padding[])
             end
             spacing = Ref(style.LegendSpacing)
             if CImGui.SliderFloat2("LegendSpacing", Ptr{Float32}(pointer_from_objref(spacing)), 0.0, 5.0, "%.0f")
-                CImGui.Set(ImPlot.LibCImPlot.GetStyle(), :LegendSpacing, spacing[])
+                CImGui.Set(ImPlot.GetStyle(), :LegendSpacing, spacing[])
             end
 
-            sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
-            sawwave_c = @cfunction(MyImPlot.SawWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+            sinewave_c = @cfunction(MyImPlot.SineWave, Cvoid, (Ptr{Cvoid}, Cint,
+            Ptr{ImPlotPoint}))
+            sawwave_c = @cfunction(MyImPlot.SawWave, Cvoid, (Ptr{Cvoid}, Cint,
+            Ptr{ImPlotPoint}))
 
             GC.@preserve sinewave_c sawwave_c begin
 
@@ -1655,7 +1664,8 @@ end
              ImPlot.PlotLine("Vector2f", vec_ptr, vec_ptr + vecyoffset, 2, 0, sizeof(MyImPlot.Vector2f))
 
              # custom getter example 1:
-             spiral_c = @cfunction(MyImPlot.Spiral, ImPlotPoint, (Ptr{Cvoid}, Cint))
+             spiral_c = @cfunction(MyImPlot.Spiral, Cvoid, (Ptr{Cvoid}, Cint,
+             Ptr{ImPlotPoint}))
              GC.@preserve spiral_c begin
              ImPlot.PlotLineG("Spiral", spiral_c, C_NULL, 1000)
              end
@@ -1663,8 +1673,10 @@ end
              # custom getter example 2:
              data1 = Ref(MyImPlot.WaveData(0.001, 0.2, 2, 0.75))
              data2 = Ref(MyImPlot.WaveData(0.001, 0.2, 4, 0.25))
-             sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
-             sawwave_c = @cfunction(MyImPlot.SawWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+             sinewave_c = @cfunction(MyImPlot.SineWave, Cvoid, (Ptr{Cvoid}, Cint,
+             Ptr{ImPlotPoint}))
+             sawwave_c = @cfunction(MyImPlot.SawWave, Cvoid, (Ptr{Cvoid}, Cint,
+             Ptr{ImPlotPoint}))
 
              GC.@preserve sinewave_c sawwave_c begin
                  ImPlot.PlotLineG("Waves", sinewave_c, data1, 1000)
@@ -1714,7 +1726,7 @@ end
      if CImGui.CollapsingHeader("Custom Styles")
          ImPlot.PushColormap(ImPlotColormap_Deep)
          # normally you wouldn't change the entire style each frame
-         backup = unsafe_load(ImPlot.GetStyle())
+         backup = deepcopy(unsafe_load(ImPlot.GetStyle()))
          MyImPlot.StyleSeaborn()
          ImPlot.SetNextPlotLimits(-0.5, 9.5, 0, 10)
          if ImPlot.BeginPlot("seaborn style", "x-axis", "y-axis")
@@ -1941,7 +1953,7 @@ function show()
         width = 1360, 
         height = 780, 
         title = "Demo plots", 
-        hotloading = true
+        hotloading = false 
     )
 end
 
