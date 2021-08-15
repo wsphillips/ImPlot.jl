@@ -37,28 +37,36 @@ struct WaveData
     offset::Float64
 end
 
-function SineWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function SineWave(data::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
     wd = unsafe_load(Ptr{WaveData}(data))
     x = idx * wd.x
-    return ImPlotPoint(x, wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x))
+    y = wd.offset + wd.amp * sin(2 * 3.14 * wd.freq * x)
+    unsafe_store!(Ptr{Cdouble}(pt), Float64(x))
+    unsafe_store!(Ptr{Cdouble}(pt + 8), Float64(y))
+    return nothing
 end
 
-function SawWave(data::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function SawWave(data::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
     wd = unsafe_load(Ptr{WaveData}(data))
     x = idx * wd.x
     y = wd.offset + wd.amp * (-2/3.14 * atan(cos(3.14*wd.freq*x) / sin(3.14*wd.freq*x)))
-    return ImPlotPoint(x, y)
+    unsafe_store!(Ptr{Cdouble}(pt), Float64(x))
+    unsafe_store!(Ptr{Cdouble}(pt+8), Float64(y))
+    return nothing
 end
 
-function Spiral(::Ptr{Nothing}, idx::Cint)::ImPlotPoint
+function Spiral(::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
     r = 0.9             # outer radius
     a = 0               # inner radius
     b = 0.05            # increment per rev
     n = (r - a) / b     # number  of revolutions
     th = 2 * n * 3.14   # angle
     Th = th * idx / (1000 - 1)
-    return ImPlotPoint(0.5 + (a + b * Th / (2.0 * 3.14)) * cos(Th),
-                       0.5 + (a + b * Th / (2.0 * 3.14)) * sin(Th))
+    x = 0.5 + (a + b * Th / (2.0 * 3.14)) * cos(Th)
+    y = 0.5 + (a + b * Th / (2.0 * 3.14)) * sin(Th)
+    unsafe_store!(Ptr{Cdouble}(pt), Float64(x))
+    unsafe_store!(Ptr{Cdouble}(pt+8), Float64(y))
+    return nothing
 end
 
 # Example for Tables section.
@@ -1183,8 +1191,10 @@ function ShowDemoWindow()
                 CImGui.Set(ImPlot.GetStyle(), :LegendSpacing, spacing[])
             end
 
-            sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
-            sawwave_c = @cfunction(MyImPlot.SawWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+            sinewave_c = @cfunction(MyImPlot.SineWave, Cvoid, (Ptr{Cvoid}, Cint,
+            Ptr{ImPlotPoint}))
+            sawwave_c = @cfunction(MyImPlot.SawWave, Cvoid, (Ptr{Cvoid}, Cint,
+            Ptr{ImPlotPoint}))
 
             GC.@preserve sinewave_c sawwave_c begin
 
@@ -1654,7 +1664,8 @@ end
              ImPlot.PlotLine("Vector2f", vec_ptr, vec_ptr + vecyoffset, 2, 0, sizeof(MyImPlot.Vector2f))
 
              # custom getter example 1:
-             spiral_c = @cfunction(MyImPlot.Spiral, ImPlotPoint, (Ptr{Cvoid}, Cint))
+             spiral_c = @cfunction(MyImPlot.Spiral, Cvoid, (Ptr{Cvoid}, Cint,
+             Ptr{ImPlotPoint}))
              GC.@preserve spiral_c begin
              ImPlot.PlotLineG("Spiral", spiral_c, C_NULL, 1000)
              end
@@ -1662,8 +1673,10 @@ end
              # custom getter example 2:
              data1 = Ref(MyImPlot.WaveData(0.001, 0.2, 2, 0.75))
              data2 = Ref(MyImPlot.WaveData(0.001, 0.2, 4, 0.25))
-             sinewave_c = @cfunction(MyImPlot.SineWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
-             sawwave_c = @cfunction(MyImPlot.SawWave, ImPlotPoint, (Ptr{Cvoid}, Cint))
+             sinewave_c = @cfunction(MyImPlot.SineWave, Cvoid, (Ptr{Cvoid}, Cint,
+             Ptr{ImPlotPoint}))
+             sawwave_c = @cfunction(MyImPlot.SawWave, Cvoid, (Ptr{Cvoid}, Cint,
+             Ptr{ImPlotPoint}))
 
              GC.@preserve sinewave_c sawwave_c begin
                  ImPlot.PlotLineG("Waves", sinewave_c, data1, 1000)
