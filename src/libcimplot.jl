@@ -8,7 +8,21 @@ import LibCImGui:
     ImS8, ImU8, ImS16, ImU16, ImS32, ImU32, ImS64, ImU64,
     ImTextureID,
     ImDrawList,
-    ImGuiContext
+    ImGuiContext,
+    ImGuiStyleVar,
+    ImGuiStyleMod,
+    ImGuiCol,
+    ImGuiColorMod,
+    ImGuiID,
+    ImGuiStoragePair,
+    ImGuiTextBuffer,
+    ImGuiStorage,
+    ImVector_float,
+    ImVector_ImU32,
+    ImVector_ImGuiStyleMod,
+    ImVector_ImGuiColorMod,
+    ImRect,
+    ImPoolIdx
             
 #Temporary patch; CImGui.jl v1.79.0 aliases ImS8 incorrectly; add to imports in new versions
 #const ImS8 = Int8
@@ -18,113 +32,6 @@ export IMPLOT_AUTO, IMPLOT_AUTO_COL
 
 
 const __time_t = Clong
-
-const ImGuiStyleVar = Cint
-
-struct ImGuiStyleMod
-    data::NTuple{12, UInt8}
-end
-
-function Base.getproperty(x::Ptr{ImGuiStyleMod}, f::Symbol)
-    f === :VarIdx && return Ptr{ImGuiStyleVar}(x + 0)
-    f === :BackupInt && return Ptr{NTuple{2, Cint}}(x + 4)
-    f === :BackupFloat && return Ptr{NTuple{2, Cfloat}}(x + 4)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::ImGuiStyleMod, f::Symbol)
-    r = Ref{ImGuiStyleMod}(x)
-    ptr = Base.unsafe_convert(Ptr{ImGuiStyleMod}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{ImGuiStyleMod}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-const ImGuiCol = Cint
-
-struct ImGuiColorMod
-    Col::ImGuiCol
-    BackupValue::ImVec4
-end
-
-struct ImRect
-    Min::ImVec2
-    Max::ImVec2
-end
-
-const ImGuiID = Cuint
-
-struct ImGuiStoragePair
-    data::NTuple{16, UInt8}
-end
-
-function Base.getproperty(x::Ptr{ImGuiStoragePair}, f::Symbol)
-    f === :key && return Ptr{ImGuiID}(x + 0)
-    f === :val_i && return Ptr{Cint}(x + 8)
-    f === :val_f && return Ptr{Cfloat}(x + 8)
-    f === :val_p && return Ptr{Ptr{Cvoid}}(x + 8)
-    return getfield(x, f)
-end
-
-function Base.getproperty(x::ImGuiStoragePair, f::Symbol)
-    r = Ref{ImGuiStoragePair}(x)
-    ptr = Base.unsafe_convert(Ptr{ImGuiStoragePair}, r)
-    fptr = getproperty(ptr, f)
-    GC.@preserve r unsafe_load(fptr)
-end
-
-function Base.setproperty!(x::Ptr{ImGuiStoragePair}, f::Symbol, v)
-    unsafe_store!(getproperty(x, f), v)
-end
-
-struct ImVector_char
-    Size::Cint
-    Capacity::Cint
-    Data::Cstring
-end
-
-struct ImGuiTextBuffer
-    Buf::ImVector_char
-end
-
-struct ImVector_ImGuiStoragePair
-    Size::Cint
-    Capacity::Cint
-    Data::Ptr{ImGuiStoragePair}
-end
-
-struct ImGuiStorage
-    Data::ImVector_ImGuiStoragePair
-end
-
-const ImPoolIdx = Cint
-
-struct ImVector_ImGuiColorMod
-    Size::Cint
-    Capacity::Cint
-    Data::Ptr{ImGuiColorMod}
-end
-
-struct ImVector_ImGuiStyleMod
-    Size::Cint
-    Capacity::Cint
-    Data::Ptr{ImGuiStyleMod}
-end
-
-struct ImVector_ImU32
-    Size::Cint
-    Capacity::Cint
-    Data::Ptr{ImU32}
-end
-
-struct ImVector_float
-    Size::Cint
-    Capacity::Cint
-    Data::Ptr{Cfloat}
-end
 
 const time_t = __time_t
 
@@ -1837,83 +1744,83 @@ function PlotHeatmap(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArr
     ccall((:ImPlot_PlotHeatmap_U64Ptr, libcimplot), Cvoid, (Cstring, Ptr{ImU64}, Cint, Cint, Cdouble, Cdouble, Cstring, ImPlotPoint, ImPlotPoint), label_id, values, rows, cols, scale_min, scale_max, label_fmt, bounds_min, bounds_max)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_FloatPtr, libcimplot), Cdouble, (Cstring, Ptr{Cfloat}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_doublePtr, libcimplot), Cdouble, (Cstring, Ptr{Cdouble}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_S8Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS8}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_U8Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU8}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_S16Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS16}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_U16Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU16}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_S32Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS32}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_U32Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU32}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_S64Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS64}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range = var"ImPlotRange()", outliers = true, bar_scale::Real = 1.0)
+function PlotHistogram(label_id, values::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, bins::Integer = ImPlotBin_Sturges, cumulative = false, density = false, range::ImPlotRange = ImPlotRange(), outliers = true, bar_scale::Real = 1.0)
     ccall((:ImPlot_PlotHistogram_U64Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU64}, Cint, Cint, Bool, Bool, ImPlotRange, Bool, Cdouble), label_id, values, count, bins, cumulative, density, range, outliers, bar_scale)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, ys::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_FloatPtr, libcimplot), Cdouble, (Cstring, Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, ys::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_doublePtr, libcimplot), Cdouble, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, ys::Union{Ptr{ImS8}, Ref{ImS8}, AbstractArray{ImS8}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_S8Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS8}, Ptr{ImS8}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, ys::Union{Ptr{ImU8}, Ref{ImU8}, AbstractArray{ImU8}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_U8Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU8}, Ptr{ImU8}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, ys::Union{Ptr{ImS16}, Ref{ImS16}, AbstractArray{ImS16}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_S16Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS16}, Ptr{ImS16}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, ys::Union{Ptr{ImU16}, Ref{ImU16}, AbstractArray{ImU16}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_U16Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU16}, Ptr{ImU16}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, ys::Union{Ptr{ImS32}, Ref{ImS32}, AbstractArray{ImS32}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_S32Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS32}, Ptr{ImS32}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, ys::Union{Ptr{ImU32}, Ref{ImU32}, AbstractArray{ImU32}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_U32Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU32}, Ptr{ImU32}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, ys::Union{Ptr{ImS64}, Ref{ImS64}, AbstractArray{ImS64}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_S64Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImS64}, Ptr{ImS64}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
-function PlotHistogram2D(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range = var"ImPlotLimits()", outliers = true)
+function PlotHistogram2D(label_id, xs::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, ys::Union{Ptr{ImU64}, Ref{ImU64}, AbstractArray{ImU64}}, count::Integer, x_bins::Integer = ImPlotBin_Sturges, y_bins::Integer = ImPlotBin_Sturges, density = false, range::ImPlotLimits = ImPlotLimits(), outliers = true)
     ccall((:ImPlot_PlotHistogram2D_U64Ptr, libcimplot), Cdouble, (Cstring, Ptr{ImU64}, Ptr{ImU64}, Cint, Cint, Cint, Bool, ImPlotLimits, Bool), label_id, xs, ys, count, x_bins, y_bins, density, range, outliers)
 end
 
@@ -1977,8 +1884,7 @@ function SetNextPlotLimitsX(xmin::Real, xmax::Real, cond = ImGuiCond_Once)
     ccall((:ImPlot_SetNextPlotLimitsX, libcimplot), Cvoid, (Cdouble, Cdouble, ImGuiCond), xmin, xmax, cond)
 end
 
-function SetNextPlotLimitsY(ymin::Real, ymax::Real, cond = ImGuiCond_Once,
-y_axis::ImPlotYAxis=-1)
+function SetNextPlotLimitsY(ymin::Real, ymax::Real, cond = ImGuiCond_Once, y_axis::Union{ImPlotYAxis_, Integer} = 0)
     ccall((:ImPlot_SetNextPlotLimitsY, libcimplot), Cvoid, (Cdouble, Cdouble, ImGuiCond, ImPlotYAxis), ymin, ymax, cond, y_axis)
 end
 
@@ -1998,15 +1904,15 @@ function SetNextPlotTicksX(x_min::Real, x_max::Real, n_ticks::Integer, labels, s
     ccall((:ImPlot_SetNextPlotTicksX_double, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool), x_min, x_max, n_ticks, labels, show_default)
 end
 
-function SetNextPlotTicksY(values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, n_ticks::Integer, labels, show_default = false, y_axis::ImPlotYAxis=-1)
+function SetNextPlotTicksY(values::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdouble}}, n_ticks::Integer, labels, show_default = false, y_axis::Union{ImPlotYAxis_, Integer} = 0)
     ccall((:ImPlot_SetNextPlotTicksY_doublePtr, libcimplot), Cvoid, (Ptr{Cdouble}, Cint, Ptr{Cstring}, Bool, ImPlotYAxis), values, n_ticks, labels, show_default, y_axis)
 end
 
-function SetNextPlotTicksY(y_min::Real, y_max::Real, n_ticks::Integer, labels, show_default = false, y_axis::ImPlotYAxis=-1)
+function SetNextPlotTicksY(y_min::Real, y_max::Real, n_ticks::Integer, labels, show_default = false, y_axis::Union{ImPlotYAxis_, Integer} = 0)
     ccall((:ImPlot_SetNextPlotTicksY_double, libcimplot), Cvoid, (Cdouble, Cdouble, Cint, Ptr{Cstring}, Bool, ImPlotYAxis), y_min, y_max, n_ticks, labels, show_default, y_axis)
 end
 
-function SetPlotYAxis(y_axis)
+function SetPlotYAxis(y_axis::Union{ImPlotYAxis_, Integer})
     ccall((:ImPlot_SetPlotYAxis, libcimplot), Cvoid, (ImPlotYAxis,), y_axis)
 end
 
@@ -2014,25 +1920,25 @@ function HideNextItem(hidden = true, cond = ImGuiCond_Once)
     ccall((:ImPlot_HideNextItem, libcimplot), Cvoid, (Bool, ImGuiCond), hidden, cond)
 end
 
-function PixelsToPlot(pix::ImVec2, y_axis::ImPlotYAxis=-1)
+function PixelsToPlot(pix::ImVec2, y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImPlotPoint}()
     ccall((:ImPlot_PixelsToPlot_Vec2, libcimplot), Cvoid, (Ref{ImPlotPoint}, ImVec2, ImPlotYAxis), pOut, pix, y_axis)
     pOut[]
 end
 
-function PixelsToPlot(x::Real, y::Real, y_axis::ImPlotYAxis=-1)
+function PixelsToPlot(x::Real, y::Real, y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImPlotPoint}()
     ccall((:ImPlot_PixelsToPlot_Float, libcimplot), Cvoid, (Ref{ImPlotPoint}, Cfloat, Cfloat, ImPlotYAxis), pOut, x, y, y_axis)
     pOut[]
 end
 
-function PlotToPixels(plt::ImPlotPoint, y_axis::ImPlotYAxis=-1)
+function PlotToPixels(plt::ImPlotPoint, y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImVec2}()
     ccall((:ImPlot_PlotToPixels_PlotPoInt, libcimplot), Cvoid, (Ref{ImVec2}, ImPlotPoint, ImPlotYAxis), pOut, plt, y_axis)
     pOut[]
 end
 
-function PlotToPixels(x::Real, y::Real, y_axis::ImPlotYAxis=-1)
+function PlotToPixels(x::Real, y::Real, y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImVec2}()
     ccall((:ImPlot_PlotToPixels_double, libcimplot), Cvoid, (Ref{ImVec2}, Cdouble, Cdouble, ImPlotYAxis), pOut, x, y, y_axis)
     pOut[]
@@ -2058,17 +1964,17 @@ function IsPlotXAxisHovered()
     ccall((:ImPlot_IsPlotXAxisHovered, libcimplot), Bool, ())
 end
 
-function IsPlotYAxisHovered(y_axis::ImPlotYAxis=-1)
+function IsPlotYAxisHovered(y_axis::Union{ImPlotYAxis_, Integer} = 0)
     ccall((:ImPlot_IsPlotYAxisHovered, libcimplot), Bool, (ImPlotYAxis,), y_axis)
 end
 
-function GetPlotMousePos(y_axis::ImPlotYAxis=-1)
+function GetPlotMousePos(y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImPlotPoint}()
     ccall((:ImPlot_GetPlotMousePos, libcimplot), Cvoid, (Ref{ImPlotPoint}, ImPlotYAxis), pOut, y_axis)
     pOut[]
 end
 
-function GetPlotLimits(y_axis::ImPlotYAxis=-1)
+function GetPlotLimits(y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImPlotLimits}()
     ccall((:ImPlot_GetPlotLimits, libcimplot), Cvoid, (Ref{ImPlotLimits}, ImPlotYAxis), pOut, y_axis)
     pOut[]
@@ -2078,7 +1984,7 @@ function IsPlotQueried()
     ccall((:ImPlot_IsPlotQueried, libcimplot), Bool, ())
 end
 
-function GetPlotQuery(y_axis::ImPlotYAxis=-1)
+function GetPlotQuery(y_axis::Union{ImPlotYAxis_, Integer} = -1)
     pOut = Ref{ImPlotLimits}()
     ccall((:ImPlot_GetPlotQuery, libcimplot), Cvoid, (Ref{ImPlotLimits}, ImPlotYAxis), pOut, y_axis)
     pOut[]
@@ -2096,11 +2002,11 @@ function DragPoint(id, x::Union{Ptr{Cdouble}, Ref{Cdouble}, AbstractArray{Cdoubl
     ccall((:ImPlot_DragPoint, libcimplot), Bool, (Cstring, Ptr{Cdouble}, Ptr{Cdouble}, Bool, ImVec4, Cfloat), id, x, y, show_label, col, radius)
 end
 
-function SetLegendLocation(location, orientation = ImPlotOrientation_Vertical, outside = false)
+function SetLegendLocation(location::Union{ImPlotLocation_, Integer}, orientation = ImPlotOrientation_Vertical, outside = false)
     ccall((:ImPlot_SetLegendLocation, libcimplot), Cvoid, (ImPlotLocation, ImPlotOrientation, Bool), location, orientation, outside)
 end
 
-function SetMousePosLocation(location)
+function SetMousePosLocation(location::Union{ImPlotLocation_, Integer})
     ccall((:ImPlot_SetMousePosLocation, libcimplot), Cvoid, (ImPlotLocation,), location)
 end
 
@@ -2108,7 +2014,7 @@ function IsLegendEntryHovered(label_id)
     ccall((:ImPlot_IsLegendEntryHovered, libcimplot), Bool, (Cstring,), label_id)
 end
 
-function BeginLegendPopup(label_id, mouse_button::ImGuiMouseButton)
+function BeginLegendPopup(label_id, mouse_button = 1)
     ccall((:ImPlot_BeginLegendPopup, libcimplot), Bool, (Cstring, ImGuiMouseButton), label_id, mouse_button)
 end
 
@@ -2136,19 +2042,19 @@ function EndDragDropTarget()
     ccall((:ImPlot_EndDragDropTarget, libcimplot), Cvoid, ())
 end
 
-function BeginDragDropSource(key_mods = ImGuiKeyModFlags_Ctrl, flags::ImGuiDragDropFlags)
+function BeginDragDropSource(key_mods = ImGuiKeyModFlags_Ctrl, flags = 0)
     ccall((:ImPlot_BeginDragDropSource, libcimplot), Bool, (ImGuiKeyModFlags, ImGuiDragDropFlags), key_mods, flags)
 end
 
-function BeginDragDropSourceX(key_mods = ImGuiKeyModFlags_Ctrl, flags::ImGuiDragDropFlags)
+function BeginDragDropSourceX(key_mods = ImGuiKeyModFlags_Ctrl, flags = 0)
     ccall((:ImPlot_BeginDragDropSourceX, libcimplot), Bool, (ImGuiKeyModFlags, ImGuiDragDropFlags), key_mods, flags)
 end
 
-function BeginDragDropSourceY(axis = ImPlotYAxis_1, key_mods = ImGuiKeyModFlags_Ctrl, flags::ImGuiDragDropFlags)
+function BeginDragDropSourceY(axis = ImPlotYAxis_1, key_mods = ImGuiKeyModFlags_Ctrl, flags = 0)
     ccall((:ImPlot_BeginDragDropSourceY, libcimplot), Bool, (ImPlotYAxis, ImGuiKeyModFlags, ImGuiDragDropFlags), axis, key_mods, flags)
 end
 
-function BeginDragDropSourceItem(label_id, flags::ImGuiDragDropFlags)
+function BeginDragDropSourceItem(label_id, flags = 0)
     ccall((:ImPlot_BeginDragDropSourceItem, libcimplot), Bool, (Cstring, ImGuiDragDropFlags), label_id, flags)
 end
 
@@ -2176,11 +2082,11 @@ function StyleColorsLight(dst)
     ccall((:ImPlot_StyleColorsLight, libcimplot), Cvoid, (Ptr{ImPlotStyle},), dst)
 end
 
-function PushStyleColor(idx, col::ImU32)
+function PushStyleColor(idx::Union{ImPlotCol_, Integer}, col::Integer)
     ccall((:ImPlot_PushStyleColor_U32, libcimplot), Cvoid, (ImPlotCol, ImU32), idx, col)
 end
 
-function PushStyleColor(idx, col::ImVec4)
+function PushStyleColor(idx::Union{ImPlotCol_, Integer}, col::ImVec4)
     ccall((:ImPlot_PushStyleColor_Vec4, libcimplot), Cvoid, (ImPlotCol, ImVec4), idx, col)
 end
 
@@ -2188,15 +2094,15 @@ function PopStyleColor(count::Integer = 1)
     ccall((:ImPlot_PopStyleColor, libcimplot), Cvoid, (Cint,), count)
 end
 
-function PushStyleVar(idx, val::Real)
+function PushStyleVar(idx::Union{ImPlotStyleVar_, Integer}, val::Real)
     ccall((:ImPlot_PushStyleVar_Float, libcimplot), Cvoid, (ImPlotStyleVar, Cfloat), idx, val)
 end
 
-function PushStyleVar(idx, val::Integer)
+function PushStyleVar(idx::Union{ImPlotStyleVar_, Integer}, val::Integer)
     ccall((:ImPlot_PushStyleVar_Int, libcimplot), Cvoid, (ImPlotStyleVar, Cint), idx, val)
 end
 
-function PushStyleVar(idx, val::ImVec2)
+function PushStyleVar(idx::Union{ImPlotStyleVar_, Integer}, val::ImVec2)
     ccall((:ImPlot_PushStyleVar_Vec2, libcimplot), Cvoid, (ImPlotStyleVar, ImVec2), idx, val)
 end
 
@@ -2212,7 +2118,7 @@ function SetNextFillStyle(col::ImVec4 = ImVec4(0, 0, 0, -1), alpha_mod::Real = -
     ccall((:ImPlot_SetNextFillStyle, libcimplot), Cvoid, (ImVec4, Cfloat), col, alpha_mod)
 end
 
-function SetNextMarkerStyle(marker::ImPlotMarker, size::Real = -1, fill::ImVec4 = ImVec4(0, 0, 0, -1), weight::Real = -1, outline::ImVec4 = ImVec4(0, 0, 0, -1))
+function SetNextMarkerStyle(marker::Union{ImPlotMarker_, Integer} = -1, size::Real = -1, fill::ImVec4 = ImVec4(0, 0, 0, -1), weight::Real = -1, outline::ImVec4 = ImVec4(0, 0, 0, -1))
     ccall((:ImPlot_SetNextMarkerStyle, libcimplot), Cvoid, (ImPlotMarker, Cfloat, ImVec4, Cfloat, ImVec4), marker, size, fill, weight, outline)
 end
 
@@ -2226,11 +2132,11 @@ function GetLastItemColor()
     pOut[]
 end
 
-function GetStyleColorName(idx)
+function GetStyleColorName(idx::Union{ImPlotCol_, Integer})
     ccall((:ImPlot_GetStyleColorName, libcimplot), Cstring, (ImPlotCol,), idx)
 end
 
-function GetMarkerName(idx)
+function GetMarkerName(idx::Union{ImPlotMarker_, Integer})
     ccall((:ImPlot_GetMarkerName, libcimplot), Cstring, (ImPlotMarker,), idx)
 end
 
@@ -2246,7 +2152,7 @@ function GetColormapCount()
     ccall((:ImPlot_GetColormapCount, libcimplot), Cint, ())
 end
 
-function GetColormapName(cmap)
+function GetColormapName(cmap::Union{ImPlotColormap_, Integer})
     ccall((:ImPlot_GetColormapName, libcimplot), Cstring, (ImPlotColormap,), cmap)
 end
 
@@ -2254,7 +2160,7 @@ function GetColormapIndex(name)
     ccall((:ImPlot_GetColormapIndex, libcimplot), ImPlotColormap, (Cstring,), name)
 end
 
-function PushColormap(cmap)
+function PushColormap(cmap::Union{ImPlotColormap_, Integer})
     ccall((:ImPlot_PushColormap_PlotColormap, libcimplot), Cvoid, (ImPlotColormap,), cmap)
 end
 
@@ -2272,31 +2178,31 @@ function NextColormapColor()
     pOut[]
 end
 
-function GetColormapSize(cmap::ImPlotColormap)
+function GetColormapSize(cmap::Union{ImPlotColormap_, Integer} = -1)
     ccall((:ImPlot_GetColormapSize, libcimplot), Cint, (ImPlotColormap,), cmap)
 end
 
-function GetColormapColor(idx::Integer, cmap::ImPlotColormap)
+function GetColormapColor(idx::Integer, cmap::Union{ImPlotColormap_, Integer} = -1)
     pOut = Ref{ImVec4}()
     ccall((:ImPlot_GetColormapColor, libcimplot), Cvoid, (Ref{ImVec4}, Cint, ImPlotColormap), pOut, idx, cmap)
     pOut[]
 end
 
-function SampleColormap(t::Real, cmap::ImPlotColormap)
+function SampleColormap(t::Real, cmap::Union{ImPlotColormap_, Integer} = -1)
     pOut = Ref{ImVec4}()
     ccall((:ImPlot_SampleColormap, libcimplot), Cvoid, (Ref{ImVec4}, Cfloat, ImPlotColormap), pOut, t, cmap)
     pOut[]
 end
 
-function ColormapScale(label, scale_min::Real, scale_max::Real, size::ImVec2 = ImVec2(0, 0), cmap::ImPlotColormap)
+function ColormapScale(label, scale_min::Real, scale_max::Real, size::ImVec2 = ImVec2(0, 0), cmap::Union{ImPlotColormap_, Integer} = -1)
     ccall((:ImPlot_ColormapScale, libcimplot), Cvoid, (Cstring, Cdouble, Cdouble, ImVec2, ImPlotColormap), label, scale_min, scale_max, size, cmap)
 end
 
-function ColormapSlider(label, t::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, out, format = "", cmap::ImPlotColormap)
+function ColormapSlider(label, t::Union{Ptr{Cfloat}, Ref{Cfloat}, AbstractArray{Cfloat}}, out, format = "", cmap::Union{ImPlotColormap_, Integer} = -1)
     ccall((:ImPlot_ColormapSlider, libcimplot), Bool, (Cstring, Ptr{Cfloat}, Ptr{ImVec4}, Cstring, ImPlotColormap), label, t, out, format, cmap)
 end
 
-function ColormapButton(label, size::ImVec2 = ImVec2(0, 0), cmap::ImPlotColormap)
+function ColormapButton(label, size::ImVec2 = ImVec2(0, 0), cmap::Union{ImPlotColormap_, Integer} = -1)
     ccall((:ImPlot_ColormapButton, libcimplot), Bool, (Cstring, ImVec2, ImPlotColormap), label, size, cmap)
 end
 
@@ -2308,11 +2214,11 @@ function ItemIcon(col::ImVec4)
     ccall((:ImPlot_ItemIcon_Vec4, libcimplot), Cvoid, (ImVec4,), col)
 end
 
-function ItemIcon(col::ImU32)
+function ItemIcon(col::Integer)
     ccall((:ImPlot_ItemIcon_U32, libcimplot), Cvoid, (ImU32,), col)
 end
 
-function ColormapIcon(cmap)
+function ColormapIcon(cmap::Union{ImPlotColormap_, Integer})
     ccall((:ImPlot_ColormapIcon, libcimplot), Cvoid, (ImPlotColormap,), cmap)
 end
 

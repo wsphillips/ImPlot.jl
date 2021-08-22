@@ -1,4 +1,4 @@
-using LibCImGui.LibCImGuiPack_jll
+using LibCImGui.CImGuiPack_jll
 
 import LibCImGui: 
     ImVec2, ImVec4,
@@ -6,7 +6,21 @@ import LibCImGui:
     ImS8, ImU8, ImS16, ImU16, ImS32, ImU32, ImS64, ImU64,
     ImTextureID,
     ImDrawList,
-    ImGuiContext
+    ImGuiContext,
+    ImGuiStyleVar,
+    ImGuiStyleMod,
+    ImGuiCol,
+    ImGuiColorMod,
+    ImGuiID,
+    ImGuiStoragePair,
+    ImGuiTextBuffer,
+    ImGuiStorage,
+    ImVector_float,
+    ImVector_ImU32,
+    ImVector_ImGuiStyleMod,
+    ImVector_ImGuiColorMod,
+    ImRect,
+    ImPoolIdx
             
 #Temporary patch; CImGui.jl v1.79.0 aliases ImS8 incorrectly; add to imports in new versions
 #const ImS8 = Int8

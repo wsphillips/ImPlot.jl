@@ -34,12 +34,29 @@ push!(args, "-I$CIMPLOT_INCLUDE_DIR")
 @add_def ImDrawList
 @add_def ImGuiContext
 
+@add_def ImGuiStyleVar
+@add_def ImGuiStyleMod
+@add_def ImGuiCol
+@add_def ImGuiColorMod
+@add_def ImGuiID
+@add_def ImGuiStoragePair
+@add_def ImGuiTextBuffer
+@add_def ImGuiStorage
+
+@add_def ImVector_float
+@add_def ImVector_ImU32
+@add_def ImVector_ImGuiStyleMod
+@add_def ImRect
+@add_def ImPoolIdx
+@add_def ImVector_ImGuiColorMod
+
 const METADATA_DIR = joinpath(@__DIR__, "cimgui-pack","cimplot","generator", "output")
 
-json_enums = read(joinpath(METADATA_DIR, "output", "structs_and_enums.json"), String);
+json_enums = read(joinpath(METADATA_DIR, "structs_and_enums.json"), String);
 json_defs = read(joinpath(METADATA_DIR, "definitions.json"), String);
-
+json_typedefs = read(joinpath(METADATA_DIR, "typedefs_dict.json"), String);
 enums = JSON3.read(json_enums);
+types = JSON3.read(json_typedefs);
 FUNCTION_METADATA = JSON3.read(json_defs);
 const ENUMS = Symbol.(chop.(string.(propertynames(enums.enums))))
 const DESPECIALIZE = ["LinkNextPlotLimits"]
@@ -61,6 +78,12 @@ for objfield in propertynames(FUNCTION_METADATA)
         append!(options["general"]["printer_blacklist"], getproperty.(objvec[indexes],:ov_cimguiname))
     end
 end
+#
+#for (obj, location) in enums.locations
+#    if startswith(location, "implot_internal")
+#        push!(options["general"]["printer_blacklist"], String(obj))
+#    end
+#end
 
 imdatatypes = [:Cfloat, :Cdouble, :ImS8, :ImU8, :ImS16, :ImU16, :ImS32, :ImU32, :ImS64, :ImU64]
 jldatatypes = [:Float32, :Float64, :Int8, :UInt8, :Int16, :UInt16, :Int32, :UInt32, :Int64, :UInt64] 
@@ -88,7 +111,8 @@ function parse_default(T::DataType, str, ptr_type = :notparsed)
 end
 
 function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
-    if jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar)
+    if jltype ∈ (:Cint, :Clong, :Cshort, :Cushort, :Culong, :Cuchar, :Cchar,
+                 :Int8, :UInt8, :Int16, :UInt16, :Int32, :UInt32, :Int64, :UInt64)
         if hasproperty(metadata.defaults, sym)
             val = parse_default(eval(jltype), getproperty(metadata.defaults,sym), ptr_type)
             def[:args][i] = :($( Expr(:kw, :($sym::Integer), val)) )
@@ -115,31 +139,41 @@ function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
     elseif startswith(string(jltype), "Im")
         if hasproperty(metadata.defaults, sym)
             raw_val = getproperty(metadata.defaults,sym)
-            if startswith(raw_val, "Im")
-                if jltype in PRIMITIVE_TYPES && endswith(raw_val, r"\(.+\)")
-                    rx = match(r"\(.+\)",raw_val)
-                    tupex = Meta.parse(rx.match)
-                    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), :($jltype($(tupex.args...))) )))
-                else 
-                    def[:args][i] =  :($( Expr(:kw, sym, :($(Symbol(raw_val))))) )
-                end
-            elseif raw_val == "((void*)0)"
+            if  raw_val == "((void*)0)"
                 val = :C_NULL
-                def[:args][i] = :($( Expr(:kw, :($sym), val)) )
+                def[:args][i] = :($(Expr(:kw, sym, val)) )
+                return
+            elseif startswith(raw_val, "Im")
+                #if jltype in PRIMITIVE_TYPES && endswith(raw_val, r"\(.+\)")
+                #    rx = match(r"\(.+\)",raw_val)
+                #    tupex = Meta.parse(rx.match)
+                #    def[:args][i] = :($( Expr(:kw, :($sym::$jltype), :($jltype($(tupex.args...))) )))
+                #else 
+                #    def[:args][i] =  :($( Expr(:kw, sym, :($(Symbol(raw_val))))) )
+                #end
+                if jltype in PRIMITIVE_TYPES
+                    def[:args][i] = :($(Expr(:kw, :($sym::$jltype), Meta.parse(raw_val))))
+                else
+                    def[:args][i] = :($(Expr(:kw, sym, Meta.parse(raw_val))))
+                end
+                return
+            elseif jltype in ENUMS
+                def[:args][i] = :($(Expr(:kw, :($sym::Union{$(Symbol(string(jltype)*"_")),Integer}), Meta.parse(raw_val))))
+                return
             else
-                println("Raw value: $raw_val not processed")
+                def[:args][i] = :($(Expr(:kw, sym, Meta.parse(raw_val))))
+                return
             end
-            return
         elseif jltype in ENUMS
-            def[:args][i] = :($sym)
+            def[:args][i] = :($sym::Union{$(Symbol(string(jltype)*"_")),Integer})
             return
         else
+                #println("Raw value: $raw_val not processed for $sym :: $jltype in $(def[:name])")
             def[:args][i] = :($sym::$jltype)
             return
         end
     elseif @capture(jltype, Ptr{ptrtype_})
         if hasproperty(metadata.defaults, sym)
-            
             raw_val = getproperty(metadata.defaults,sym)
             if raw_val !== "((void*)0)" && endswith(raw_val, r"\(.+\)")
                 rx = match(r"\(.+\)",raw_val)
@@ -157,7 +191,7 @@ function revise_arg(def, metadata, i, sym, jltype, ptr_type = :notparsed)
         end
         return
     end
-        println("Not processing default value for: $sym from $(def[:name])")
+        @info "Not processing argument: $sym::$jltype from $(def[:name])"
         return
 end
 
@@ -289,6 +323,7 @@ end
 function revise_function(ex::Expr, all_metadata, options) 
     def = ExprTools.splitdef(ex)
     # Skip Expr function names (e.g. :(Base.getproperty))
+    # FIXME: sometimes getting functors??!!
     def[:name] isa Symbol || return ex
     fun_name = string(def[:name])
     # Skip functions not in the JSON metadata
