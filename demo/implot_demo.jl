@@ -1,27 +1,33 @@
 
 include("Renderer.jl")
 using .Renderer
+
+using ImPlot
+import ImPlot: LibCImGui
+
 using Printf, Random, Setfield, Dates
 
 using CImGui
 using CImGui.CSyntax
 using CImGui.CSyntax.CStatic
 
-import CImGui: ImVec2, ImVec4, ImGuiCond_Always, ImGuiCond_Appearing, ImGuiCond_FirstUseEver,
+import ImPlot.LibCImGui: ImVec2, ImVec4, ImGuiCond_Always, ImGuiCond_Appearing, ImGuiCond_FirstUseEver,
                ImGuiCond_Once, ImGuiWindowFlags_MenuBar, ImGuiBackendFlags_RendererHasVtxOffset,
                ImGuiDragDropFlags_None
 
-import CImGui.LibCImGui.ImDrawIdx
+import ImPlot.LibCImGui.ImDrawIdx
 
-using ImPlot
+
+
 
 # const IMGUI_HAS_TABLE = true 
 
 # Encapsulates examples for customizing ImPlot.
 module MyImPlot
 
-using CImGui, ImPlot, Setfield
-import CImGui: ImVec4, ImVec2
+using ImPlot, Setfield
+import ImPlot.LibCImGui
+import ImPlot.LibCImGui: ImVec4, ImVec2
 
 # Example for Custom Data and Getters section.
 struct Vector2f
@@ -393,7 +399,7 @@ function ShowDemoWindow()
         CImGui.Indent()
         CImGui.BulletText("ImDrawIdx: $(sizeof(ImDrawIdx)*8)-bit")
         CImGui.BulletText(@sprintf("ImGuiBackendFlags_RendererHasVtxOffset: %s",
-                                   (CImGui.GetIO().BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset > 0) ? "True" : "False"))
+                                   (unsafe_load(CImGui.GetIO().BackendFlags) & ImGuiBackendFlags_RendererHasVtxOffset > 0) ? "True" : "False"))
         CImGui.Unindent()
         CImGui.Unindent()
         CImGui.BulletText("The demo data precision is: " * (Sys.WORD_SIZE == 64 ? "double" : "float"))
@@ -711,7 +717,7 @@ function ShowDemoWindow()
                 xlabels = ["C1","C2","C3","C4","C5","C6","C7"],
                 ylabels = ["R1","R2","R3","R4","R5","R6","R7"],
                 map = Cint(ImPlot.ImPlotColormap_Viridis),
-                axes_flags = ImPlot.ImPlotAxisFlags_Lock | ImPlot.ImPlotAxisFlags_NoGridLines | ImPlot.ImPlotAxisFlags_NoTickMarks,
+                axes_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks,
                 values2 = zeros(Float64, 100*100),
                 gray = [ImVec4(0,0,0,1), ImVec4(1,1,1,1)],
                 begin
@@ -737,18 +743,16 @@ function ShowDemoWindow()
          end
 
          CImGui.SameLine()
-         ImPlot.ShowColormapScale(scale_min, scale_max, 225)
-         ImPlot.PopColormap()
+         ImPlot.ColormapScale("##HeatScale", scale_min, scale_max, ImVec2(60,225))
 
          CImGui.SameLine()
          
          values2 .= rand(100*100)
 
-         ImPlot.PushColormap(gray, 2)
          ImPlot.SetNextPlotLimits(-1,1,-1,1)
          if ImPlot.BeginPlot("##Heatmap2",C_NULL,C_NULL, ImVec2(225,225),
-             x_flags = ImPlot.ImPlotAxisFlags_NoDecorations,
-             y_flags = ImPlot.ImPlotAxisFlags_NoDecorations)
+             x_flags = ImPlotAxisFlags_NoDecorations,
+             y_flags = ImPlotAxisFlags_NoDecorations)
 
              ImPlot.PlotHeatmap("heat1", values2,100,100,0,1, "")
              ImPlot.PlotHeatmap("heat2", values2,100,100,0,1, "",ImPlotPoint(-1,-1),ImPlotPoint(0,0))
@@ -781,8 +785,8 @@ function ShowDemoWindow()
             bmin, bmax, uv0, uv1, tint = bmin_ref[], bmax_ref[], uv0_ref[], uv1_ref[], tint_ref[]
             
             if ImPlot.BeginPlot("##image", "", "")
-                ImPlot.PlotImage("my image", CImGui.GetIO().Fonts.TexID, ImPlotPoint(bmin),
-                                 ImPlotPoint(bmax), uv0, uv1, tint)
+                ImPlot.PlotImage("my image", unsafe_load(unsafe_load(CImGui.GetIO().Fonts).TexID), 
+                                 ImPlotPoint(bmin), ImPlotPoint(bmax), uv0, uv1, tint)
                 ImPlot.EndPlot()
             end
         end) # cstatic
@@ -801,7 +805,7 @@ function ShowDemoWindow()
             rt_axis = ImPlotAxisFlags_NoTickLabels,
         begin
             mouse = CImGui.GetMousePos() 
-            t += CImGui.GetIO().DeltaTime
+            t += unsafe_load(CImGui.GetIO().DeltaTime)
             AddPoint(sdata1, t, mouse.x * 0.0005)
             AddPoint(rdata1, t, mouse.x * 0.0005)
             AddPoint(sdata2, t, mouse.y * 0.0005)
@@ -829,15 +833,14 @@ function ShowDemoWindow()
     end
 #     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Markers and Text")
-            mk_size = unsafe_load(ImPlot.GetStyle()).MarkerSize
-            mk_weight = unsafe_load(ImPlot.GetStyle()).MarkerWeight
+            mk_size_ptr = ImPlot.GetStyle().MarkerSize
+            mk_weight_ptr = ImPlot.GetStyle().MarkerWeight
 
-            if @c CImGui.DragFloat("Marker Size",&mk_size,0.1,2.0,10.0,"%.2f px")
-                CImGui.Set(ImPlot.GetStyle(), :MarkerSize, mk_size)
-            end
-            if @c CImGui.DragFloat("Marker Weight", &mk_weight,0.05,0.5,3.0,"%.2f px")
-                CImGui.Set(ImPlot.GetStyle(), :MarkerWeight, mk_weight)
-            end
+            CImGui.DragFloat("Marker Size", mk_size_ptr, 0.1,2.0,10.0,"%.2f px")
+            CImGui.DragFloat("Marker Weight", mk_weight_ptr, 0.05,0.5,3.0,"%.2f px")
+
+            mk_size = unsafe_load(mk_size_ptr)
+            mk_weight = unsafe_load(mk_weight_ptr)
 
             ImPlot.SetNextPlotLimits(0, 10, 0, 12)
             if ImPlot.BeginPlot("##MarkerStyles", C_NULL, C_NULL, ImVec2(-1,0);
@@ -916,17 +919,11 @@ function ShowDemoWindow()
             use_ISO8601 = false,
             use_24hour_clock = false,
         begin 
-            if @c CImGui.Checkbox("Local Time", &use_local_time)
-                CImGui.Set(ImPlot.GetStyle(), :UseLocalTime, use_24hour_clock)
-            end
+            CImGui.Checkbox("Local Time", ImPlot.GetStyle().UseLocalTime)
             CImGui.SameLine()
-            if @c CImGui.Checkbox("ISO 8601", &use_ISO8601)
-                CImGui.Set(ImPlot.GetStyle(), :UseISO8601, use_ISO8601)
-            end
+            CImGui.Checkbox("ISO 8601", ImPlot.GetStyle().UseISO8601)
             CImGui.SameLine()
-            if @c CImGui.Checkbox("24 Hour Clock", &use_24hour_clock)
-                CImGui.Set(ImPlot.GetStyle(), :Use24HourClock, use_24hour_clock)
-            end
+            CImGui.Checkbox("24 Hour Clock", ImPlot.GetStyle().Use24HourClock)
         end)
 
         @cstatic( 
@@ -1081,7 +1078,7 @@ function ShowDemoWindow()
                                 x_flags = ImPlotAxisFlags_NoDecorations,
                                 y_flags = ImPlotAxisFlags_NoDecorations)
 
-                if ImPlot.IsPlotHovered() && CImGui.IsMouseClicked(0) && CImGui.GetIO().KeyCtrl
+                if ImPlot.IsPlotHovered() && CImGui.IsMouseClicked(0) && unsafe_load(CImGui.GetIO().KeyCtrl)
                     pt = ImPlot.GetPlotMousePos()
                     push!(data, pt)
                 end
@@ -1093,6 +1090,7 @@ function ShowDemoWindow()
                     cnt = 0
                     avg = ImPlotPoint()
                     for i = 1:length(data)
+                        # prange2 = Ref(range2) - didn't help
                         if ImPlot.Contains(range2, data[i].x, data[i].y)
                             avg = ImPlotPoint(avg.x + data[i].x, avg.y + data[i].y)
                             cnt+=1
@@ -1175,21 +1173,10 @@ function ShowDemoWindow()
 
             @c CImGui.Checkbox("Horizontal", &h); CImGui.SameLine()
             @c CImGui.Checkbox("Outside", &o)
-            
-            # FIXME: this is an ugly hack
-            style = unsafe_load(ImPlot.GetStyle())
-            padding = Ref(style.LegendPadding) 
-            if CImGui.SliderFloat2("LegendPadding", Ptr{Float32}(pointer_from_objref(padding)), 0.0, 20.0, "%.0f")
-                CImGui.Set(ImPlot.GetStyle(), :LegendPadding, padding[])
-            end
-            inner_padding = Ref(style.LegendInnerPadding)
-            if CImGui.SliderFloat2("LegendInnerPadding", Ptr{Float32}(pointer_from_objref(inner_padding)), 0.0, 10.0, "%.0f")
-                CImGui.Set(ImPlot.GetStyle(), :LegendInnerPadding, inner_padding[])
-            end
-            spacing = Ref(style.LegendSpacing)
-            if CImGui.SliderFloat2("LegendSpacing", Ptr{Float32}(pointer_from_objref(spacing)), 0.0, 5.0, "%.0f")
-                CImGui.Set(ImPlot.GetStyle(), :LegendSpacing, spacing[])
-            end
+
+            CImGui.SliderFloat2("LegendPadding", ImPlot.GetStyle().LegendPadding, 0.0, 20.0, "%.0f")
+            CImGui.SliderFloat2("LegendInnerPadding", ImPlot.GetStyle().LegendInnerPadding, 0.0, 10.0, "%.0f")
+            CImGui.SliderFloat2("LegendSpacing", ImPlot.GetStyle().LegendSpacing, 0.0, 5.0, "%.0f")
 
             sinewave_c = @cfunction(MyImPlot.SineWave, Cvoid, (Ptr{Cvoid}, Cint,
             Ptr{ImPlotPoint}))
@@ -1351,7 +1338,7 @@ function ShowDemoWindow()
             for i = 1:K_CHANNELS
                 label = show[i] ? "data_$i (Y$(yAxis[i]))" : "data_$i"
                 CImGui.Selectable(label, false, 0, ImVec2(100, 0))
-                if CImGui.BeginDragDropSource(ImGuiDragDropFlags_None)
+                if ImPlot.BeginDragDropSourceItem(label, ImGuiDragDropFlags_None)
                     @c CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
                     CImGui.TextUnformatted(label)
                     CImGui.EndDragDropSource()
@@ -1362,7 +1349,7 @@ function ShowDemoWindow()
             Random.seed!(trunc(Int, 10000000 * DEMO_TIME))
 
             if !paused
-                t += CImGui.GetIO().DeltaTime
+                t += unsafe_load(CImGui.GetIO().DeltaTime)
                 for i = 1:K_CHANNELS
                     if show[i]
                         AddPoint(data[i], t, (i+1)*0.1 + rand(-0.01 : 0.000001 : 0.01))
@@ -1382,10 +1369,10 @@ function ShowDemoWindow()
                         ImPlot.PlotLine(data[i].data, :x, :y, offset = data[i].offset)
                         
                         # allow legend labels to be dragged and dropped
-                        if ImPlot.BeginLegendDragDropSource(label, ImGuiDragDropFlags_None) #! no dafults
+                        if ImPlot.BeginDragDropSourceItem(label, ImGuiDragDropFlags_None) #! no dafults
                             @c CImGui.SetDragDropPayload("DND_PLOT", &i, sizeof(Int))
                             CImGui.TextUnformatted(label)
-                            ImPlot.EndLegendDragDropSource()
+                            ImPlot.EndDragDropSource()
                         end
                     end
                 end
@@ -1393,7 +1380,7 @@ function ShowDemoWindow()
                 if CImGui.BeginDragDropTarget()
                     payload = CImGui.AcceptDragDropPayload("DND_PLOT")
                     if payload != C_NULL
-                        ptr = CImGui.Get(payload, :Data)
+                        ptr = unsafe_load(payload).Data
                         i = unsafe_load(Ptr{Cint}(ptr))
                         show[i] = true
                         yAxis[i] = 0
@@ -1481,7 +1468,7 @@ function ShowDemoWindow()
             CImGui.SameLine()
 
             if !paused
-                t += CImGui.GetIO().DeltaTime
+                t += unsafe_load(CImGui.GetIO().DeltaTime)
                 #digital signal values
                 i = 1 # 1-based indexing in Julia
                 if showDigital[i]

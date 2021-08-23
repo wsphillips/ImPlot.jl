@@ -210,7 +210,7 @@ function make_plotmethod(def, metadata)
         end
     end 
     def[:body] = Expr(:block, 
-                      :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
+                      :(ccall(($funsymbol, libcimgui), $rettype, ($(argtypes...),), $(argnames...))))
 end             
 
 function make_finalizer!(def, metadata)
@@ -219,7 +219,7 @@ function make_finalizer!(def, metadata)
     argtype, argname = only(argtypes), only(argnames)
     @capture(argtype, Ptr{ptrtype_})
     def[:args] = [:($argname::Union{$argtype,$ptrtype})]
-    new_ccall = :(ccall(($funsymbol, libcimplot), $rettype, ($argtype,), $argname))
+    new_ccall = :(ccall(($funsymbol, libcimgui), $rettype, ($argtype,), $argname))
     new_body = Expr(:block, :(ptr = pointer_from_objref($argname)), :(GC.@preserve $argname $new_ccall))
     def[:body] = MacroTools.prewalk(rmlines, new_body)
 end
@@ -227,7 +227,7 @@ end
 function make_constructor!(def, metadata)
     def[:name] = Symbol(metadata.stname)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
-    new_ccall = :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...)))
+    new_ccall = :(ccall(($funsymbol, libcimgui), $rettype, ($(argtypes...),), $(argnames...)))
     def[:body] = Expr(:block, new_ccall)
 end
 
@@ -266,7 +266,7 @@ function make_nonudt(def, metadata)
     argtypes[1] = :(Ref{$ptr_type})
     def[:body] = Expr(:block,
                       :($sym = Ref{$ptr_type}()),
-                      :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))),
+                      :(ccall(($funsymbol, libcimgui), $rettype, ($(argtypes...),), $(argnames...))),
                       ptr_type in PRIMITIVE_TYPES ? :($sym[]) : :($sym))
     
    for (i, argtype) in enumerate(argtypes)
@@ -293,7 +293,7 @@ function make_generic(def, metadata)
     def[:name] = Symbol(metadata.funcname)
     (funsymbol, rettype, argtypes, argnames) = split_ccall(def[:body])
     def[:body] = Expr(:block,
-                      :(ccall(($funsymbol, libcimplot), $rettype, ($(argtypes...),), $(argnames...))))
+                      :(ccall(($funsymbol, libcimgui), $rettype, ($(argtypes...),), $(argnames...))))
     for (i, argtype) in enumerate(argtypes)
         sym = argnames[i]
         jltype = argtype ∈ imdatatypes ? imtojl_lookup[argtype] : argtype
