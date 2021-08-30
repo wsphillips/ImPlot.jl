@@ -14,13 +14,6 @@ Simple installation via the package registry:
 ```julia
 ]add ImPlot
 ```
-
-NOTE: The current stable version of **ImPlot on the registry is backed by binaries built from implot v0.4**. If you would like to try out some of the newer plot types and features, the development branch is currently running with binaries built from implot v0.8. To use that instead, install via:
-
-```
-]add https://github.com/wsphillips/ImPlot.jl#main
-```
-
 ## Example Usage
 
 Use `demo/implot_demo.jl` to check if things are working via:
