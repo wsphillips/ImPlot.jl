@@ -12,22 +12,27 @@ using CImGui.CSyntax
 using CImGui.CSyntax.CStatic
 
 import ImPlot.LibCImGui: ImVec2, ImVec4, ImGuiCond_Always, ImGuiCond_Appearing, ImGuiCond_FirstUseEver,
-               ImGuiCond_Once, ImGuiWindowFlags_MenuBar, ImGuiBackendFlags_RendererHasVtxOffset,
-               ImGuiDragDropFlags_None
+            ImGuiCond_Once, ImGuiWindowFlags_MenuBar, ImGuiBackendFlags_RendererHasVtxOffset,
+            ImGuiDragDropFlags_None,
+            ImGuiTableFlags_BordersOuter,
+            ImGuiTableFlags_BordersV,
+            ImGuiTableFlags_RowBg,
+            ImGuiTableColumnFlags_WidthFixed,
+            ImGuiTableColumnFlags_WidthFixed
 
 import ImPlot.LibCImGui.ImDrawIdx
 
 
 
 
-# const IMGUI_HAS_TABLE = true 
+const IMGUI_HAS_TABLE = true 
 
 # Encapsulates examples for customizing ImPlot.
 module MyImPlot
 
 using ImPlot, Setfield
 import ImPlot.LibCImGui
-import ImPlot.LibCImGui: ImVec4, ImVec2
+import ImPlot.LibCImGui: ImVec4, ImVec2, ImGuiCond_Always
 
 # Example for Custom Data and Getters section.
 struct Vector2f
@@ -76,7 +81,7 @@ function Spiral(::Ptr{Nothing}, idx::Cint, pt::Ptr{ImPlotPoint})::Nothing
 end
 
 # Example for Tables section.
-function Sparkline(id::String, values::Vector{Float32}, count::Int, min_v::Float32, max_v::Float32, offset::Int, col::ImVec4, size::ImVec4)
+function Sparkline(id::String, values::Vector{Float32}, count::Int, min_v, max_v, offset::Int, col::ImVec4, size::ImVec2)
 
     ImPlot.PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0,0))
     ImPlot.SetNextPlotLimits(0, count - 1, min_v, max_v, ImGuiCond_Always)
@@ -1570,9 +1575,9 @@ function ShowDemoWindow()
                             data[i] = rand(0.0 : 0.0001 : 10.0)
                         end
                         CImGui.TableSetColumnIndex(0)
-                        CImGui.Text("EMG %d", row)
+                        CImGui.Text(@sprintf("EMG %d", row))
                         CImGui.TableSetColumnIndex(1)
-                        CImGui.Text("%.3f V", data[offset])
+                        CImGui.Text(@sprintf("%.3f V", data[offset + 1]))
                         CImGui.TableSetColumnIndex(2)
                         CImGui.PushID(row)
                         MyImPlot.Sparkline("##spark",data,100,0,11.0,offset,ImPlot.GetColormapColor(row),ImVec2(-1, 35))
