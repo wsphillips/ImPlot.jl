@@ -1,3 +1,0 @@
-[submodule "gen/cimgui-pack"]
-	path = gen/cimgui-pack
-	url = https://github.com/JuliaImGui/cimgui-pack
