@@ -1,16 +1,11 @@
 [general]
-library_name = "libcimplot"
+library_name = "libcimgui"
 library_names = {}
 output_file_path = "../src/libcimplot.jl"
 module_name = ""
 jll_pkg_name = ""
 jll_pkg_extra = []
 export_symbol_prefixes = ["ImPlot", "IMPLOT"]
-
-#"ImPlotFlags_", "ImPlotAxisFlags_", "ImPlotCol_", "ImPlotStyleVar_",
-#                          "ImPlotMarker_", "ImPlotColormap_", "ImPlotLocation_",
-#                          "ImPlotOrientation_", "ImPlotYAxis_"]
-
 prologue_file_path = "./prologue.jl"
 epilogue_file_path = "./epilogue.jl"
 printer_blacklist = ["ImPlotPoint_ImPlotPointNil",
