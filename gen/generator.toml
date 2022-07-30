@@ -8,7 +8,7 @@ jll_pkg_extra = []
 export_symbol_prefixes = ["ImPlot", "IMPLOT"]
 prologue_file_path = "./prologue.jl"
 epilogue_file_path = "./epilogue.jl"
-printer_blacklist = ["ImPlotPoint_ImPlotPointNil",
+output_ignorelist = ["ImPlotPoint_ImPlotPointNil",
                      "ImPlotPoint_destroy",
                      "ImPlotPoint_ImPlotPointdouble",
                      "ImPlotPoint_ImPlotPointVec2",
@@ -17,13 +17,32 @@ printer_blacklist = ["ImPlotPoint_ImPlotPointNil",
                      "ImPlotRange_ImPlotRangedouble"]
 use_julia_native_enum_type = false
 print_using_CEnum = true
+print_enum_as_integer = false
 use_deterministic_symbol = true
 is_local_header_only = true
 smart_de_anonymize = true
 auto_mutability = false
 auto_mutability_with_new = false
-auto_mutability_blacklist = []
-auto_mutability_whitelist = []
+auto_mutability_ignorelist = []
+auto_mutability_includelist = []
+
+# if set to "raw", extract and dump raw c comment;
+# if set to "doxygen", parse and format doxygen comment.
+# note: by default, Clang only parses doxygen comment, pass `-fparse-all-comments` to Clang in order to parse non-doxygen comments.
+extract_c_comment_style = "doxygen"
+
+# if set to true, single line comment will be printed as """comment""" instead of """\ncomment\n"""
+fold_single_line_comment = false
+
+# if set to "outofline", documentation of struct fields will be collected at the "Fields" section of the struct
+# if set to "inline", documentation of struct fields will go right above struct definition
+struct_field_comment_style = "outofline"
+
+# if set to "outofline", documentation of enumerators will be collected at the "Enumerators" section of the enum
+enumerator_comment_style = "outofline"
+
+# if set to true, C function prototype will be included in documentation
+show_c_function_prototype = false
 
 [codegen]
 use_julia_bool = true
@@ -35,10 +54,13 @@ use_ccall_macro = false
 wrap_variadic_function = false
 field_access_method_list = ["ImPlotInputMap", "ImPlotStyle"]
 function_argument_conflict_symbols = []
+# emit constructors for all custom-layout structs like bitfield in the list,
+# or set to `true` to do so for all such structs
+add_record_constructors = []
 
 [codegen.macro]
 macro_mode = "disable"
-functionlike_macro_whitelist = []
+functionlike_macro_includelist = []
 add_comment_for_skipped_macro = true
 ignore_header_guards = true
 ignore_header_guards_with_suffixes = []

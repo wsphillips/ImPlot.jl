@@ -1,2 +1,4 @@
 imgui.ini
 .vscode
+gen/cimguipack
+Manifest.toml
