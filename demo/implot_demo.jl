@@ -1938,7 +1938,7 @@ closes =
 end
 
 # main functinon
-function show() 
+function show_demo() 
 
     Renderer.render(
         ()->ShowDemoWindow(), 

@@ -87,6 +87,7 @@ end
 function PlotShaded(structvec::Vector{T}, xfield::Symbol, yfield::Symbol, y_ref::Real;
                     count::Integer=length(structvec), offset::Integer=0, stride::Integer=1,
                     label_id::String="") where {T}
+
     Tx = fieldtype(T, xfield)
     Ty = fieldtype(T, yfield)
     x_offset = fieldoffset(T, Base.fieldindex(T, xfield))
@@ -94,7 +95,7 @@ function PlotShaded(structvec::Vector{T}, xfield::Symbol, yfield::Symbol, y_ref:
     x_ptr = Ptr{Tx}((pointer(structvec, 1) + x_offset))
     y_ptr = Ptr{Ty}((pointer(structvec, 1) + y_offset))
 
-    if !T.mutable
+    if !ismutabletype(T)
         # this is somewhat illegal and is used only to pass a pointer through AbstractArray argument into ccall
         x = unsafe_wrap(Vector{Tx}, x_ptr, size(structvec); own=false)
         y = unsafe_wrap(Vector{Ty}, y_ptr, size(structvec); own=false)
