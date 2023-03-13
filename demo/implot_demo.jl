@@ -727,11 +727,13 @@ function ShowDemoWindow()
                 gray = [ImVec4(0,0,0,1), ImVec4(1,1,1,1)],
                 begin
 
-         if CImGui.Button("Change Colormap",ImVec2(225,0))
-             map = (map + 1) % Cint(ImPlot.ImPlotColormap_COUNT)
+         if ImPlot.ColormapButton(ImPlot.GetColormapName(map), ImVec2(225,0), map)
+             map = (map + 1) % Cint(ImPlot.GetColormapCount())
+             ImPlot.BustColorCache("##Heatmap1")
+             ImPlot.BustColorCache("##Heatmap2")
          end
          CImGui.SameLine()
-         CImGui.LabelText("##Colormap Index", ImPlot.GetColormapName(map))
+         CImGui.LabelText("##Colormap Index", "Change Colormap")
          CImGui.SetNextItemWidth(225)
          @c CImGui.DragFloatRange2("Min / Max",&scale_min, &scale_max, 0.01, -20, 20)
 
@@ -1307,7 +1309,9 @@ function ShowDemoWindow()
      end) # cstatic
      end
      #-------------------------------------------------------------------------
-    if CImGui.CollapsingHeader("Drag and Drop") #! this section is reworked in upstream versions
+     # FIXME: BROKEN
+     #=
+     if CImGui.CollapsingHeader("Drag and Drop") #! this section is reworked in upstream versions
         Random.seed!(trunc(Int, 10000000 * DEMO_TIME))
         @cstatic(
             init = true,
@@ -1547,8 +1551,7 @@ function ShowDemoWindow()
         end) 
     end
     #-------------------------------------------------------------------------
-    
-    # TODO: add newer CImGui version with Tables included
+    =# 
     if CImGui.CollapsingHeader("Tables")
         @static if @isdefined(IMGUI_HAS_TABLE) # #ifdef(IMGUI_HAS_TABLE)
             @cstatic( 
@@ -1735,6 +1738,8 @@ end
          ImPlot.PopColormap()
      end
      #-------------------------------------------------------------------------
+     # FIXME: BROKEN
+     #=
      if CImGui.CollapsingHeader("Custom Rendering")
          if ImPlot.BeginPlot("##CustomRend")
              cntr = ImPlot.PlotToPixels(ImPlotPoint(0.5,  0.5))
@@ -1749,6 +1754,7 @@ end
              ImPlot.EndPlot()
          end
      end
+     =#
     #-------------------------------------------------------------------------
     if CImGui.CollapsingHeader("Custom Context Menus")
         CImGui.BulletText("You can implement legend context menus to inject per-item controls and widgets.")
