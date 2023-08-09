@@ -163,18 +163,18 @@ function make_constructor!(def, metadata)
 end
 
 function parse_pointer_arg!(jltype, def, sym, i)
-       if @capture(jltype, Ptr{ptrtype_})
-            ptrtype ∉ vcat(IMGUI_ISBITS_TYPES, IMDATATYPES) && return true
-            if ptrtype in (IMDATATYPES..., :Cstring)
-                if ptrtype == :Cstring
-                    def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
-                else   
-                    def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
-                end
-                return true
+    if @capture(jltype, Ptr{ptrtype_})
+        ptrtype ∉ vcat(IMGUI_ISBITS_TYPES, IMDATATYPES) && return true
+        if ptrtype in (IMDATATYPES..., :Cstring)
+            if ptrtype == :Cstring
+                def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
+            else
+                def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
             end
-       end
-       return false
+            return true
+        end
+    end
+    return false
 end
 
 function make_objmethod!(def, metadata)
