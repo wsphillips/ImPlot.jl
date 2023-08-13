@@ -42,7 +42,9 @@ end
 
 function parse_default(jlsymtype, str, ptr_type = nothing)
     T = eval(jlsymtype)
-    str == "((void*)0)" && return :C_NULL
+    if str == "((void*)0)" || str == "NULL"
+        return :C_NULL
+    end
     (T <: AbstractFloat || T <: Bool || T <: Cstring) && return Meta.parse(str) 
     T <: Integer && return (startswith(str, "sizeof") ? :(sizeof($ptr_type)) : Meta.parse(str))
     T <: Symbol && return Symbol(str)
