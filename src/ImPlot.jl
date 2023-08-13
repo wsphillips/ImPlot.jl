@@ -9,15 +9,50 @@ const ImPlotData = Union{Float32,Float64,Int8,UInt8,Int16,UInt16,Int32,UInt32,In
 
 include("libcimplot.jl")
 
-function BeginPlot(title_id::String, x_label = C_NULL, y_label = C_NULL, size::ImVec2 = ImVec2(-1,0);
+function BeginPlot(title_id::String, x_label::String = "", y_label::String = "", size::ImVec2 = ImVec2(-1,0);
                     flags = ImPlotFlags_None,
                     x_flags = ImPlotAxisFlags_None,
                     y_flags = ImPlotAxisFlags_None,
-                    y2_flags = ImPlotAxisFlags_None,
-                    y3_flags = ImPlotAxisFlags_None)::Bool
+                    y2_flags::Union{ImPlotAxisFlags_, Nothing} = nothing,
+                    y3_flags::Union{ImPlotAxisFlags_, Nothing} = nothing)::Bool
 
-    BeginPlot(title_id, x_label, y_label, size,
-                         flags, x_flags, y_flags, y2_flags, y3_flags)
+    ret = BeginPlot(title_id, size, flags)
+    if ret
+        SetupAxes(x_label, y_label, x_flags, y_flags)
+
+        if y2_flags !== nothing
+            SetupAxis(ImAxis_Y2, "", y2_flags)
+        end
+        if y3_flags !== nothing
+            SetupAxis(ImAxis_Y3, "", y3_flags)
+        end
+    end
+
+    return ret
+end
+
+function SetNextAxisLimitsX(x_min::Real, x_max::Real, cond = ImPlotCond_Once)
+    SetNextAxisLimits(ImAxis_X1, x_min, x_max, cond)
+end
+
+function SetNextAxisLimitsY(y_min::Real, y_max::Real, cond = ImPlotCond_Once)
+    SetNextAxisLimits(ImAxis_Y1, y_min, y_max, cond)
+end
+
+function SetupAxisTicksX(values, n_ticks, labels, keep_default = false)
+    SetupAxisTicks(ImAxis_X1, values, n_ticks, labels, keep_default)
+end
+
+function SetupAxisTicksX(v_min::Real, v_max::Real, n_ticks, labels, keep_default = false)
+    SetupAxisTicks(ImAxis_X1, v_min, v_max, n_ticks, labels, keep_default)
+end
+
+function SetupAxisTicksY(values, n_ticks, labels, keep_default = false)
+    SetupAxisTicks(ImAxis_Y1, values, n_ticks, labels, keep_default)
+end
+
+function SetupAxisTicksY(v_min::Real, v_max::Real, n_ticks, labels, keep_default = false)
+    SetupAxisTicks(ImAxis_Y1, v_min, v_max, n_ticks, labels, keep_default)
 end
 
 include("constructors.jl")

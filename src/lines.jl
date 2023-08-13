@@ -6,7 +6,7 @@ end
 function PlotLine(x::AbstractArray{T}, y::AbstractArray{T};
                   count::Integer=min(length(x), length(y)), offset::Integer=0,
                   stride::Integer=1, label_id::String="") where {T<:ImPlotData}
-    return PlotLine(label_id, x, y, count, offset, stride * sizeof(T))
+    return PlotLine(label_id, x, y, count, ImPlotLineFlags_None, offset, stride * sizeof(T))
 end
 
 function PlotLine(x::AbstractArray{T1}, y::AbstractArray{T2};
@@ -66,5 +66,5 @@ function PlotLine(structvec::Vector{T}, xfield::Symbol, yfield::Symbol;
         stride = stride * sizeof(eltype(x))
     end
 
-    return PlotLine(label_id, x, y, count, offset, stride)
+    return PlotLine(label_id, x, y, count, ImPlotLineFlags_None, offset, stride)
 end

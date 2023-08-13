@@ -1,4 +1,5 @@
 ImPlotPoint() = ImPlotPoint(0, 0)
 ImPlotPoint(p::ImVec2) = ImPlotPoint(p.x, p.y)
 ImPlotRange() = ImPlotRange(0, 0)
-ImPlotLimits() = ImPlotLimits(ImPlotRange(), ImPlotRange())
+ImPlotRect() = ImPlotRect(ImPlotRange(), ImPlotRange())
+ImPlotRect(x1, x2, y1, y2) = ImPlotRect(ImPlotRange(x1, x2), ImPlotRange(y1, y2))
