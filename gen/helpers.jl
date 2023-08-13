@@ -164,14 +164,22 @@ function make_constructor!(def, metadata)
     def[:body] = Expr(:block, new_ccall)
 end
 
-function parse_pointer_arg!(jltype, def, sym, i)
+function parse_pointer_arg!(jltype, def, metadata, sym, i)
     if @capture(jltype, Ptr{ptrtype_})
         ptrtype ∉ vcat(IMGUI_ISBITS_TYPES, IMDATATYPES) && return true
         if ptrtype in (IMDATATYPES..., :Cstring)
+
             if ptrtype == :Cstring
                 def[:args][i] = :($sym::Union{Ptr{Nothing},String,AbstractArray{String}})
             else
-                def[:args][i] = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+                arg_type = :($sym::Union{Ptr{$ptrtype},Ref{$ptrtype},AbstractArray{$ptrtype}})
+
+                if hasdefault(metadata, sym)
+                    val = parse_default(jltype, getdefault(metadata, sym), ptrtype)
+                    def[:args][i] = :($(Expr(:kw, arg_type, val)))
+                else
+                    def[:args][i] = arg_type
+                end
             end
             return true
         end
@@ -194,7 +202,7 @@ function make_objmethod!(def, metadata)
         sym = argnames[i]
         jltype = get_jl_type(argtype)
         # Skip pointer types
-        parse_pointer_arg!(jltype, def, sym, i) && continue
+        parse_pointer_arg!(jltype, def, metadata, sym, i) && continue
         revise_arg(def, metadata, i, sym, jltype)
      end  
 end
@@ -215,7 +223,7 @@ function generate_allocating(def, metadata)
        sym = argnames[i]
        jltype = get_jl_type(argtype)
        # Skip pointer types
-       parse_pointer_arg!(jltype, def, sym, i) && continue
+       parse_pointer_arg!(jltype, def, metadata, sym, i) && continue
        revise_arg(def, metadata, i-1, sym, jltype) # offset bc we pop off first arg above
     end  
     return ExprTools.combinedef(def)
@@ -236,7 +244,7 @@ function generate_generic(def, metadata)
             continue
         end
 
-        parse_pointer_arg!(jltype, def, sym, i) && continue
+        parse_pointer_arg!(jltype, def, metadata, sym, i) && continue
         revise_arg(def, metadata, i, sym, jltype)
    end
    return ExprTools.combinedef(def)
