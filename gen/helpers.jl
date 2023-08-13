@@ -194,7 +194,7 @@ function make_objmethod!(def, metadata)
     # Handle the 'self' argument
     firstsym, firstargtype = first(argnames), first(argtypes)
     @capture(firstargtype, Ptr{ptr_type_})
-    def[:args][1] = :($firstsym::Union{$ptr_type,$firstargtype})
+    def[:args][1] = :($firstsym::Union{$ptr_type,$firstargtype,Ref{$ptr_type}})
     
     # parse remaining arguments
     for (i, argtype) in enumerate(argtypes)
