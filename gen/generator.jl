@@ -1,8 +1,6 @@
 using Clang.Generators
 using ExprTools, MacroTools, JSON3, JuliaFormatter, LibGit2
 
-cd(@__DIR__)
-
 if "cimgui-pack" ∉ readdir(@__DIR__)
     cimgui_pack_repo = "https://github.com/JuliaImGui/cimgui-pack"
     repo = LibGit2.clone(cimgui_pack_repo, joinpath(@__DIR__, "cimgui-pack"))
