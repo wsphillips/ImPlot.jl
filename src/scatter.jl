@@ -67,5 +67,5 @@ function PlotScatter(structvec::Vector{T}, xfield::Symbol, yfield::Symbol;
         stride = stride * sizeof(eltype(x))
     end
 
-    return PlotScatter(label_id, x, y, count, offset, stride)
+    return PlotScatter(label_id, x, y, count, ImPlotScatterFlags_None, offset, stride)
 end

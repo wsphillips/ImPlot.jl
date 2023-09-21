@@ -113,5 +113,5 @@ function PlotShaded(structvec::Vector{T}, xfield::Symbol, yfield::Symbol, y_ref:
         stride = stride * sizeof(eltype(x))
     end
 
-    return PlotShaded(label_id, x, y, count, y_ref, offset, stride)
+    return PlotShaded(label_id, x, y, count, y_ref, ImPlotShadedFlags_None, offset, stride)
 end
