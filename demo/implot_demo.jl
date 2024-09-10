@@ -590,9 +590,13 @@ function ShowDemoWindow()
                                     ImVec2(-1,0), y_flags = horz ? ImPlotAxisFlags_Invert : 0)
                     if horz
                         ImPlot.SetupLegend(ImPlotLocation_West)
-                        ImPlot.PlotBars("Midterm Exam", midtm, 10, 0.2,  -0.2, ImPlotBarsFlags_Horizontal)
-                        ImPlot.PlotBars("Final Exam",   final, 10, 0.2,     0, ImPlotBarsFlags_Horizontal)
-                        ImPlot.PlotBars("Course Grade", grade, 10, 0.2,   0.2, ImPlotBarsFlags_Horizontal)
+
+                        # Upstream ImPlot uses PlotBars() with
+                        # ImPlotBarsFlags_Horizontal, but we use PlotBarsH()
+                        # here to test our implementation.
+                        ImPlot.PlotBarsH(midtm; label_id="Midterm Exam", bar_size=0.2, shift=-0.2)
+                        ImPlot.PlotBarsH(final; label_id="Final Exam",   bar_size=0.2, shift=0)
+                        ImPlot.PlotBarsH(grade; label_id="Course Grade", bar_size=0.2, shift=0.2)
 
                         ImPlot.SetupAxisTicksY(positions, 10, labels)
                     else 

@@ -20,7 +20,7 @@ Use `demo/implot_demo.jl` to check if things are working via:
 
 ```julia
 include("implot_demo.jl")
-show()
+show_demo()
 ```
 
 `implot_demo.jl` replicates all the plotting functionality visible in `implot_demo.cpp` of implot v0.8, with the exception of examples using Tables (depends on upstream imgui) and custom plotting with `implot_internal.h` functions (depends on cimplot v0.9). 
